@@ -26,7 +26,7 @@ const config: Config = {
             "classic",
             {
                 pages: {
-                    exclude: ["/docs-draft/**"],
+                    exclude: [],
                     showLastUpdateAuthor: false,
                     showLastUpdateTime: false,
                 },
@@ -56,7 +56,6 @@ const config: Config = {
                 sitemap: {
                     ignorePatterns: [
                         "/blog/**",
-                        "/docs-draft/**",
                         "/docs/*.*.*/**",
                         "/main/*.*.*/**",
                         "/sdk-*/*.*.*/**",
@@ -205,7 +204,6 @@ const config: Config = {
                 ],
                 ignoreFiles: [
                     "/blog/**",
-                    "/docs-draft/**",
                     "/docs/*.*.*/**",
                     "/main/*.*.*/**",
                     "/sdk-*/*.*.*/**",
