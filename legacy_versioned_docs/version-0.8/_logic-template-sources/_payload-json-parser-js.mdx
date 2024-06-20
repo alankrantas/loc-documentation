@@ -1,0 +1,48 @@
+```javascript title="payload-json-parser.js" showLineNumbers
+import { LoggingAgent, SessionStorageAgent } from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx) {
+    // read payload
+    const payload = await ctx.payload();
+
+    let data = null;
+    if ("http" in payload) {
+        if (payload.http.request.method == "GET") return;
+        data = payload.http.request.data;
+    } else if ("messageQueue" in payload) {
+        data = payload.messageQueue.data;
+    } else {
+        throw new Error("this logic only accepts http/mq payload");
+    }
+
+    let parsed = null;
+    try {
+        // decode body from Uint8Array to string and convert to JSON
+        parsed = JSON.parse(new TextDecoder().decode(new Uint8Array(data)));
+    } catch (e) {
+        LoggingAgent.error({
+            error: true,
+            errorMessage: e.message,
+            stack: e.stack,
+            taskKey: ctx.task.taskKey,
+            payload: payload,
+        });
+    }
+
+    // log parsed JSON
+    LoggingAgent.info({ parsed: parsed });
+
+    // write the parsed data into session storage
+    await SessionStorageAgent.putJson("parsed", parsed);
+}
+
+export async function handleError(ctx, error) {
+    // error logging
+    LoggingAgent.error({
+        error: true,
+        errorMessage: error.message,
+        stack: error.stack,
+        taskKey: ctx.task.taskKey,
+    });
+}
+```

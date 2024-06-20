@@ -1,0 +1,9 @@
+{
+    "label": "License",
+    "position": 9,
+    "link": {
+        "type": "generated-index",
+        "description": "Software license for your own LOC instance.",
+        "keywords": ["LOC", "License"]
+    }
+}

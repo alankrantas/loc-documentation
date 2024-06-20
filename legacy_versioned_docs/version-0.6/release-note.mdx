@@ -1,0 +1,52 @@
+---
+sidebar_position: 99
+tags:
+    - LOC
+    - Release-Note
+---
+
+# Release Note
+
+LOC `v0.6` has brought some new features and improvements since `v0.5.0`. This is also the first available version of LOC Documentation.
+
+## Release Versions
+
+| Component | Current Version |
+| --------- | --------------- |
+| Core      | `v0.6.2`        |
+| Studio    | ` v1.1.0`       |
+| CLI       | `v0.6.1`        |
+| SDK       | `v0.6.4`        |
+
+## Major New Features
+
+### Summary
+
+| New Feature                             | Summary                                                                                                          |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **Data Process/Logic Tag**              | Enables tag creation/deletion/updating for both data processes and log. Tags can be used for searching purposes. |
+| **Synchronisation of LOC Studio & CLI** | Asseets (data processes, logic, triggers, tags, etc.) deployed in Studio or LOC are now synced to each other.    |
+
+### Detailed List
+
+-   Core/Studio/CLI: Assets deployed in Studio and CLI are now synchronised in each other.
+-   Core/Studio/CLI: data processes and logic now can have **tags** for searching.
+-   Studio: added **audit log** browser.
+-   CLI: enables searching data process and logic using names, tags or PIDs.
+-   CLI: adds support for creating and deploying **message queue** and **scheduler** triggers.
+-   SDK: A new TypeScript type definition package for CLI developers and local TypeScript projects, available to download via NPM or Yarn.
+
+### Improvements
+
+-   Core: improves Core error responses.
+-   Core: improves generic logic code performance (3x times faster).
+-   Core: enable logic partial update to improve synchronisation.
+-   Studio: improves Studio UI and re-styled data lineage graphs.
+-   CLL: supports quickly deleting deployed assets related to a data process with one command.
+-   CLI: supports sorting assets list or searched results.
+-   Core/CLI: aggregator logic can now have tags.
+-   Core/SDK: mail agent adds parameters for setting custom server port and secured connection mode.
+
+### What's New in LOC-Doc?
+
+-   Adds docs for Core/CLI/SDK `v0.6.x` and Studio `v1.1.x`. This is the first released version of LOC-Doc.

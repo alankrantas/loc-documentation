@@ -1,0 +1,81 @@
+---
+sidebar_position: 1
+tags:
+    - LOC
+    - SDK
+    - Logic Context
+    - CSharp
+---
+
+# Logic Context - C Sharp
+
+A **logic context** object would be passed to LOC logic during execution, which contains the following important data:
+
+-   Task and execution metadata
+-   Trigger payload
+
+| Logic Type       | Available |
+| ---------------- | --------- |
+| Generic logic    | ✅        |
+| Aggregator logic | ✅        |
+
+## Import and Usage
+
+The `run` and `handleError` function in a logic, which will be invoked by LOC runtime during execution, should receive a `ctx` argument:
+
+```csharp showLineNumbers
+public static class Logic
+{
+    // highlight-next-line
+    public static async Task Run(Context ctx)
+    {
+        // ctx is the data context
+    }
+
+    // highlight-next-line
+    public static async Task HandleError(Context ctx, Exception error)
+    {
+        // ctx is the data context
+    }
+}
+```
+
+For the `error` argument, see [Logic Error](/sdk-csharp/metadata/error) for details.
+
+## Class Reference
+
+### Type
+
+-   `Context`
+
+### Method: Load Task
+
+```csharp
+public async Task<LogicTask> GetTask() {}
+```
+
+Return the Task object (lazy loaded).
+
+> Refer to: [Task](/sdk-csharp/metadata/task)
+
+### Method: Load Payload
+
+```csharp
+public async Task<Payload> GetPayload() {}
+```
+
+Return the trigger payload (lazy loaded).
+
+> Refer to: [Payload](/sdk-csharp/payload/intro)
+
+## Examples
+
+```csharp showLineNumbers
+// get task and execution metadata
+var task = await ctx.GetTask();
+
+// get payload
+var payload = await ctx.GetPayload();
+```
+
+> See [Task](/sdk-csharp/metadata/task) and [Payload](/sdk-csharp/payload/intro) for details.

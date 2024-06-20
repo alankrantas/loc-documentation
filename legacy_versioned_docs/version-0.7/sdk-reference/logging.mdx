@@ -1,0 +1,112 @@
+---
+sidebar_position: 8
+tags:
+    - LOC
+    - Agent
+    - JavaScript
+    - TypeScript
+---
+
+# Logging Agent
+
+```typescript
+import { LoggingAgent } from "@fstnetwork/loc-logic-sdk";
+```
+
+Log (debugging) messages to LOC.
+
+The logs can be read in either [Execution History](/legacy/0.7/studio-guide/data-discovery#execution) panel of Studio or console output of [Local Simple Runtime](/legacy/0.7/cli-handbook/local-runtime) with CLI.
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+#### Availability
+
+-   ✓ Generic logic
+-   ✓ Aggregator logic
+
+## Error/info Logging
+
+<Tabs>
+  <TabItem value="error" label="Error" default>
+
+```typescript
+LoggingAgent.error(value: string | object)
+```
+
+  </TabItem>
+  <TabItem value="warn" label="Warning">
+
+```typescript
+LoggingAgent.warn(value: string | object)
+```
+
+  </TabItem>
+  <TabItem value="info" label="Info">
+
+```typescript
+LoggingAgent.info(value: string | object)
+```
+
+  </TabItem>
+  <TabItem value="debug" label="Debug">
+
+```typescript
+LoggingAgent.debug(value: string | object)
+```
+
+  </TabItem>
+  <TabItem value="trace" label="Trace">
+
+```typescript
+LoggingAgent.trace(value: string | object)
+```
+
+  </TabItem>
+</Tabs>
+
+| Parameter | Description                       |
+| --------- | --------------------------------- |
+| `value`   | A string message or a JSON object |
+
+If `value` is not valid JSON, the agent will throw an error.
+
+:::note
+The logging functions do not need `await`.
+:::
+
+#### Example
+
+```typescript showLineNumbers
+export async function handleError(ctx, error) {
+    // log a string
+    LoggingAgent.info("log info");
+
+    // log a JSON object
+    LoggingAgent.error({
+        error: true,
+        errorMessage: error.message,
+        stack: error.stack,
+        taskId: ctx.task.taskId.id,
+    });
+}
+```
+
+The outputed logs would look like this:
+
+```
+2022-11-08T02:21:55.219638092+00:00     Info    plaintext       log info
+2022-11-08T02:21:55.221806004+00:00     Error   json    {"error":true,"errorMessage":"some error","stack":"Error: some error...","taskId":"..."}
+```
+
+## Log Severity Level
+
+Log severity level does not have impact of how you use logs, but they are useful to indicate
+
+| Function | Level   |
+| -------- | ------- |
+| `error`  | Highest |
+| `warn`   |         |
+| `info`   |         |
+| `debug`  |         |
+| `trace`  | Lowest  |

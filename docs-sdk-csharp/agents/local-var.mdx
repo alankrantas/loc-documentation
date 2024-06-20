@@ -1,0 +1,65 @@
+---
+sidebar_position: 4
+tags:
+    - LOC
+    - SDK
+    - Agent
+    - CSharp
+---
+
+# Logic Variable Agent - C Sharp
+
+Read **logic variables** (environment variables of a logic in a data process).
+
+| Logic Type       | Available |
+| ---------------- | --------- |
+| Generic logic    | ✅        |
+| Aggregator logic | ✅        |
+
+Logic variables (`string` values) can be set while creating or editing a data process. The same logic can have different logic variables in different data processes.
+
+## Import and Usage
+
+The agent can be used without using additional namespaces:
+
+```csharp showLineNumbers
+public static class Logic
+{
+
+    public static async Task Run(Context ctx)
+    {
+        string? data = await LogicVariable.GetLogicVariable("data");
+    }
+
+    public static async Task HandleError(Context ctx, Exception error)
+    {
+        string? data = await LogicVariable.GetLogicVariable("data");
+    }
+}
+```
+
+## Class Reference
+
+### Type
+
+-   Public static class `LogicVariable`
+
+### Method: Finalise Task Result
+
+Read
+
+```csharp
+public async static Task<string?> GetLogicVariable(string name) {}
+```
+
+| Parameter | Description         |
+| --------- | ------------------- |
+| `name`    | Logic variable name |
+
+Read the `string` value of a logic variable (`null` if not exist).
+
+## Examples
+
+```csharp showLineNumbers
+string? data = await LogicVariable.GetLogicVariable("data");
+```

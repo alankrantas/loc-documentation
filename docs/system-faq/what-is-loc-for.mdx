@@ -1,0 +1,69 @@
+---
+sidebar_position: 1
+tags:
+    - LOC
+---
+
+# What is LOC For?
+
+Understand the purpose and vision behind LOC's design.
+
+## Data Integration
+
+The primary purpose of LOC is to deploy and execute user's **data processes** or data pipelines. These pipelines can be triggered by a source (event-driven) or scheduled as batch jobs, run as a task and output a result, integrating new and legacy data systems across an organisation.
+
+> Related keywords:
+>
+> -   ETL (Extract, Transform, Load)
+> -   Reversed ETL
+> -   Data Streaming
+
+## Data Virtualisation
+
+The data processes can also be referred as **data products**, one of the four principle of the **Data Mesh** architecture. The data processes can form a data middleware and data catalogue layer across the organisation, connecting all data islands and greatly reduce the cost to locate data.
+
+> Related Keywords:
+>
+> -   Data Fabric
+> -   Data Catalogue
+
+## Logic Modularisation
+
+A data process is consisted of a series of **logic**, a reusable code module for handling a specific part of a business logic. The logics serve as the building blocks of data processes, avoiding the additional development time for reinventing the wheel.
+
+Anyone in the organisation can contribute their logic
+
+> Related Keywords:
+>
+> -   Modular Programming
+> -   DDD (Domain-Driven Design)
+
+## Cloud Migration And Service Integration
+
+LOC is a Kubernetes-based solution and can be deployed on many public or private clouds across physical or virtual servers. Compared to building a microservice architecture from the ground-up, it will be much easier to adopt LOC and quickly migrate business logic to the cloud - including as the cloud replacement for ESB (Enterprise Service Bus) hubs and SOA (Service-Oriented Architecture) services.
+
+> Related keywords:
+>
+> -   Container Orchestration
+> -   Microservice Architecture
+> -   ESB (Enterprise Service Bus)
+
+## Serverless and CI/CD-less Deployment
+
+In many ways all LOC logic are deployed pretty similar to Amazon Lambda or Google Functions, although you do not need to spend dozen of minutes create and deploy a container for each of them. A data process can be deployed and executed in no time without setting up a CI/CD (Continuous Integration/Continuous Deployment) workflow.
+
+LOC data processes do not have cold-start delays like FaaS. The only time required to wait is to compile each logic beforehand.
+
+> Related keywords:
+>
+> -   FaaS (Function as a Service)
+> -   Self-serve Platform
+
+## Active Metadata Management
+
+A data process is capable to log metadata on its own, which are valuable for generating **data lineage** and can be used for **data auditing** and **data governance** purposes.
+
+> Related keywords:
+>
+> -   Business or Descriptive Metadata
+> -   Log- or Runtime-based Lineage

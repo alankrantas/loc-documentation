@@ -1,0 +1,169 @@
+---
+sidebar_position: 5
+tags:
+    - LOC
+    - Agent
+    - JavaScript
+    - TypeScript
+---
+
+# Local Storage Agent
+
+```typescript
+import { LocalStorageAgent } from "@fstnetwork/loc-logic-sdk";
+```
+
+For sharing data _between_ tasks of one data process, which can stay persistent for a period of time.
+
+This is similar to session storage, except that "local" data would be stored in `etcd` key-value store and won't be lost before timeout, even after the original data process task is done.
+
+:::note
+To preserve data permanently, use file storages or database agent instead or use HTTP agent to pass it to another API.
+:::
+
+#### Availability
+
+-   ✓ Generic logic
+-   ✗ Aggregator logic
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+## Write to Local Storage
+
+<Tabs>
+  <TabItem value="json" label="JSON" default>
+
+```typescript
+async LocalStorageAgent.putJson(key: string, value: any, timeout?: number): Promise<boolean>
+```
+
+| Parameter | Description                                               |
+| --------- | --------------------------------------------------------- |
+| `key`     | Key of session data                                       |
+| `value`   | Valid JSON data (JavaScript object)                       |
+| `timeout` | (Optional) data persistent time (seconds); default `300`s |
+
+If `value` is not valid JSON, the agent will throw an error.
+
+:::tip
+`value` can be a single number (which is also valid for JSON).
+:::
+
+  </TabItem>
+  <TabItem value="string" label="String">
+
+```typescript
+async LocalStorageAgent.putString(key: string, value: string, timeout?: number): Promise<boolean>
+```
+
+| Parameter | Description                                               |
+| --------- | --------------------------------------------------------- |
+| `key`     | Key of session data                                       |
+| `value`   | `string` data                                             |
+| `timeout` | (Optional) data persistent time (seconds); default `300`s |
+
+  </TabItem>
+  <TabItem value="bytearray" label="Uint8Array">
+
+```typescript
+async LocalStorageAgent.putByteArray(key: string, value: Uint8Array | string, timeout?: number): Promise<boolean>
+```
+
+| Parameter | Description                                               |
+| --------- | --------------------------------------------------------- |
+| `key`     | Key of session data                                       |
+| `value`   | `Uint8Array` or `string` data                             |
+| `timeout` | (Optional) data persistent time (seconds); default `300`s |
+
+  </TabItem>
+</Tabs>
+
+Write a value into session storage. The key/value pair will be created if not exist.
+
+The functions return a `boolean` to indicate if the write action is successful.
+
+:::info
+The data persistent time's upper limit is `86400` seconds (= 1 day).
+:::
+
+#### Example: write JSON object to local storage
+
+```typescript showLineNumbers
+const data = {
+    name: "Arthur Dent",
+    age: 42,
+};
+
+await LocalStorageAgent.putJson("data", data);
+await LocalStorageAgent.putJson("age", data.age); // single number is valid JSON
+```
+
+:::warning
+The data may not be properly written into local storage without using `await`.
+:::
+
+#### Example: write string to local storage
+
+```typescript showLineNumbers
+await LocalStorageAgent.putString("name", "Arthur Dent"");
+await LocalStorageAgent.putString("age", String(age));  // convert a single number to string
+```
+
+#### Example: write Uint8Array to local storage
+
+```typescript showLineNumbers
+await LocalStorageAgent.putByteArray(
+    "payload",
+    new Uint8Array(ctx.payload.http.body),
+);
+```
+
+## Read from Local Storage
+
+```typescript
+async LocalStorageAgent.get(key: string): Promise<string | number | object | Uint8Array>
+```
+
+Read a local storage data. The type depends on how the data was written into session storage. If the data is a single number stored with `putJson`, the return type will be number as well.
+
+If the key is not exist, the agent will return `null`.
+
+#### Example
+
+```typescript showLineNumbers
+const name = await LocalStorageAgent.get("name"); // returns a string
+const data = await LocalStorageAgent.get("data"); // returns a JSON object
+
+const name_in_data = data?.name;
+const age_in_data = data?.age;
+```
+
+:::tip
+If you are using TypeScript, you can use [type assertions](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-assertions) to enforce typeing in your editor:
+
+```typescript showLineNumbers
+const name = (await LocalStorageAgent.get("name")) as string;
+const age = (await LocalStorageAgent.get("age")) as number;
+const data = (await LocalStorageAgent.get("data")) as {
+    name: string;
+    age: number;
+};
+```
+
+:::
+
+## Remove from Local Storage
+
+```typescript
+async LocalStorageAgent.delete(key: string): Promise<void>
+
+// or
+async LocalStorageAgent.remove(key: string): Promise<void>
+```
+
+#### Example
+
+```typescript
+await LocalStorageAgent.remove("data");
+```

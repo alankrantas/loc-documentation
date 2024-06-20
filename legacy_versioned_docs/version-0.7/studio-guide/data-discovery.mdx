@@ -1,0 +1,58 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - Studio
+    - Event
+---
+
+# Data Discovery
+
+**Data Discovery** is the data/metadata catelog for browsing assets and logs in LOC Core:
+
+-   Execution history (including tasks)
+-   Data events and data lineage graph
+-   Logic and data processes
+
+<div className="center-padded-sm">
+    <img src={require("./img/studio.png").default} alt="studio" />
+</div>
+
+## Execution
+
+Browse execution histories of data processes (tasks). Each task contains logs (from [Logging Agent](/legacy/0.7/sdk-reference/logging)), trigger [payload](/legacy/0.7/sdk-reference/payload) as well as result (from [Result Agent](/legacy/0.7/sdk-reference/result)) from the logic.
+
+Click an execution ID and you can view logics with their task logs: invoked agent functions and results returned by the result agent.
+
+Click the plus sign (**+**) to expand the **Logic** sub panel, which will list logic PIDs and their logs.
+
+<div className="center-padded-sm">
+    <img src={require("./img/execution.png").default} alt="execution" />
+</div>
+
+## Event
+
+Browse data events. The logs includes basic fields of an event and when/where it was emitted.
+
+:::tip
+You can click **Event Lineage Graph** to see the data lineage graph. You can also filter events before doing so, to narrow down events you want to display.
+:::
+
+<div className="center-padded-sm">
+    <img src={require("./img/event.png").default} alt="event" />
+</div>
+
+If you click an event by its label name or source/target DID, you will be switched to the **Label Name** or **DID** panels.
+
+See the following tutorials of how to emit and inspect events/data lineages:
+
+-   [Emit and Inspect Events](/legacy/0.7/tutorials/emit-and-inspect-event)
+-   [Events and Multiple Data Processes](/legacy/0.7/tutorials/event-and-multiple-dp)
+
+## Logic
+
+Browse logic, including tags, event schema (if detected) and who and when creates them.
+
+## Data Process
+
+Browse data processes, including tags and who and when creates them.

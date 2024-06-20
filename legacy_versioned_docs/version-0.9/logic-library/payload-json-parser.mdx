@@ -1,0 +1,39 @@
+---
+tags:
+    - LOC
+    - Logic
+    - JavaScript
+    - TypeScript
+---
+
+# Payload JSON Parser
+
+Parse trigger payload to JSON and write to the session storage.
+
+| Logic type | Input           | Output                                                                       |
+| ---------- | --------------- | ---------------------------------------------------------------------------- |
+| Generic    | `ctx.payload()` | Session variable `parsed` (type: `any` or `null` if not parsed successfully) |
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import PayloadJSONParserJSExample from "../_logic-template-sources/_payload-json-parser-js.mdx";
+import PayloadJSONParserJSDocExample from "../_logic-template-sources/_payload-json-parser-jsdoc.mdx";
+import PayloadJSONParserTSExample from "../_logic-template-sources/_payload-json-parser-ts.mdx";
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+
+<PayloadJSONParserJSExample />
+
+  </TabItem>
+  <TabItem value="js-doc" label="JavaScript (with JSDoc)">
+
+<PayloadJSONParserJSDocExample />
+
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+
+<PayloadJSONParserTSExample />
+
+  </TabItem>
+</Tabs>

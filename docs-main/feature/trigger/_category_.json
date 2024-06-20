@@ -1,0 +1,9 @@
+{
+    "label": "Trigger",
+    "position": 4,
+    "link": {
+        "type": "generated-index",
+        "description": "Mechanisms to invoke executions and tasks.",
+        "keywords": ["LOC", "Trigger"]
+    }
+}

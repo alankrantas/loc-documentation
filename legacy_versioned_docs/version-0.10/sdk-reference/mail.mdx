@@ -1,0 +1,105 @@
+---
+sidebar_position: 13
+tags:
+    - LOC
+    - Agent
+    - JavaScript
+    - TypeScript
+---
+
+# Mail Agent
+
+```typescript
+import { MailAgent, MailAgentClient, Mail } from "@fstnetwork/loc-logic-sdk";
+```
+
+Sending emails with a SMTP server.
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+#### Availability
+
+-   ✓ Generic logic
+-   ✗ Aggregator logic
+
+:::info
+This agent requires [**agent configuration**](/legacy/0.10/studio-guide/agent-configuration) to work in a data process.
+
+The mail agent supports StartTLS.
+:::
+
+## Acquire Mail Client
+
+```typescript
+async MailAgent.acquire(configurationName: string): Promise<MailAgentClient>
+```
+
+Returns a `MailAgentClient` object based on provided agent configuration name, which connects to a pre-defined SMTP server with confidential information.
+
+The configuration name is the `reference` field set in Studio or `name` field set in CLI config files.
+
+Throws an error if the configuration cannot be found.
+
+#### Example
+
+<Tabs>
+  <TabItem value="aquire-js" label="JavaScript" default>
+
+```javascript showLineNumbers
+const mailClient = await MailAgent.acquire("my-mail-configuration");
+```
+
+  </TabItem>
+  <TabItem value="aquire-ts" label="TypeScript">
+
+```typescript showLineNumbers
+const mailClient: MailAgentClient = await MailAgent.acquire(
+    "my-mail-configuration",
+);
+```
+
+  </TabItem>
+</Tabs>
+
+## Send a Mail
+
+```typescript
+async mailClient.send(mail: Mail.Mail): Promise<any>
+```
+
+Send an email. See the example below.
+
+#### Example
+
+```typescript showLineNumbers
+const mailClient = await MailAgent.acquire("my-mail-configuration");
+
+// mail body
+const mail_body = `Nothing travels faster 
+than the speed of light, 
+with the possible exception of bad news, 
+which obeys its own special laws.`;
+
+// get a new mail object
+const mail = new Mail.Mail()
+    // required fields
+    .setSender("sender@example.com", "sender name")
+    .setSubject("Mail subject")
+    .setReceivers("receiver1@example.com", "receiver 1 name")
+    .setReceivers("receiver2@example.com", "receiver 2 name")
+    .setBody(mail_body)
+
+    // optional fields
+    .setReplyTo("reply@example.com", "reply name")
+    .setCC("cc@example.com", "cc name")
+    .setBCC("bcc@example.com", "bcc name");
+
+// end of mail object
+// send the mail
+await mailClient?.send(mail);
+```
+
+:::tip
+You can also omit the second name parameter in `setSender`, `setReceivers`, `setReplyTo`, `setCC` and `setBCC`.
+:::

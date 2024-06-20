@@ -1,0 +1,194 @@
+---
+sidebar_position: 4
+tags:
+    - LOC
+    - Tutorial
+    - Dataprocess
+    - Logic
+    - Studio
+    - CLI
+---
+
+# Tips on Error Handling
+
+Some tips about handling errors in logic.
+
+:::note
+The tutorials is written for JavaScript and [LOC Studio](/legacy/0.8/category/studio-guide).
+:::
+
+## How Logic Handle Errors
+
+In [Logic and Session](/legacy/0.8/tutorials/logic-and-session) we've mentioned that each logic has a `handleError()` function for error handling. This is how it works:
+
+-   LOC execute the `run()` function of a logic. If `run()` runs without issues, execute the `run()` of next logic in line.
+-   If `run()` throws an error, `handleError()` in the same logic will be called.
+-   All `handleError()` of the rest of logic (including aggregator) will be called. The original error will be passed down all the way to aggregator.
+
+| Logic      | Executed function                           |
+| ---------- | ------------------------------------------- |
+| Generic #1 | `run()` ✅                                  |
+| Generic #2 | `run()` ❌ error thrown! -> `handleError()` |
+| Generic #3 | `handleError()` (error originates from #2)  |
+| ...        | `handleError()` (error originates from #2)  |
+| Aggregator | `handleError()` (error originates from #2)  |
+
+In other words, if one logic fails, _the rest of the logic will fail_. The error would be passed down along a _railway_ until it reaches the aggregator. This is to prevent a data pipeline causing more damage after something already went wrong. The task will still finish normally, but the result won't be the successful one.
+
+## Log and Execution History
+
+Like we've seen in previous tutorials, we can use [Logger Agent](/legacy/0.8/sdk-reference/logging) to log messages which can be read later in execution histories.
+
+Since logs are very useful to trace how exactly logic in a data process has been executed, it is a good practice to log important information and actions in your logic.
+
+## Report Error to Trigger with Result Agent
+
+If you want to report the error directly back to the trigger user, we can use [Result Agent](/legacy/0.8/sdk-reference/result), which can also be used in `handleError()` to finalise a result containing the error:
+
+```javascript title="Aggregator logic" showLineNumbers
+import { ..., ResultAgent } from '@fstnetwork/loc-logic-sdk';
+
+export async function run(ctx) {
+    // ...
+}
+
+export async function handleError(ctx, error) {
+    ResultAgent.finalize({
+        error: true,
+        errorMessage: error.message,  // error passed down from other logic
+        stack: error.stack,  // error stack (where did the error happened)
+        taskId: ctx.task.taskId,
+        // any other session data you'd like to send
+    });
+}
+```
+
+This way, if the trigger returns a response containing an `error` field, you'll know something had gone wrong.
+
+:::info
+Since logic are executed by LOC runtime, `error.stack` may points the error origin to the LOC runtime backend instead of the logic script. These error are most likely agent-related, so check the [SDK reference](/legacy/0.8/category/sdk-reference) to see if you missed anything.
+:::
+
+## Handling Expected Errors
+
+There may be situations that some errors are _expected_ and are allowed be recovered. In this cases you can use JavaScript's `try...catch...finally`:
+
+```javascript showLineNumbers
+try {
+    // normal code (that might throw errors)
+} catch (error) {
+    // handles error without triggering handleError()
+
+    // for example, log it with logging agent:
+    LoggingAgent.error(
+        `an error ${error.name} has occurred: ${error.message}, stack: ${error.stack}`,
+    );
+} finally {
+    // optional; do something at the end no matter what
+}
+```
+
+For example, querying a database might encounter problems like database failure or unstable connections:
+
+```javascript showLineNumbers
+let dbClient = null;
+
+try {
+    dbClient = await DatabaseAgent.acquire("my-db-configuration");
+
+    const resp = await dbClient?.query(
+        "SELECT * FROM table1 WHERE col_1 = ? AND col_2 = ?;",
+        ["value1", "value2"],
+    );
+
+    // other database operations
+} catch (error) {
+    // report error
+    LoggingAgent.error(
+        `an error ${error.name} has occurred: ${error.message}, stack: ${error.stack}`,
+    );
+
+    // handle error
+    // ...
+} finally {
+    await dbClient?.release(); // release DB client wether or not there are errors
+}
+```
+
+## Pass Errors to Aggregator Using Session
+
+We can still report errors even if we are handling them quietly with the data process runs without issues.
+
+The following example stores a caught error in a session variable called `errorResult` and have it to be picked up in the aggregator:
+
+```javascript title="run() in generic logic" showLineNumbers
+try {
+    // normal code (that might throw errors)
+} catch (error) {
+    // generate an error message
+    const errorResult = {
+        error: true,
+        errorMessage: error.message,
+        stack: error.stack,
+        logicType: "Generic",
+        logic: ctx.task.currentLogic,
+    };
+
+    // log error
+    LoggingAgent.error(errorResult);
+
+    // write the updated err back to session
+    await SessionStorageAgent.putJson("errorResult", errorResult);
+}
+```
+
+```javascript title="run() in aggregator logic" showLineNumbers
+const errorResult = await SessionStorageAgent.get("errorResult");
+
+if (!errorResult) {
+    // finalise a normal result
+    ResultAgent.finalize({
+        error: true,
+        errorResult: errorResult,  // include errorResult to finalised result
+        taskId: ctx.task.taskId,
+        // ...
+    });
+} else {
+    // if error exist in session, finalise the error report
+    ResultAgent.finalize(errorResult):
+}
+```
+
+:::tip
+Bear in mind that if an error occurred but not caught by `try...error`, the `handleError()` in aggregator logic will run instead.
+:::
+
+## Manually Throw an Error to Halt Data Process
+
+Sometimes a certain error or user behavior is too severe to let go, and the data process has to be halted at all cost. You can deliberately throw an error to force the task fall back to the default `handleError` mechanism:
+
+```javascript showLineNumber
+if (some_data == "some-invalid-value")
+    // highlight-next-line
+    throw new Error(`error: some_data contains invalid value.`); // will invoke handleError() and make the task fail
+```
+
+You can also re-throw a caught error so that you can process it first, then embed the original error with additional descriptions:
+
+```javascript showLineNumbers
+try {
+    // ...
+} catch (error) {
+    // create embedded error message
+    const err = `error: some_data contains invalid value. ${error.message}: ${error.stack}`;
+
+    // report the detail of the error to session
+    LoggingAgent.error(err);
+
+    // re-throw the error
+    // highlight-next-line
+    throw new Error(err);
+} finally {
+    // (optional) things to do whether or not an error had been occurred
+}
+```

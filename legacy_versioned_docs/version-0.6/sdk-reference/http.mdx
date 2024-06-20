@@ -1,0 +1,260 @@
+---
+sidebar_position: 8
+tags:
+    - LOC
+    - Agent
+    - JavaScript
+    - TypeScript
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+# HTTP Agent
+
+For sending HTTP requests.
+
+#### Availability
+
+-   ✓ Generic logic
+-   ✗ Aggregator logic
+
+## HTTP Request
+
+<Tabs>
+  <TabItem value="get" label="GET" default>
+
+```typescript
+async http?.get(url, headers, contentType, body, config): Promise<Http.Response>
+```
+
+  </TabItem>
+  <TabItem value="post" label="POST">
+
+```typescript
+async http?.post(url, headers, contentType, body, config): Promise<Http.Response>
+```
+
+  </TabItem>
+  <TabItem value="patch" label="PATCH">
+
+```typescript
+async http?.patch(url, headers, contentType, body, config): Promise<Http.Response>
+```
+
+  </TabItem>
+  <TabItem value="put" label="PUT">
+
+```typescript
+async http?.put(url, headers, contentType, body, config): Promise<Http.Response>
+```
+
+  </TabItem>
+  <TabItem value="delete" label="DELETE">
+
+```typescript
+async http?.delete(url, headers, contentType, body, config): Promise<Http.Response>
+```
+
+  </TabItem>
+</Tabs>
+
+Send a GET request. Returns a `Http.Response` object.
+
+| Parameter     | Type                        | Description                                                                                      |
+| ------------- | --------------------------- | ------------------------------------------------------------------------------------------------ |
+| `url`         | `string`                    | Request URL                                                                                      |
+| `headers`     | `Record<string, string>`    | Request headers (example: `{ "content-type": "application/json" }`)                              |
+| `contentType` | `Http.ContentType`          | Content types (see below)                                                                        |
+| `body`        | `Uint8Array` &#124; `null`  | Request body                                                                                     |
+| `config`      | `Http.Config` &#124; `null` | Accept invalid certificates. Default: `null`. If not null, it should be `new Http.Config(true)`. |
+
+:::info
+JavaScript users can access type `Http` via global variable `Saffron`:
+
+```javascript
+const Http = Saffron.Http;
+```
+
+TypeScript users can import it from `@fstnetwork/loc-logic-sdk`:
+
+```typescript
+import { ..., Http } from @fstnetwork/loc-logic-sdk;
+```
+
+:::
+
+:::warning
+If you enable the HTTP agent to accept invalid certificates like this:
+
+```typescript
+await ctx.agents.http?.post(
+    path,
+    {},
+    Http.ContentType.Json,
+    data,
+    // highlight-next-line
+    new Http.Config(true),
+);
+```
+
+The agent will accept _any_ certificate (including expired ones) from the HTTP endpoint. This introduces **significant security risks** and should only be used as a last resort.
+:::
+
+### Content Types
+
+| Content Type | Type                                          |
+| ------------ | --------------------------------------------- |
+| None         | `Http.ContentType.None` or `"None"`           |
+| PlainText    | `Http.ContentType.PlantText` or `"PlantText"` |
+| JSON         | `Http.ContentType.Json` or `"Json"`           |
+| Form         | `Http.ContentType.Form` or `"Form"`           |
+
+:::warning
+`PlantText` is a typo of `PlainText` and will be fixed in the next release.
+:::
+
+### HTTP Response
+
+Type: `Http.Response`
+
+| Field     | Type                     | Description          |
+| --------- | ------------------------ | -------------------- |
+| `status`  | `number`                 | HTTP response status |
+| `headers` | `Record<string, string>` | Response headers     |
+| `body`    | `Uint8Array`             | Response body        |
+
+#### Example: POST with JSON payload and JSON response
+
+```typescript showLineNumbers
+const url = "https://myservice/api";
+
+const data = {
+    name: "Arthur Dent",
+    age: 42,
+};
+
+const response = await ctx.agents.http?.post(
+    url, // URL
+    {}, // no extra headers
+    Http.ContentType.Json, // content type = JSON
+    new TextEncoder().encode(JSON.stringify(data)), // body (converted to Uint8Array)
+);
+
+if (response.status === 200) {
+    // if HTTP status = ok
+    // decode response body (assuming it's JSON)
+    const data = JSON.parse(new TextDecoder().decode(response.body));
+    // read JSON field
+    const name = data?.name;
+    // ...
+}
+```
+
+#### Example: GET with URL query string
+
+```typescript showLineNumbers
+const url = "https://myservice/api";
+
+const query = {
+    name: "Arthur-Dent",
+    age: 42,
+};
+
+// convert object to query string, for example:
+// ?name=Arthur-Dent&age=42
+const queryString = new URLSearchParams(query).toString();
+
+const response = await ctx.agents.http?.get(
+    `${url}?${queryString}`, // url + query string
+    {},
+    Http.ContentType.None,
+    null, // no body
+);
+
+// read response if needed
+```
+
+#### Example: header authorization
+
+```typescript showLineNumbers
+const url = "https://myservice/api";
+const user = "****";
+const password = "********";
+const scheme = "Basic"; // authorization scheme
+
+// ========== start of template ==========
+
+// use Web API to encode "user:password" to Base64 string
+const authToken = btoa(`${user}:${password}`);
+
+// authorization header
+const headers = {
+    Authorization: `${scheme} ${authToken}`,
+};
+
+// ========== end of template ==========
+
+const response = await ctx.agents.http?.get(
+    url,
+    headers,
+    Http.ContentType.None,
+    null,
+);
+
+if (response.status === 200) {
+    // take actions
+}
+```
+
+For available HTTP authorization schemes, please refer to [here](https://developer.mozilla.org/zh-TW/docs/Web/HTTP/Authentication#authentication_schemes).
+
+#### Example: POST a file with multipart
+
+```typescript showLineNumbers
+const url = "https://myservice/api";
+
+const fileName = "test"; // file name or label
+const fileFullName = "test.txt"; // full file name
+const fileType = "text/plain"; // file content type
+
+// a mock-up text file content
+const filedata = `Ford!
+there's an infinite number of monkeys outside
+who want to talk to us about this script for
+Hamlet they've worked out.`;
+
+// ========== start of template ==========
+
+// multipart headers (use task ID as boundary)
+const boundaryValue = ctx.task.taskId.id;
+const headers = {
+    "Content-Type": `multipart/form-data; boundary=${boundaryValue}`,
+};
+
+// multipart body template
+const body =
+    `--${boundaryValue}` +
+    "\r\n" +
+    `Content-Disposition: form-data; name=${fileName}; filename=${fileFullName}` +
+    "\r\n" +
+    `Content-Type: ${fileType}` +
+    "\r\n\r\n" +
+    `${filedata}` +
+    "\r\n" +
+    `--${boundaryValue}--` +
+    "\r\n";
+
+// ========== end of template ==========
+
+const response = await ctx.agents.http?.post(
+    url,
+    headers,
+    Http.ContentType.PlantText,
+    new TextEncoder().encode(body),
+);
+
+// read response if needed
+```
+
+Change the file content type to the one that match your file.

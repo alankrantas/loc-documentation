@@ -1,0 +1,61 @@
+---
+sidebar_position: 5
+tags:
+    - LOC
+    - CLI
+    - Agentconfig
+---
+
+# Agent Configuration
+
+CLI commands for managing agent configurations (HTTP, database, file storage and mail).
+
+> `loc agent-configuration|agent`
+
+## Agent Configurations
+
+> `loc agent http`
+
+> `loc agent database|db`
+
+> `loc agent file-storage|fs`
+
+> `loc agent mail`
+
+### Generate a Configuration Template
+
+```bash
+loc agent http|db|fs|mail init [output]
+```
+
+CLI will prompt a series of question for generating the configuration template.
+
+-   `output`: output file path and name (JSON or YAML)
+
+### Deploy a Configuration
+
+```bash
+loc agent http|db|fs|mail deploy -f <agent-config>.yaml
+```
+
+-   `-f`: agent configuration file (required; JSON or YAML)
+
+The ID and name of deployed configurations can be added to a project's `config.yaml` so that they can be accessed by agents in its logic.
+
+### List All Configurations
+
+```bash
+loc agent http|db|fs|mail list
+```
+
+### Inspect a Configuration
+
+```bash
+loc agent http|db|fs|mail get <id> -v
+```
+
+### Delete a Configuration
+
+```bash
+loc agent http|db|fs|mail delete <id>
+```

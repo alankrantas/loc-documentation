@@ -1,0 +1,9 @@
+{
+    "label": "Agents",
+    "position": 5,
+    "link": {
+        "type": "generated-index",
+        "keywords": ["LOC", "SDK", "Agent", "CSharp"],
+        "slug": "/category/agent"
+    }
+}

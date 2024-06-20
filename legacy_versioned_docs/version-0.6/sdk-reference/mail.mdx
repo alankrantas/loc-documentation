@@ -1,0 +1,131 @@
+---
+sidebar_position: 11
+tags:
+    - LOC
+    - Agent
+    - JavaScript
+    - TypeScript
+---
+
+# Mail Agent
+
+Sending emails with a SMTP server.
+
+#### Availability
+
+-   ✓ Generic logic
+-   ✗ Aggregator logic
+
+## Connect to SMTP Server
+
+```typescript
+async smtp?.connect(host: string, username?: string, password?: string): Promise<SmtpAgentHub>
+```
+
+Connect to a SMTP server. Returns a `SmtpAgentHub` object.
+
+| Parameter          | Type                                             | Description                                                         |
+| ------------------ | ------------------------------------------------ | ------------------------------------------------------------------- |
+| `host`             | `string`                                         | SMTP server address                                                 |
+| `username`         | `string`                                         | (Optional) SMTP user name                                           |
+| `password`         | `string`                                         | (Optional) SMTP user password                                       |
+| `port`             | `number`                                         | (Optional) SMTP server port (`465`, `25` or `587`). Default: `465`. |
+| `secureConnection` | [`Smtp.SecureConnection`](#smtpsecureconnection) | (Optional) Secured connection mode                                  |
+
+### `Smtp.SecureConnection`
+
+| Member          | Description                                                            |
+| --------------- | ---------------------------------------------------------------------- |
+| `None`          | No encryption                                                          |
+| `Wrapper`       | (default) TLS wrapper connection; usually on port `465`                |
+| `Required`      | Start with insecure connection and use STARTTLS; usually on port `587` |
+| `Opportunistic` | Start with insecure connection and use STARTTLS when available         |
+
+:::info
+
+#### Import `Smtp`
+
+JavaScript users can access `Smtp` via `Saffron.Smtp`:
+
+```javascript
+const Smtp = Saffron.Smtp;
+```
+
+TypeScript users can import it from `@fstnetwork/loc-logic-sdk`:
+
+```typescript
+import { ..., Smtp } from "@fstnetwork/loc-logic-sdk";
+```
+
+:::
+
+#### Example (default)
+
+```typescript showLineNumbers
+// import Smtp as above
+
+// connect to smtp (TLS wrapped connection on port 465)
+const mailClient = await ctx.agents.smtp?.connect(
+    "smtp.example.com", // host
+    "user@example.com", // username (mail)
+    "******", // password
+);
+```
+
+#### Example (with custom port and secured connection)
+
+```typescript showLineNumbers
+// import Smtp as above
+
+const mailClient = await ctx.agents.smtp?.connect(
+    "smtp.example.com",
+    "user@example.com",
+    "******",
+    587, // port
+    Smtp.SecureConnection.Required, // TLS mode
+);
+```
+
+## Mail Client
+
+```typescript
+async mailClient?.send(mail: Smtp.Mail)
+```
+
+Send an email.
+
+#### Example
+
+```typescript showLineNumbers
+// connect to SMTP...
+
+// mail body
+const mail_body = `Nothing travels faster
+than the speed of light,
+with the possible exception of bad news,
+which obeys its own special laws.`;
+
+// get a new mail object
+let mail = new Smtp.Mail();
+    // required fields
+    .setSender("sender@example.com", "sender name")
+    .setSubject("Mail subject")
+    .setReceivers("receiver1@example.com", "receiver 1 name")
+    .setReceivers("receiver2@example.com", "receiver 2 name")
+    .setBody(mail_body)
+
+    // optional fields
+    .setReplyTo("reply@example.com", "reply name")
+    .setCC("cc@example.com", "cc name")
+    .setBCC("bcc@example.com", "bcc name")
+
+    // end of mail object
+    ;
+
+// send the mail
+await mailClient?.send(mail);
+```
+
+:::note
+You can omit the second name parameter in `setSender`, `setReceivers`, `setReplyTo`, `setCC` and `setBCC`
+:::

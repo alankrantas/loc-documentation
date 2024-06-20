@@ -1,0 +1,48 @@
+```typescript title="querystring-parser.ts" showLineNumbers
+import {
+    GenericContext,
+    RailwayError,
+    LoggingAgent,
+    SessionStorageAgent
+} from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx: GenericContext) {
+    // read payload
+    const payload = await ctx.payload();
+
+    if (!("http" in payload)) throw new Error("this logic only accepts http request");
+
+    // get querystring (skip if empty)
+    const query = payload.http.request.query;
+    if (!query) return;
+
+    let params = null;
+    try {
+        // parse querystring to object
+        params = Object.fromEntries(new URLSearchParams(query));
+    } catch (e) {
+        LoggingAgent.warn({
+            error: true,
+            errorMessage: `unable to parse QueryString parameters: ${e.message}`
+            stack: e.stack,
+            taskKey: ctx.task.taskKey,
+        });
+    }
+
+    // log parsed querystring
+    LoggingAgent.info({ params: params });
+
+    // write the parsed data into session storage
+    await SessionStorageAgent.putJson("params", params);
+}
+
+export async function handleError(ctx: GenericContext, error: RailwayError) {
+    // error logging
+    LoggingAgent.error({
+        error: true,
+        errorMessage: error.message,
+        stack: error.stack,
+        taskKey: ctx.task.taskKey,
+    });
+}
+```

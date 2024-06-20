@@ -1,0 +1,179 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - Agent Configuration
+---
+
+# Manage Configuration
+
+To create an agent configuration in LOC.
+
+## Create an Agent Configuration
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="studio1" label="LOC Studio" default>
+
+1. In LOC Studio, go to **Administration** ➞ **Agent Configuration**.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Nav-agent-config.png").default}
+        alt="Nav-agent-config"
+    />
+</div>
+
+2. In the agent configuration explorer, click **Create Agent Configuration Folder** on the top right, or right-click on the topmost unit select the same option.
+
+<div className="gridEqual">
+    <div className="right-padded-sm">
+        <img
+            src={require("./img/Menu-create-agent-config-folder.png").default}
+            alt="Menu-create-agent-config-folder"
+        />
+    </div>
+    <div className="center">
+        <small>or</small>
+    </div>
+    <div className="padded-sm">
+        <img
+            src={require("./img/Create-agent-config-folder.png").default}
+            alt="Create-agent-config-folder"
+        />
+    </div>
+</div>
+
+3. Select a folder and click **Create Agent Configuration** on the top right, or right-click a folder and select the same option.
+
+<div className="gridEqual">
+    <div className="right-padded-sm">
+        <img
+            src={require("./img/Menu-create-agent-config.png").default}
+            alt="Menu-create-agent-config"
+        />
+    </div>
+    <div className="center">
+        <small>or</small>
+    </div>
+    <div className="padded-sm">
+        <img
+            src={require("./img/Create-agent-config.png").default}
+            alt="Create-agent-config"
+        />
+    </div>
+</div>
+
+4. Fill in the fields of the agent configuration. Change the configuration type if needed. Below is the creation window of a database configuration:
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Agent-config-creation.png").default}
+        alt="Agent-config-creation"
+    />
+</div>
+
+<details>
+  <summary>Agent Configuration Fields Description</summary>
+
+| Field                    | Required? | Description                                     |
+| ------------------------ | --------- | ----------------------------------------------- |
+| Agent Configuration Name | Yes       | Agent configuration name (up to 128 characters) |
+| Description              | No        | Data process description                        |
+| Agent Configuration Type | Yes       | For HTTP, Database, File Storage or Mail Agents |
+
+<Tabs>
+  <TabItem value="http" label="HTTP" default>
+
+| Additional Field | Required? | Description                                                                                                                          |
+| ---------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Protocol Type    | Yes       | `HTTP` or `HTTPS`                                                                                                                    |
+| Host             | Yes       | HTTP server URL                                                                                                                      |
+| Port             | Yes       | HTTP port (usually `80` for HTTP and `443` for HTTPS)                                                                                |
+| Authorization    | No        | [Authorization header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization) type: `No Auth`, `Basic` or `Bearer` |
+| Header           | No        | Additional headers                                                                                                                   |
+| Path Prefix      | No        | Path to be added before all paths from HTTP agent                                                                                    |
+
+:::tip
+You can add the server path of your LOC instance as a HTTP agent configuration. This enables a data process to invoke another with HTTP requests (if the latter data process is linked to an API route).
+:::
+
+  </TabItem>
+  <TabItem value="db" label="Database" default>
+
+| Additional Field                                 | Required? | Description                     |
+| ------------------------------------------------ | --------- | ------------------------------- |
+| Database Type                                    | Yes       | Database type                   |
+| Host                                             | Yes       | Database server URL             |
+| Port                                             | Yes       | Database server port            |
+| Username                                         | Yes       | Database server username        |
+| Password                                         | Yes       | Database server password        |
+| Database Name (SQL Server, MySQL and PostgreSQL) | Yes       | Database name                   |
+| Instance Name (SQL Server)                       | No        | SQL Server instance name        |
+| Service Name (Oracle DB)                         | Yes       | Oracle DB service name          |
+| Max Connection Count                             | Yes       | Must larger than `1`            |
+| Trust Certificate (SQL Server)                   | Yes       | Default `False`                 |
+| Options (PostgreSQL)                             | No        | Additional PostgreSQL options   |
+| Extra Parameter (Oracle DB)                      | No        | Additional Oracle DB parameters |
+
+  </TabItem>
+  <TabItem value="file" label="File Storage" default>
+
+| Additional Field | Required? | Description                                               |
+| ---------------- | --------- | --------------------------------------------------------- |
+| Protocol Type    | Yes       | File server protocol type                                 |
+| Host             | Yes       | File server URL                                           |
+| Port             | Yes       | File server port                                          |
+| Username         | Yes       | File server username                                      |
+| Password         | Yes       | File server password                                      |
+| Path Prefix      | No        | Path to be added before all paths from file storage agent |
+
+  </TabItem>
+  <TabItem value="mail" label="Mail" default>
+
+| Additional Field | Required? | Description                |
+| ---------------- | --------- | -------------------------- |
+| Protocol Type    | Yes       | Email server protocol type |
+| Host             | Yes       | Email server URL           |
+| Port             | Yes       | Email server port          |
+| Username         | Yes       | Email server username      |
+| Password         | Yes       | Email server password      |
+
+  </TabItem>
+</Tabs>
+
+</details>
+
+5. Click **Create** to create the configuration.
+
+  </TabItem>
+</Tabs>
+
+## Edit or Delete an Agent Configuration
+
+<Tabs>
+  <TabItem value="studio2" label="LOC Studio" default>
+
+Select a configuration and click **Edit Agent Configuration** <img src={require("./img/Edit.png").default} width="32px" alt="Edit" className="img-bg" /> or **Delete Agent Configuration** <img src={require("./img/Delete.png").default} width="32px" alt="Delete" className="img-bg" /> on the top right, or right-click on a configuration and select the same option.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Menu-edit-agent-config.png").default}
+        alt="Menu-edit-agent-config"
+    />
+</div>
+
+  </TabItem>
+</Tabs>
+
+## Edit or Delete an Agent Configuration Folder
+
+<Tabs>
+  <TabItem value="studio3" label="LOC Studio" default>
+
+Select a configuration folder and click **Edit Folder** <img src={require("./img/Edit.png").default} width="32px" alt="Edit" className="img-bg" /> or **Delete Folder** <img src={require("./img/Delete.png").default} width="32px" alt="Delete" className="img-bg" /> on the top right, or right-click on a folder and select the same option.
+
+  </TabItem>
+</Tabs>

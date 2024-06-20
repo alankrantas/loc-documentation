@@ -1,0 +1,9 @@
+{
+    "label": "Agent",
+    "position": 5,
+    "link": {
+        "type": "generated-index",
+        "description": "Built-in data services for accessing internal or external sources.",
+        "keywords": ["LOC", "Agent"]
+    }
+}

@@ -1,0 +1,106 @@
+---
+sidebar_position: 4
+tags:
+    - LOC
+    - Execution
+    - Task
+    - Error Handling
+---
+
+# Error Handling in Task
+
+To understand the task error handling mechanism and how to debug using various features.
+
+## Railway and Logic Error
+
+As we explained in [overview](/main/feature/execution-and-task/overview#railway-and-error-handling-in-task), the LOC runtime will execute all logic in the task along a **railway**:
+
+-   LOC execute the main function of a logic, for example, `run()` in a JavaScript or TypeScript logic.
+    -   If `run()` runs without issues, execute the `run()` of the next logic in line.
+    -   If `run()` throws an error, the error function (`handleError()`) in the same logic will be invoked (railway switched).
+    -   `handleError()` of the rest of logic (including the aggregator) will be invoked with the same error passed to them.
+
+| Logic execution order | `run()` invoked     | `handleError()` invoked |
+| --------------------- | ------------------- | ----------------------- |
+| Generic #1            | ✔                  | ✘                       |
+| Generic #2            | ✔ (error occurred) | ✔ (first invoked)      |
+| Generic #3            | ✘                   | ✔                      |
+| ...                   | ✘                   | ✔                      |
+| Aggregator            | ✘                   | ✔                      |
+
+:::info Task Status
+For the example above, the task execution status will be `Complete with Error`.
+
+If no error was thrown and the aggregator's `run()` successfully completed execution, the task status will be `Complete`.
+:::
+
+The logic error passed to the logic will contain the PID (permanent ID) and revision number of the logic where the error had occurred, in this case the second generic logic.
+
+## Runtime Metadata
+
+The following metadata are accessible in LOC. You can find the related docs in SDK.
+
+### Logic Context
+
+-   [SDK for JS/TS](/sdk-ts/metadata/context)
+-   [SDK for C#](/sdk-csharp/metadata/context)
+
+### Logic Error
+
+-   [SDK for JS/TS](/sdk-ts/metadata/error)
+-   [SDK for C#](/sdk-csharp/metadata/error)
+
+### Task and Execution
+
+-   [SDK for JS/TS](/sdk-ts/metadata/task)
+-   [SDK for C#](/sdk-csharp/metadata/task)
+
+## User Error Handling Tips
+
+#### Finalise Different Results
+
+Since both `run()` and `handleError()` in the aggregator may be invoked depending on if an error occurred, you should finalise different task results so that the user can be properly informed. Otherwise, you might be puzzling why a task sometimes return nothing at all.
+
+See: [Result Agent](/main/feature/agent/agent-list#result-agent)
+
+#### Error Proof Your Logic
+
+What should you do if an error had occurred in or before one logic? What should it do to inform other logic that it can no longer perform its intended functionalities? Both `run()` and `handleError()` should be carefully considered to handle all situations.
+
+#### Unit Test Your Logic
+
+Test your logic with unit test tools and mocked data before deploying it in an actual task. This saves you from creating endless and unnecessary revisions while trying to debug and fix the logic.
+
+See: [Unit Test Logic Source](/main/feature/logic/unit-test)
+
+#### Logging is Never Too Much
+
+Sometimes the error intercepted by LOC runtime is not very descriptive for where and why it is thrown. In this case, logging messages are extremely useful to monitor what did the logic do before the error.
+
+Use the logging agent to write as many as logs as possible, and it will save you efforts trying to debug the source code.
+
+See: [Logging Agent](/main/feature/agent/agent-list#logging-agent)
+
+#### Handle Expected Errors
+
+Some errors are expected to happen, for example, trying to access a HTTP or database server that went down, or incorrect trigger payload passed by the users. If the error is recoverable without effecting the rest of the logic, you can handle the error yourself using, for example, `try...catch` in JavaScript.
+
+#### Deliberately Throw an Error
+
+On the other hand, there will be situations that you need to "halt" the rest of the task when some irrecoverable errors occurred, for example, using `throw new Error(...)` in JavaScript.
+
+In this case, you can actually throw an error to trigger the default logic error mechanism and make the task failed to complete.
+
+You can also catch the error first, append additional information for the error and throw it out again, which makes it more debug-friendly.
+
+#### Collect Additional Information
+
+You can use the session storage agent of the SDK to pass additional information or handled errors to the aggregator. From there you can collect these information in the task result, even to create different results depending on these data.
+
+See: [Session Storage Agent](/main/feature/agent/agent-list#session-storage-agent)
+
+#### Using Events
+
+Events are in fact another form of logging or active metadata, and can stay persistent in the event store without being bound to any execution result. You can also use events to "inform" other tasks of the status if they are depending on the completion of this task.
+
+See: [Event Store Agent](/main/feature/agent/agent-list#event-store-agent)

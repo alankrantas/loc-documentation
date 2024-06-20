@@ -1,0 +1,131 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - Agent
+    - JavaScript
+    - TypeScript
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+# Payload
+
+Payload is the data sent by triggers as input and is accessible from the [context](/legacy/0.6/sdk-reference/context-and-task) object. Currently there are two payload types:
+
+-   HTTP request body
+-   MQ message
+
+#### Availability
+
+-   ✓ Generic logic
+-   ✓ Aggregator logic
+
+:::info
+Since the payload type depends on triggers, developers using a TypeScript template in CLI must use a [**type guard**](https://www.typescriptlang.org/docs/handbook/2/narrowing.html) to ensure type safety in the compiling process:
+
+```typescript showLineNumbers
+let data: number[] = [];
+
+if ("http" in ctx.payload) {
+    // check if it's HTTP payload
+    data = ctx.payload.http.body;
+} else if ("messageQueue" in ctx.payload) {
+    // check if it's MQ payload
+    data = ctx.payload.messageQueue.data;
+} else {
+    // if none of above, throw an error
+    throw new Error("this logic only accepts http/mq payload");
+}
+
+// data will be the payload content
+```
+
+:::
+
+## HTTP Payload
+
+`ctx.payload.http` (type: `HttpPayload`)
+
+| Member                      | Type                                                                                         | Description                       | Example                                  |
+| --------------------------- | -------------------------------------------------------------------------------------------- | --------------------------------- | ---------------------------------------- |
+| `apiGatewayIdentityContext` | `DataSourceIdentityContext`, which is `{ id: string, name: string }`                         | API gateway permanent ID and name |
+| `apiIdentityContext`        | `DataSourceIdentityContext`                                                                  | API route permanent ID and name   |
+| `requestId`                 | `string`                                                                                     | Request ID                        |
+| `host`                      | `string`                                                                                     | Request host name                 |
+| `path`                      | `string`                                                                                     | API route                         | `/path/subpath`                          |
+| `scheme`                    | `string`                                                                                     | HTTP scheme                       | `http` or `https`                        |
+| `method`                    | `string`                                                                                     | HTTP method                       | `GET`, `POST`, etc.                      |
+| `version`                   | `"HTTP/0.9"` &#124; `"HTTP/1.0"` &#124; `"HTTP/1.1"` &#124; `"HTTP/2.0"` &#124; `"HTTP/3.0"` | HTTP version                      |
+| `headers`                   | `{ [k: string]: unknown; }`                                                                  | Request headers                   | `{ "content-type": "application/json" }` |
+| `query`                     | `string`                                                                                     | URL query string                  | `param1=value1` (no question mark)       |
+| `body`                      | `number[]`                                                                                   | Request body                      |
+
+#### Example: read API route and headers
+
+```typescript showLineNumbers
+const path = ctx.payload.http.path;
+const headers = ctx.payload.http.headers;
+const contentType = headers["content-type"];
+```
+
+#### Example: parsing GET querystring
+
+```typescript showLineNumbers
+// assume the querystring is ?name=<name>&age=<age>
+
+const query = ctx.payload.http.query;
+
+const searchParams = new URLSearchParams(query);
+
+// access parsed fields (return null if not exist)
+const name = searchParams.get("name");
+const age = searchParams.get("age");
+```
+
+#### Example: parsing POST JSON body
+
+```typescript showLineNumbers
+// assume the payload is { "name": <name>, "age": <age> }
+
+const body = new TextDecoder().decode(new Uint8Array(ctx.payload.http.body));
+
+const parsed = JSON.parse(body);
+
+// access parsed fields using optional chaining (return undefined if not exist)
+const name = parsed?.name;
+const age = parsed?.age;
+```
+
+## Message Queue Payload
+
+`ctx.payload.messageQueue` (type: `MessageQueuePayload`)
+
+| Member                  | Type                                                                                            | Description                     |
+| ----------------------- | ----------------------------------------------------------------------------------------------- | ------------------------------- |
+| `clientIdentityContext` | `DataSourceIdentityContext`, see [HTTP payload](/legacy/0.6/sdk-reference/payload#http-payload) | MQ client permanent ID and name |
+| `data`                  | `number[]`                                                                                      | MQ data                         |
+| `subscriber`            | `Subscriber`                                                                                    | MQ subscriber                   |
+
+Subscriber type members describe the message queue sources:
+
+<Tabs>
+  <TabItem value="kafka" label="Apache Kafka" default>
+
+-   Subscriber type: `KafkaSubscriber`
+
+| Member      | Type       | Description                       |
+| ----------- | ---------- | --------------------------------- |
+| `brokers`   | `string[]` | Broker names in the Kafka cluster |
+| `groupId`   | `string`   | MQ group ID                       |
+| `topic`     | `string`   | MQ topic                          |
+| `partition` | `number`   | MQ partition                      |
+| `offset`    | `number`   | MQ offset                         |
+
+  </TabItem>
+</Tabs>
+
+:::tip
+Supports for other message queues are on the way!
+:::

@@ -1,0 +1,142 @@
+---
+sidebar_position: 1
+tags:
+    - LOC
+    - Agent
+    - JavaScript
+    - TypeScript
+---
+
+# Introduction
+
+[LOC SDK](https://www.npmjs.com/package/@fstnetwork/loc-logic-sdk) is a downloadable NPM package that defines the interfaces of data context as well as agents - a series of features provided by LOC's logic runtime that can read and/or write internal and external storages.
+
+The [data context](/legacy/0.7/sdk-reference/context-and-task) contains the following features:
+
+-   [Task](/legacy/0.7/sdk-reference/context-and-task#task)
+-   [Payload](/legacy/0.7/sdk-reference/payload)
+
+The following agents can be imported:
+
+-   [Session Storage](/legacy/0.7/sdk-reference/session)
+-   [Local Storage](/legacy/0.7/sdk-reference/local)
+-   [Event Store](/legacy/0.7/sdk-reference/eventstore)
+-   [Result](/legacy/0.7/sdk-reference/result)
+-   [Logging](/legacy/0.7/sdk-reference/logging)
+-   [Local Variable](/legacy/0.7/sdk-reference/logic-var)
+-   [HTTP](/legacy/0.7/sdk-reference/http)
+-   [Database](/legacy/0.7/sdk-reference/database)
+-   [File Storage](/legacy/0.7/sdk-reference/filestorage)
+-   [Mail](/legacy/0.7/sdk-reference/mail)
+
+:::info
+This section is currently based on SDK `v0.7.0`.
+
+Supported logic code languages/version:
+
+-   JavaScript `ES6/ES2015` and above
+-   TypeScript `3.7.0` and above
+
+See [Install SDK](/legacy/0.7/cli-handbook/setup#install-sdk) for installing SDK in CLI projects.
+
+Some of the agents require **agent configuration**. See [tutorial](/legacy/0.7/tutorials/http-agent-configuration) or [CLI Handbook](/legacy/0.7/cli-handbook/agent-configuration) for details.
+:::
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+## How to Import Agents
+
+From `v0.7.0` all logic have to _explicitly_ import agents and related classes from LOC SDK using **ECMAScript 6** imports. Below is a short demostration:
+
+:::tip
+If you are using [LOC Studio](/legacy/0.7/category/studio-guide), the imports will be automatically added in the code blocks.
+:::
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+
+```javascript title="Logic" showLineNumbers
+// highlight-start
+import {
+    SessionStorageAgent,
+    EventAgent,
+    LoggingAgent,
+} from "@fstnetwork/loc-logic-sdk";
+// highlight-end
+
+export async function run(ctx) {
+    // highlight-next-line
+    const data = await SessionStorageAgent.get("data");
+
+    const events = [
+        {
+            labelName: data.label,
+            sourceDID: data.source,
+            targetDID: data.target,
+            meta: "",
+            type: "default",
+        },
+    ];
+
+    // highlight-next-line
+    await EventAgent.emit(events);
+}
+
+export async function handleError(ctx, error) {
+    // highlight-next-line
+    LoggingAgent.error(error.message);
+}
+```
+
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+
+```typescript title="Logic" showLineNumbers
+// highlight-start
+import { GenericContext, RailwayError } from "@fstnetwork/loc-logic-sdk";
+import {
+    SessionStorageAgent,
+    EventAgent,
+    Event,
+    LoggingAgent,
+} from "@fstnetwork/loc-logic-sdk";
+// highlight-end
+
+interface MyEventSchema {
+    label: string;
+    source: string;
+    target: string;
+}
+
+export async function run(ctx: GenericContext) {
+    // highlight-next-line
+    const data = (await SessionStorageAgent.get("data")) as MyEventSchema;
+
+    // highlight-next-line
+    const events: Event.Event[] = [
+        {
+            labelName: data.label,
+            sourceDID: data.source,
+            targetDID: data.target,
+            meta: "",
+            type: "default",
+        },
+    ];
+
+    // highlight-next-line
+    await EventAgent.emit(events);
+}
+
+export async function handleError(ctx: GenericContext, error: RailwayError) {
+    // highlight-next-line
+    LoggingAgent.error(error.message);
+}
+```
+
+  </TabItem>
+</Tabs>
+
+## Agent Configuration
+
+Four of the agents - HTTP, database, file storage and mail - requires **agent configuration** to connect external data sources. You can set them either via [Studio](/legacy/0.7/studio-guide/agent-configuration) or [CLI](/legacy/0.7/cli-handbook/agent-configuration).

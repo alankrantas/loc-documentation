@@ -1,0 +1,48 @@
+---
+sidebar_position: 1
+tags:
+    - LOC
+    - Agent Configuration
+    - Logic Variable
+---
+
+# Overview
+
+An overview of the concept and purpose of LOC agent configurations.
+
+## What is an Agent Configuration?
+
+> See: [Manage Configuration](/main/feature/agent-config/manage) and [Add Configuration to Data Process](/main/feature/agent-config/add-config)
+
+An **agent configuration** is a mechanism to whitelist external data source hosts, as well as to hide connection information from the logic code themselves.
+
+```mermaid
+flowchart TD;
+    subgraph "LOC"
+    subgraph "LOC runtime"
+    subgraph "Task"
+    n1[Logic];
+    end
+    n1-->n2;
+    n2((Agents));
+    end
+    n2-.->|reference|n3;
+    n3{{"Agent\nConfiguration"}}-.->|connection info|n4;
+    n4([LOC gateway]);
+    end
+    n5[("External\nstorages")];
+    n4-->|allow access|n5;
+```
+
+The following agents require at least an agent configuration to reference in a logic linked in a data process:
+
+-   [HTTP Agent](/main/feature/agent/agent-list#http-agent) (for sending requests to HTTP endpoints)
+-   [Database Agent](/main/feature/agent/agent-list#database-agent) (for database servers)
+-   [File Storage Agent](/main/feature/agent/agent-list#file-storage-agent) (for file servers like FTP, SMB or S3)
+-   [Mail Agent](/main/feature/agent/agent-list#mail-agent) (for SMTP servers)
+
+## What is a Logic Variable?
+
+A **logic variable** is an environment variable that can be attached to a logic, in the manner similar to an agent configuration.
+
+In fact, a logic variable can be used to provide different configurations for a logic, for example, the reference name and HTTP endpoint path, so that you do not need to create additional logic to accommodate these details.

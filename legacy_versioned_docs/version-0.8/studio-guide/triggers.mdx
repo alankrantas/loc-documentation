@@ -1,0 +1,25 @@
+---
+sidebar_position: 3
+tags:
+    - LOC
+    - Studio
+    - Trigger
+---
+
+# Triggers: API Route
+
+For managing API routes, one of the most common [trigger](/legacy/0.8/tutorials/loc-feat-overview#triggers-tasks-and-executions) for invoking data processes.
+
+See [Create and Use an API Route Trigger](/legacy/0.8/tutorials/create-api-route) for how to create an API route in Studio.
+
+<div className="center-padded-sm">
+    <img src={require("./img/apiroute.png").default} alt="apiroute" />
+</div>
+
+:::note
+A new created API route would need a little bit time to deploy (the gateway would return `404` before the route is ready).
+
+If a data process has been linked to an API route, and you later create a new revision of the data process, you'll have to manually **re-link** it to the API route (modify the API route then link again).
+
+If multiple data processes are linked to an API route, they will be invoked _synchronously_.
+:::

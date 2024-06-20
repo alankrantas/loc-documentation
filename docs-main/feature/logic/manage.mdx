@@ -1,0 +1,140 @@
+---
+sidebar_position: 5
+tags:
+    - LOC
+    - Logic
+---
+
+# View and Manage Logic
+
+To browse a built logic in LOC. The logic can be either [cloud logic or native logic](/main/feature/logic/overview#cloud-logic-vs-native-logic).
+
+## Inspect a Logic
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="studio1" label="LOC Studio" default>
+
+1. In LOC Studio, go to **Logic** ➞ **Cloud Logic** (or **Native Logic**).
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Nav-cloud-logic.png").default}
+        alt="Nav-cloud-logic"
+    />
+</div>
+
+2. The logic browser shows the list of created logic (built from [logic source](/main/feature/logic/source)) with their metadata.
+
+3. You can also search or filter logic with name, permanent ID (PID), tags or time range.
+
+<div className="center-padded-sm">
+    <img src={require("./img/Logic-search.png").default} alt="Logic-search" />
+</div>
+
+4. Click the right arrow <img src={require("./img/Right.png").default} width="20px" alt="Right" className="img-bg" /> in front of a logic to view additional metadata and linked data processes. You can also click **Copy** <img src={require("./img/Copy.png").default} width="20px" alt="Copy" className="img-bg" /> to copy the logic permanent ID (PID).
+
+<div className="center-padded-sm">
+    <img src={require("./img/Logic-browser.png").default} alt="Logic-browser" />
+</div>
+
+5. Click the **logic name** to view the snapshot of its entry file (source code).
+
+<div className="center-padded-sm">
+    <img src={require("./img/Logic-code.png").default} alt="Logic-code" />
+</div>
+
+6. On the right shows the revision history of this logic:
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Logic-revision.png").default}
+        width="45%"
+        alt="Logic-revision"
+    />
+</div>
+
+  </TabItem>
+</Tabs>
+
+## Create an Empty Logic
+
+You can create an empty logic before building it from a source.
+
+<Tabs>
+  <TabItem value="studio2" label="LOC Studio" default>
+
+1. In LOC Studio, go to **Logic** ➞ **Cloud Logic**.
+
+2. Click **Create New Logic** on the top right.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Create-cloud-logic.png").default}
+        alt="Create-cloud-logic"
+    />
+</div>
+
+3. Fill in the fields in the logic creation window.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/New-logic-creation.png").default}
+        alt="New-logic-creation"
+    />
+</div>
+
+<details>
+  <summary>New Logic Fields</summary>
+
+| Field       | Required? | Description                            |
+| ----------- | --------- | -------------------------------------- |
+| Logic Name  | Yes       | Logic name (up to 128 characters)      |
+| Logic Type  | Yes       | Generic or aggregator logic            |
+| Logic Tag   | No        | Logic tags for searching and filtering |
+| Description | No        | Logic description                      |
+
+</details>
+
+4. [Build the logic](/main/feature/logic/build) from an entry file in [logic source](/main/feature/logic/source).
+
+  </TabItem>
+</Tabs>
+
+## Edit a Logic
+
+<Tabs>
+  <TabItem value="studio3" label="LOC Studio" default>
+
+**A logic cannot be edited directly**, as it is already a compiled asset.
+
+To modify a logic (to create a new revision and overwrite it), create or edit an [entry file](/main/feature/logic/source) in the logic source and then [build the new logic](/main/feature/logic/build) onto it.
+
+  </TabItem>
+</Tabs>
+
+## Edit Tags of a Logic
+
+<Tabs>
+  <TabItem value="studio4" label="LOC Studio" default>
+
+Select a logic and click **Edit Tags** <img src={require("./img/Tag.png").default} width="32px" alt="Tag" className="img-bg" /> on the top right.
+
+  </TabItem>
+</Tabs>
+
+## Delete a Logic
+
+<Tabs>
+  <TabItem value="studio5" label="LOC Studio" default>
+
+Click **Delete** <img src={require("./img/Trash.png").default} width="20px" alt="Trash" className="img-bg" /> behind the logic in the logic browser.
+
+  </TabItem>
+</Tabs>
+
+:::warning
+Logic already linked to at least one data processes cannot be deleted. Remove all data processes linking it and try again.
+:::

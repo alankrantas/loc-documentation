@@ -1,0 +1,10 @@
+{
+    "label": "Studio Guide (v1.5.1)",
+    "position": 5,
+    "link": {
+        "type": "generated-index",
+        "description": "Guide for Studio, the user interface of LOC.",
+        "slug": "/category/studio-guide",
+        "keywords": ["LOC", "Studio"]
+    }
+}

@@ -1,0 +1,125 @@
+---
+sidebar_position: 3
+tags:
+    - LOC
+    - Trigger
+    - Schedule
+---
+
+# Schedule
+
+To create and manage a schedule trigger.
+
+The built-in LOC scheduler periodically invoke executions based on schedule triggers. A data process runs on schedule is equivalent to a ETL batch job.
+
+## Create a Schedule
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="studio1" label="LOC Studio" default>
+
+1. In LOC Studio, go to **Trigger** ➞ **Scheduler**.
+
+<div className="center-padded-sm">
+    <img src={require("./img/Nav-scheduler.png").default} alt="Nav-scheduler" />
+</div>
+
+2. Click **Create Schedule** on the top right.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Create-schedule.png").default}
+        alt="Create-schedule"
+    />
+</div>
+
+3. Fill in the fields in the schedule creation window.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Schedule-creation.png").default}
+        alt="Schedule-creation"
+    />
+</div>
+
+<details>
+  <summary>Schedule Fields Description</summary>
+
+| Field          | Required?                    | Description                                                  |
+| -------------- | ---------------------------- | ------------------------------------------------------------ |
+| Schedule Name  | Yes                          | Schedule name (up to 128 characters)                         |
+| Description    | No                           | API route description                                        |
+| Frequency Type | Yes                          | Schedule type (`Recurrence` or `Crontab`)                    |
+| Start At       | Yes (`Recurrence` type only) | Start triggering after the datetime                          |
+| Interval       | Yes (`Recurrence` type only) | Triggering interval                                          |
+| Crontab fields | Yes (`Crontab` type only)    | [Cron expression](https://en.wikipedia.org/wiki/Cron) fields |
+| Enabled        | Yes                          | Enable schedule after creation                               |
+| Schedule Tasks | Yes                          | Data processes to be linked                                  |
+
+</details>
+
+4. Search data processes and click **+ Schedule Task** to link them.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/API-route-add-task.png").default}
+        alt="API-route-add-task"
+    />
+</div>
+
+5. Fof the linked data processes, you can also quickly select the latest revision <img src={require("./img/Setting.png").default} width="20px" alt="Setting" className="img-bg" /> or delete <img src={require("./img/Trash.png").default} width="20px" alt="Trash" className="img-bg" /> them.
+
+<div className="center-padded-sm">
+    <img src={require("./img/Schedule-task.png").default} alt="Schedule-task" />
+</div>
+
+6. Click **Create** to create the schedule.
+
+  </TabItem>
+</Tabs>
+
+:::info Skipping Schedule
+For a schedule trigger, if the tasks of the previous execution could not finish in time, the next scheduled execution will be skipped.
+:::
+
+## Manually Trigger a Schedule
+
+To execute a data process without using an actual schedule, see [Manual Execution](/main/feature/data-process/execute#execute-with-a-mocked-schedule).
+
+<Tabs>
+  <TabItem value="studio2" label="LOC Studio" default>
+
+1. Click on the name of a schedule.
+
+2. Click **Run Schedule** <img src={require("./img/Run.png").default} width="32px" alt="Run" className="img-bg" /> on the top right.
+
+:::info
+A schedule can only be triggered manually when enabled.
+:::
+
+  </TabItem>
+</Tabs>
+
+## Enable or Disable a Schedule
+
+<Tabs>
+  <TabItem value="studio3" label="LOC Studio" default>
+
+See: [Edit or Delete a Schedule](#edit-or-delete-a-schedule)
+
+  </TabItem>
+</Tabs>
+
+## Edit or Delete a Schedule
+
+<Tabs>
+  <TabItem value="studio4" label="LOC Studio" default>
+
+1. Click on the name of a schedule.
+
+2. Click **Edit Schedule** <img src={require("./img/Edit.png").default} width="32px" alt="Save" className="img-bg" /> or **Delete Schedule** <img src={require("./img/Delete.png").default} width="32px" alt="Delete" className="img-bg" /> on the top right.
+
+  </TabItem>
+</Tabs>

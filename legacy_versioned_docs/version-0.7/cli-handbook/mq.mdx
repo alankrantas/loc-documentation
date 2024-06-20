@@ -1,0 +1,144 @@
+---
+sidebar_position: 5
+tags:
+    - LOC
+    - CLI
+    - Dataprocess
+    - Trigger
+---
+
+# Deploy MQ Client, Pub and Sub
+
+Message queue **clients**, **publishers** and **subscribers** together are one of the trigger featuures that can be deployed and managed from CLI.
+
+A MQ client can send messages to a data process via a MQ subscriber:
+
+```mermaid
+flowchart LR;
+     n1([MQ client])-->|subscribe|n2;
+     n2[MQ Subscriber]-->|payload|n3[[Data process]];
+```
+
+---
+
+Similarly, a data process can return results to the MQ client via a MQ publisher:
+
+```mermaid
+flowchart LR;
+     n3[[Data process]]-->|result|n4;
+     n4[MQ Publisher]-->|publish|n5([MQ client]);
+```
+
+Both MQ subscriber and MQ publisher can be linked to a data process intependent of each other.
+
+See [Message Queue commands](/legacy/0.7/cli-handbook/cli-commands/triggers#message-queue) for additional operations.
+
+:::note
+MQ templates can be either JSON or YAML format - we'll use YAML in all of our examples.
+:::
+
+## MQ Client
+
+A MQ client indicates the host and port of the MQ broker service.
+
+Generate a MQ client template file:
+
+```bash
+./loc mq client init
+```
+
+```yaml title="message-queue-client.yaml" showLineNumbers
+name: message-queue-client
+description: message-queue-client
+client:
+    type: Kafka
+    brokers:
+        - host: 0.0.0.0
+          port: 9092
+```
+
+:::note
+For now only Apache Kafka is supported.
+:::
+
+Deploy the MQ client:
+
+```bash
+./loc mq client deploy -f message-queue-client.yaml
+```
+
+:::tip
+You can also use a custom path and file name, for example:
+
+```bash
+./loc mq client init my-mq-trigger/my-mq-client.yaml
+./loc mq client deploy -f my-mq-trigger/my-mq-client.yaml
+```
+
+This applies to MQ subscriber and publisher files as well (see the following sections).
+:::
+
+## MQ Subscriber and Publisher
+
+Once the MQ client is deployed, find out its permanent ID with
+
+```bash
+./loc mq client list
+```
+
+Then generate template files for MQ subscriber and publisher:
+
+### Subscriber
+
+```bash
+./loc mq sub init
+```
+
+```yaml title="subscriber.yaml" showLineNumbers
+name: mq-subscriber
+description: mq-subscriber
+# highlight-next-line
+clientId: 00000000-0000-0000-0000-000000000000
+dataProcessPids:
+    # highlight-next-line
+    - pid: 00000000-0000-0000-0000-000000000000
+      revision: latest
+consumer:
+    type: Kafka
+    topic: example-topic
+```
+
+:::note
+For now, any incoming messages will trigger linked data processes. You can read the message topics or other information via the [MQ payload](/legacy/0.7/sdk-reference/payload#message-queue-payload) in logic.
+:::
+
+### Publisher
+
+```bash
+./loc mq pub init
+```
+
+```yaml title="publisher.yaml" showLineNumbers
+name: mq-publisher
+description: mq-publisher
+# highlight-next-line
+clientId: 00000000-0000-0000-0000-000000000000
+dataProcessPids:
+    # highlight-next-line
+    - pid: 00000000-0000-0000-0000-000000000000
+      revision: latest
+producer:
+    type: Kafka
+    topic: example-topic
+```
+
+You have to modify both with the correct `clientId` (MQ client PID), data process PIDs, MQ type as well as message topic.
+
+### Deploy
+
+Then deploy the MQ subscriber and publisher:
+
+```bash
+./loc mq sub deploy -f subscriber.yaml
+./loc mq pub deploy -f publisher.yaml
+```

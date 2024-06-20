@@ -1,0 +1,43 @@
+---
+tags:
+    - LOC
+    - Logic
+    - JavaScript
+    - TypeScript
+---
+
+# Result Aggregator
+
+Parse trigger payload to JSON and write to the session storage.
+
+| Logic type | Input                                             | Output |
+| ---------- | ------------------------------------------------- | ------ |
+| Aggregator | Session variable `result` (type: `any`, optional) | None   |
+
+:::note
+The logic will finalise and return the error if any occurred in the task, but it would not be able to indicate where it had occurred. You can pass additional session data in other logic to include the context metadata.
+:::
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import ResultAggregatorJSExample from "../_logic-template-sources/_result-aggregator-js.mdx";
+import ResultAggregatorJSDocExample from "../_logic-template-sources/_result-aggregator-jsdoc.mdx";
+import ResultAggregatorTSExample from "../_logic-template-sources/_result-aggregator-ts.mdx";
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+
+<ResultAggregatorJSExample />
+
+  </TabItem>
+  <TabItem value="js-doc" label="JavaScript (with JSDoc)">
+
+<ResultAggregatorJSDocExample />
+
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+
+<ResultAggregatorTSExample />
+
+  </TabItem>
+</Tabs>

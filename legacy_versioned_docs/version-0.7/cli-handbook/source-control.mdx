@@ -1,0 +1,93 @@
+---
+sidebar_position: 10
+tags:
+    - LOC
+    - CLI
+---
+
+# Source Control with Git
+
+Although CLI does not offer version control, you can use [Git](https://git-scm.com/) to upload data processes to a Gitbub repository and shared with other team members.
+
+There are _many ways_ to use Git and you can check out the [official documentation](https://git-scm.com/legacy/0.7/gittutorial). Here we'll give you one of the most basic example.
+
+:::tip
+If you are developing with VS Code, you can also use the built-in source control functionalities. See: [Using Git source control in VS Code](https://code.visualstudio.com/legacy/0.7/sourcecontrol/overview).
+:::
+
+## First Commit
+
+The following instruction is for the first person to create and upload some data processes (and maybe some shared libraries).
+
+Create a `.gitignore` under your local workspace:
+
+```plain title="/[local workspace]/.gitignore" showLineNumbers
+.DS_Store
+./node_modules
+./local-runtime
+./profiles
+loc
+loc.exe
+package-lock.json
+yarn.lock
+*.yaml
+**/build
+**/node_modules
+**/package-lock.json
+**/yarn.lock
+**/.deploy-info.json
+# any other subdirectories and projects you want Git to ignore
+```
+
+:::note
+Anything in `.gitignore` will be ignored by Git. Here we assume profile files are stored in `profiles`, local runtime-related files are in `local-runtime`. Remove them if you want to include them for version control.
+:::
+
+Then create a new Github repository without `README.md` and any branch, and run the following terminal commands from the local workspace:
+
+1. Initialize your local workspace with Git.
+2. Add all files to index.
+3. Create the `main` branch.
+4. Add the Github repo as remote origin.
+5. Push changes in index to `main` branch of the repo.
+
+```bash
+git init
+git add .
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/<Github account>/<repo name>.git
+git push -u origin main
+```
+
+:::info
+The HTTPS URL above can be found by clicking `Code` on the repository page.
+
+Git will prompt for your Github account and password for the first time operating remote assets.
+:::
+
+## Basic Collaboration
+
+After the first commit, you or anyone else in the team can download the repository and commit new changes.
+
+First clone the repository and add the commit target:
+
+```bash
+git clone https://github.com/<Github account>/<repo name>.git
+git remote add origin https://github.com/<Github account>/<repo name>.git
+```
+
+Then whenever you've made changes and are ready to commit, use the following terminal commands in your local workspace:
+
+```bash
+git add .
+git commit -m "commit message"
+git pull origin main
+git push origin <branch>
+```
+
+`<branch>` is a seperate branch other than `main`. Create a pull request (PR) so your commit can be reviewed by someone in your team before merging.
+
+:::tip
+It is recommended to specify what has been commited in the commit message.
+:::

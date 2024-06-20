@@ -1,0 +1,100 @@
+---
+sidebar_position: 4
+tags:
+    - LOC
+    - CLI
+---
+
+# Tag and Unit
+
+Tag and unit CLI commands.
+
+## Tag
+
+> `loc tag|t`
+
+Tags can be set in `tagNames` fields in a data process's `config.yaml`. Tags will be automatically added to LOC if not existed.
+
+### List All Tags
+
+```bash
+loc tag list
+```
+
+List all tags in LOC with their ids.
+
+### Create a Tag
+
+```bash
+loc tag create <tag name>
+```
+
+### Inspect a Tag
+
+```bash
+loc tag get <id> -v
+```
+
+### Search Tags
+
+```bash
+loc tag search <search name>
+```
+
+Search tags. All tags that contains the name will be returned. (For example, search `tag` also returns `tagname`.)
+
+### Update a Tag
+
+```bash
+loc tag update <id> <new tag name>
+```
+
+Update a tag to a new name.
+
+### Delete a Tag
+
+```bash
+loc tag delete <id>
+```
+
+## Unit
+
+> `loc unit|u`
+
+:::info
+For now, there is not yet possible to set units (similar to namespaces) for data processes.
+:::
+
+### List All Units
+
+```bash
+loc unit list
+```
+
+### Create an Unit
+
+```bash
+loc unit create
+```
+
+Will prompt for unit name and description.
+
+### Inspect an Unit
+
+```bash
+loc unit get <id> -v
+```
+
+### Update an Unit
+
+```bash
+loc unit update <id>
+```
+
+Will prompt for new unit name and description.
+
+### Delete an Unit
+
+```bash
+loc unit delete <id>
+```

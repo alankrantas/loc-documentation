@@ -1,0 +1,75 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - Event
+    - Data Lineage
+---
+
+# View Event and Data Lineage
+
+To inspect events and data lineages.
+
+:::tip
+Events can be emitted and queried using the event store agent of the SDK.
+
+See: [Event Store Agent](/main/feature/agent/agent-list#event-store-agent)
+:::
+
+## Inspect Events
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="studio1" label="LOC Studio" default>
+
+1. In LOC Studio, go to **Data Discovery** ➞ **Event**.
+
+<div className="center-padded-sm">
+    <img src={require("./img/Nav-event.png").default} alt="Nav-event" />
+</div>
+
+2. Browse and click the right arrow <img src={require("./img/Right.png").default} width="20px" alt="Right" className="img-bg" /> of an event to inspect the details.
+
+<div className="center-padded-sm">
+    <img src={require("./img/Event.png").default} alt="Event" />
+</div>
+
+  </TabItem>
+</Tabs>
+
+## Inspect Data Lineage Graph
+
+<Tabs>
+  <TabItem value="studio2" label="LOC Studio" default>
+
+1. Filter events related to a data lineage and have them **displayed on the same page** in the event repository list.
+
+:::info
+The fuzzy search is case-sensitive.
+:::
+
+2. Click **Event Lineage Graph**.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Event-lineage-graph.png").default}
+        alt="Event-lineage-graph"
+    />
+</div>
+
+3. You can click DIDs (nodes representing the digital identities) or events (lines) to inspect the details.
+
+<div className="center-padded-sm">
+    <img src={require("./img/Data-lineage.png").default} alt="Data-lineage" />
+</div>
+
+  </TabItem>
+</Tabs>
+
+:::tip Filtering Multiple Events
+For now, there is no way to apply multiple **OR** filter conditions at the same time. The most common way to filter multiple events is to use the time range.
+
+However, you can incorporate unique metadata, for example, the execution ID in the event labels (like `event_label: <execution_id>`), which makes _all_ events in the same lineage searchable using one single parameter.
+:::

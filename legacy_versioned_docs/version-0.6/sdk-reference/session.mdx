@@ -1,0 +1,103 @@
+---
+sidebar_position: 3
+tags:
+    - LOC
+    - Agent
+    - JavaScript
+    - TypeScript
+---
+
+# Session Storage Agent
+
+For sharing data between logic during a task (execution) of a data process.
+
+The session will be purged once the task is completed. This is a very common way to pass data from one logic to the next, including the aggregator logic.
+
+#### Availability
+
+-   ✓ Generic logic
+-   ✓ Aggregator logic
+
+## Write to Session Storage
+
+```typescript
+async sessionStorage.putJson(key: string, value: any): Promise<boolean>
+async sessionStorage.putString(key: string, value: string): Promise<boolean>
+async sessionStorage.putByteArray(key: string, value: Uint8Array | string): Promise<boolean>
+```
+
+| Parameter | Description         |
+| --------- | ------------------- |
+| `key`     | Key of session data |
+| `value`   | Session data        |
+
+Write a value into session storage. The key/value pair will be created if not exist.
+
+The functions return a `boolean` to indicate if the write action is successful.
+
+If `value` is not valid JSON, the agent will throw an error.
+
+:::tip
+`value` can be a single number (which is also valid for JSON).
+:::
+
+:::note
+The data may not be properly written into session storage without using `await`.
+:::
+
+#### Example: write JSON object to session storage
+
+```typescript showLineNumbers
+const data = {
+    name: "Arthur Dent",
+    age: 42,
+};
+
+await ctx.agents.sessionStorage.putJson("data", data);
+```
+
+#### Example: write string to session storage
+
+```typescript
+await ctx.agents.sessionStorage.putString("name", "Arthur Dent"");
+await ctx.agents.sessionStorage.putString("age", String(age));  // convert number to string
+```
+
+:::tip
+If you want to preserve the types of non-string values in the session storage, it would be better to encapsulate them in a JavaScript object and use `putJson`.
+:::
+
+#### Example: write Uint8Array to session storage
+
+```typescript showLineNumbers
+await ctx.agents.sessionStorage.putByteArray(
+    "payload",
+    new Uint8Array(ctx.payload.http.body),
+);
+```
+
+## Read from Session Storage
+
+```typescript
+async sessionStorage.get(key: string): Promise<string | number | object | Uint8Array>
+```
+
+Read a session data. The type depends on how the data was written into session storage.
+
+If the key is not exist, the agent will throw an error.
+
+#### Example
+
+```typescript showLineNumbers
+const name = await ctx.agents.sessionStorage.get("name");
+const data = await ctx.agents.sessionStorage.get("data");
+```
+
+## Remove from Session Storage
+
+```typescript
+async sessionStorage.delete(key: string)
+
+// or
+async sessionStorage.remove(key: string)
+```

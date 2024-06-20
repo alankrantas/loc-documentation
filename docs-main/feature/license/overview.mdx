@@ -1,0 +1,42 @@
+---
+sidebar_position: 1
+tags:
+    - LOC
+    - License
+---
+
+# Overview
+
+An overview of the concept and purpose of LOC license.
+
+## LOC License
+
+As a product adopting the SaaS (Software as a Service) model, LOC - mainly LOC Core and LOC Studio - requires license to activate its usage.
+
+A LOC license specify the following specifications:
+
+-   Active state
+-   Active period
+-   Available infrastructure resources and their allocation for specific LOC features
+-   Supported logic languages
+
+The active state of your LOC instance can be updated by uploading a license file provided by FST Network.
+
+### Active States
+
+> See: [View and Manage License](/main/feature/license/manage)
+
+import styles from "./css/license.module.css";
+
+| State                                                           | Period                                    | Available Resource   | Supported Features |
+| --------------------------------------------------------------- | ----------------------------------------- | -------------------- | ------------------ |
+| <span className={styles.trial}><b>Trial</b></span>              | 30 days                                   | Basic                | Full access        |
+| <span className={styles.active}><b>Active</b></span>            | Depending on license                      | Depending on license | Full access        |
+| <span className={styles.expired}><b>Active (Expired)</b></span> | Within 45 days after end of active period | Depending on license | Full access        |
+| <span className={styles.inactive}><b>Inactive</b></span>        | N/A                                       | None                 | Read only          |
+
+:::info
+LOC will pop an alert within 30 days before the end of active period.
+
+The inactive state will preserves all user assets (which cannot be modified until being activated again.)
+:::

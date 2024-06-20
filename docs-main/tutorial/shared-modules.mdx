@@ -1,0 +1,440 @@
+---
+sidebar_position: 3
+tags:
+    - LOC
+    - Tutorial
+    - Logic
+---
+
+# Greeting (Part II): Create and Import Shared Modules
+
+Continuing the [run task with API route tutorial](/main/tutorial/task-with-trigger), we will now learn how to create shared modules for logic.
+
+:::info Learning Objective
+
+To create and manage shared modules - shared data types anf utility functions - for multiple logic.
+
+:::
+
+---
+
+## Why Shared Modules?
+
+In the previous tutorial, we've defined a `Person` interface (TypeScript) or `Person` class (C#) as the user-defined data structure and data type. However, we had to declare them in _all_ of the logic, which would be pretty inefficient to maintain the data structure across dozens even hundreds of logic in the future.
+
+Instead, we can import `Person` from a shared module file, which is an "external" entry file that can be included in any logic building process. The same goes to utility or helper functions that can be shared between logic.
+
+We will now modify the previous tutorial examples by moving `Person` as well as a JSON parsing utility function into shared module files.
+
+:::info
+Logic still have to be built into a new revision to include the updated shared modules.
+:::
+
+## Create a Shared Module
+
+> See: [Create an Entry File](/main/feature/logic/source#create-an-entry-file)
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="js1" label="JavaScript" default>
+
+1. Select `JavaScript` in logic source.
+
+2. Create an entry file under the `shared_modules` folder with the name **`utils.js`**.
+
+3. Copy and paste the following script to replace the template code:
+
+```typescript title="/shared_modules/utils.js" showLineNumbers
+// highlight-next-line
+export const ParsePayload = (data) =>
+    JSON.parse(new TextDecoder().decode(new Uint8Array(data)));
+```
+
+  </TabItem>
+  <TabItem value="ts1" label="TypeScript">
+
+1. Select `TypeScript` in logic source.
+
+2. Create two entry files under the `shared_modules` folder with the name **`utils.ts`** and **`common.ts`**.
+
+3. Copy and paste the following scripts to replace the template code:
+
+```typescript title="/shared_modules/utils.ts" showLineNumbers
+// highlight-next-line
+export const ParsePayload = (data: number[]): any =>
+    JSON.parse(new TextDecoder().decode(new Uint8Array(data)));
+```
+
+```typescript title="/shared_modules/common.ts" showLineNumbers
+// highlight-next-line
+export interface Person {
+    name?: string;
+}
+```
+
+  </TabItem>
+  <TabItem value="csharp1" label="C#">
+
+1. Select `CSharp` in logic source.
+
+2. Create two entry files under the `shared_modules` folder with the name **`Utils.cs`** and **`Common.cs`**.
+
+3. Copy and paste the following scripts to replace the template code:
+
+```csharp title="/shared_folder/Utils.cs" showLineNumbers
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization.Metadata;
+
+// highlight-next-line
+namespace Utils;
+
+public static class ParsePayload
+{
+    public static T ParseClass<T>(byte[] data, JsonTypeInfo<T> jsonTypeInfo) =>
+        JsonSerializer.Deserialize<T>(
+            Encoding.UTF8.GetString(data),
+            jsonTypeInfo
+        );
+
+    public static T ParseClass<T>(JsonNode data, JsonTypeInfo<T> jsonTypeInfo) =>
+        JsonSerializer.Deserialize<T>(
+            data,
+            jsonTypeInfo
+        );
+}
+```
+
+```csharp title="/shared_folder/Common.cs" showLineNumbers
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+// highlight-next-line
+namespace Common;
+
+public class Person
+{
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+
+    public Person(string name = "User")
+    {
+        Name = name;
+    }
+
+    public override string ToString() => $"Person: {name}";
+}
+
+[JsonSourceGenerationOptions()]
+[JsonSerializable(typeof(Person))]
+public partial class PersonSourceGenerationContext : JsonSerializerContext
+{
+}
+```
+
+:::info
+The classes in shared modules has to be declared as `public`.
+
+A C# shared module entry file should have **the same namespace name as the file name** (first letter capitalised).
+:::
+
+  </TabItem>
+</Tabs>
+
+---
+
+## Import a Shared Module
+
+> See: [Greeting (Part I): Run a Task with an API Route](/main/tutorial/task-with-trigger)
+
+With the shared modules in place, we can now import them into logic (we'll use the `People Parser` logic from the previous tutorial):
+
+<Tabs>
+  <TabItem value="js2" label="JavaScript" default>
+
+#### Generic Logic
+
+```javascript title="person-parser.js (generic logic)" showLineNumbers
+import { LoggingAgent, SessionStorageAgent } from "@fstnetwork/loc-logic-sdk";
+
+// import from shared module
+// highlight-next-line
+import { ParsePayload } from "../../shared_modules/utils";
+
+/** @param {import('@fstnetwork/loc-logic-sdk').GenericContext} ctx */
+export async function run(ctx) {
+    const payload = await ctx.payload();
+
+    if (!("http" in payload))
+        throw new Error("this logic requires HTTP payload");
+
+    const data = payload.http.request.data;
+
+    let parsed = null;
+    if (data) {
+        try {
+            // use the imported function
+            // highlight-next-line
+            parsed = ParsePayload(data);
+        } catch (e) {
+            LoggingAgent.error(
+                `failed to parse HTTP payload to JSON: ${e.message}`,
+            );
+        }
+    }
+    LoggingAgent.info({
+        parsed: parsed,
+    });
+
+    await SessionStorageAgent.putJson("person", {
+        name: parsed?.name || "User",
+    });
+}
+
+/**
+ * @param {import('@fstnetwork/loc-logic-sdk').GenericContext} ctx
+ * @param {import('@fstnetwork/loc-logic-sdk').RailwayError} error
+ */
+export async function handleError(ctx, error) {
+    LoggingAgent.error(error.message);
+}
+```
+
+#### Aggregator Logic
+
+```javascript title="greeting-aggregator.js (aggregator logic)" showLineNumbers
+// the JavaScript aggregator is as same as the precious tutorial
+```
+
+  </TabItem>
+  <TabItem value="ts2" label="TypeScript">
+
+#### Generic Logic
+
+```typescript title="person-parser.ts (generic logic)" showLineNumbers
+import {
+    GenericContext,
+    LoggingAgent,
+    RailwayError,
+    SessionStorageAgent,
+} from "@fstnetwork/loc-logic-sdk";
+
+// import from shared module
+// highlight-start
+import { ParsePayload } from "../../shared_modules/utils";
+import { Person } from "../../shared_modules/common";
+// highlight-end
+
+export async function run(ctx: GenericContext) {
+    const payload = await ctx.payload();
+
+    if (!("http" in payload))
+        throw new Error("this logic requires HTTP payload");
+
+    const data = payload.http.request.data;
+
+    // use the imported interface
+    // highlight-next-line
+    let parsed: Person = null;
+
+    if (data) {
+        try {
+            // use the imported function
+            // highlight-next-line
+            parsed = ParsePayload(data);
+        } catch (e) {
+            LoggingAgent.error(
+                `failed to parse HTTP payload to JSON: ${e.message}`,
+            );
+        }
+    }
+    LoggingAgent.info({
+        parsed: parsed,
+    });
+
+    await SessionStorageAgent.putJson("person", {
+        name: parsed?.name || "User",
+    });
+}
+
+export async function handleError(ctx: GenericContext, error: RailwayError) {
+    LoggingAgent.error(error.message);
+}
+```
+
+#### Aggregator Logic
+
+```typescript title="greeting-aggregator.ts (aggregator logic)" showLineNumbers
+import {
+    AggregatorContext,
+    LoggingAgent,
+    RailwayError,
+    ResultAgent,
+    SessionStorageAgent,
+} from "@fstnetwork/loc-logic-sdk";
+
+// import from shared module
+// highlight-next-line
+import { Person } from "../../shared_modules/common";
+
+export async function run(ctx: AggregatorContext) {
+    // use the imported interface
+    // highlight-next-line
+    const person: Person = (await SessionStorageAgent.get("person")) || {
+        name: "User",
+    };
+    LoggingAgent.info(`person = Person: ${person.name}`);
+
+    ResultAgent.finalize({
+        status: "ok",
+        taskId: ctx.task.taskKey,
+        message: `Greetings, ${person.name}!`,
+    });
+}
+
+export async function handleError(ctx: AggregatorContext, error: RailwayError) {
+    ResultAgent.finalize({
+        status: "error",
+        taskId: ctx.task.taskKey,
+        message: error.message,
+    });
+}
+```
+
+  </TabItem>
+  <TabItem value="csharp2" label="C#">
+
+#### Generic Logic
+
+```csharp title="person-parser.cs (generic logic)" showLineNumbers
+// using shared module namespaces
+// highlight-start
+using Utils;
+using Common;
+// highlight-end
+
+public static class Logic
+{
+   public static async Task Run(Context ctx)
+   {
+        var payload = await ctx.GetPayload();
+
+        if (payload.Http is null)
+        {
+            throw new Exception("this logic requires HTTP payload");
+        }
+
+        byte[] data = payload.Http.Request.Data;
+
+        // use the imported Common.Person class
+        // highlight-next-line
+        Person person = new();
+
+        if (data.Length > 0)
+        {
+            try
+            {
+                // use the imported static Utils.ParsePayload.ParseClass method
+                // highlight-start
+                person = ParsePayload.ParseClass(
+                    data,
+                    PersonSourceGenerationContext.Default.Person
+                );
+                // highlight-end
+            }
+            catch (Exception e)
+            {
+                await LoggingAgent.Error(
+                    $"failed to parse HTTP payload to JSON: {e.Message}!"
+                );
+            }
+        }
+        await LoggingAgent.Info($"person = {person}");
+
+        await SessionStorageAgent.Put(
+            "person",
+            StorageValue.FromJson(
+                person,
+                PersonSourceGenerationContext.Default.Person
+            )
+        );
+   }
+
+   public static async Task HandleError(Context ctx, Exception error)
+   {
+        await LoggingAgent.Error(error.Message);
+   }
+}
+```
+
+#### Aggregator Logic
+
+```csharp title="greet-aggregator.cs (aggregator logic)" showLineNumbers
+// using shared module namespaces
+// highlight-start
+using Utils;
+using Common;
+// highlight-end
+using System.Text.Json.Nodes;
+
+public static class Logic
+{
+   public static async Task Run(Context ctx)
+   {
+        JsonNode? data =
+            (await SessionStorageAgent.Get("person"))?.JsonValue;
+
+        // use the imported Person class
+        // highlight-next-line
+        Person person = new();
+
+        if (data is not null)
+        {
+            // use the imported static Utils.ParsePayload.ParseClass method
+            // highlight-start
+            person = ParsePayload.ParseClass(
+                data,
+                PersonSourceGenerationContext.Default.Person
+            );
+            // highlight-end
+        }
+
+        await LoggingAgent.Info($"person = {person}");
+
+        var task = await ctx.GetTask();
+        await ResultAgent.SetResult(
+            new JsonObject()
+            {
+                ["status"] = "ok",
+                ["taskId"] = task.TaskKey.TaskIdString(),
+                ["message"] = $"Greetings, {person.name}!"
+            }
+        );
+   }
+
+   public static async Task HandleError(Context ctx, Exception error)
+   {
+        var task = await ctx.GetTask();
+        await ResultAgent.SetResult(
+            new JsonObject()
+            {
+                ["status"] = "error",
+                ["taskId"] = task.TaskKey.TaskIdString(),
+                ["message"] = error.Message
+            }
+        );
+   }
+}
+```
+
+:::warning Avoid Declaring Duplicated Class
+For C# logic, if you declare a class name that already exists in any of the shared module files, it will cause compile error for building the logic.
+:::
+
+  </TabItem>
+</Tabs>
+
+Save the changes in the entry file(s), build a new logic revision then update the data process (and triggers if you are using them).

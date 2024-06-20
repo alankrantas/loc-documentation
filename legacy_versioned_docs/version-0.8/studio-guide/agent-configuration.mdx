@@ -1,0 +1,38 @@
+---
+sidebar_position: 6
+tags:
+    - LOC
+    - Studio
+    - Agentconfig
+---
+
+# Agent Configuration
+
+:::info
+In future releases the administration panel will only be accessed by authorised LOC Owners.
+:::
+
+**Agent Configuration** is part of the administration panel for creating and managing secrets for the following agents in [SDK](/legacy/0.8/category/sdk-reference):
+
+-   [HTTP agent](/legacy/0.8/sdk-reference/http)
+-   [Database agent](/legacy/0.8/sdk-reference/database)
+-   [File storage agent](/legacy/0.8/sdk-reference/filestorage)
+-   [Mail agent](/legacy/0.8/sdk-reference/mail)
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/agent-configuration.png").default}
+        alt="agent-configuration"
+    />
+</div>
+
+To create a configuration, first create a folder if there is none, then right-click the folder to create a new configuration. Once set, agents would be able to access these configurations by name.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/agent-configuration2.png").default}
+        alt="agent-configuration2"
+    />
+</div>
+
+See [tutorial](/legacy/0.8/tutorials/http-agent-configuration) for how to create and use an agent configurations in your data processes.

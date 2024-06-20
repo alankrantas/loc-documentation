@@ -1,0 +1,214 @@
+---
+sidebar_position: 7
+tags:
+    - LOC
+    - SDK
+    - Agent
+    - HTTP
+    - Agent Configuration
+    - JavaScript
+    - TypeScript
+---
+
+# HTTP Agent - JS/TS
+
+Send HTTP request to a HTTP endpoint and fetch the response.
+
+| Logic Type       | Available |
+| ---------------- | --------- |
+| Generic logic    | ✅        |
+| Aggregator logic | ❌        |
+
+## HTTP Agent Configuration
+
+> See: [Agent Configuration](/main/category/agent-configuration)
+
+A **HTTP Agent Configuration** defines an external HTTP host that will be allowed to be accessed from LOC runtime.
+
+The HTTP Agent requires a configuration reference name so that it can access external endpoints on the host. The reference name can be added to a logic while creating or editing a data process.
+
+## Import and Usage
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+
+```javascript showLineNumbers
+import {
+    // highlight-next-line
+    HttpAgent,
+} from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx) {
+    const httpClient = await HttpAgent.acquire("http-config-ref");
+    const response = await httpClient?.fetch(path);
+}
+
+export async function handleError(ctx, error) {
+    // ... same
+}
+```
+
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+
+```typescript showLineNumbers
+import {
+    // highlight-next-line
+    HttpAgent,
+    GenericContext,
+    RailwayError,
+} from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx: GenericContext) {
+    const httpClient = await HttpAgent.acquire("http-config-ref");
+    const response = await httpClient?.fetch(path);
+}
+
+export async function handleError(ctx: GenericContext, error: RailwayError) {
+    // ... same
+}
+```
+
+  </TabItem>
+</Tabs>
+
+## Class Reference
+
+### Type
+
+-   `HttpAgent`
+
+### Method: Acquire HTTP Client
+
+```typescript
+async acquire(configurationName: string): Promise<HttpAgentClient>
+```
+
+| Parameter           | Description                             |
+| ------------------- | --------------------------------------- |
+| `configurationName` | HTTP Agent Configuration reference name |
+
+Acquire a [HTTP client](#http-client) using a configuration reference name. Throws an error if the configuration cannot be found.
+
+## HTTP Client
+
+### Type
+
+-   `HttpAgentClient`
+
+> Importable from `@fstnetwork/loc-logic-sdk`
+
+### Method: Send HTTP Request
+
+```typescript
+async fetch(input: Request | string, init?: RequestInit): Promise<Response>
+```
+
+| Parameters | Description      | Reference                                                                   |
+| ---------- | ---------------- | --------------------------------------------------------------------------- |
+| `input`    | Request resource | [resource](https://developer.mozilla.org/en-US/docs/Web/API/fetch#resource) |
+| `init?`    | Request options  | [options](https://developer.mozilla.org/en-US/docs/Web/API/fetch#options)   |
+
+Fetch a HTTP endpoint. This method is almost identical to [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
+
+Returns a [`Response`](#response) object.
+
+:::info
+The URL can only contain the path (without host name, which is already in the HTTP Agent Configuration).
+
+The path can contain querystring.
+:::
+
+#### `Response`
+
+Similar to Fetch API's [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response).
+
+Properties:
+
+| Property     | Type                                                                                                          | Description                                                                                   |
+| ------------ | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `status`     | `number`                                                                                                      | HTTP response status code                                                                     |
+| `statusText` | `string`                                                                                                      | HTTP response status message                                                                  |
+| `ok`         | `boolean`                                                                                                     | If request was successful (HTTP status code `2xx`)                                            |
+| `type`       | [`ResponseType`](https://developer.mozilla.org/en-US/docs/Web/API/Response/type)                              | Response type (`"basic"`, `"cors"`, `"default"`, `"error"`, `"opaque"` or `"opaqueredirect"`) |
+| `url`        | `string`                                                                                                      | Response URL                                                                                  |
+| `headers`    | [`Headers`](https://developer.mozilla.org/en-US/docs/Web/API/Headers)                                         | Response headers                                                                              |
+| `body`       | [`ReadableStream<Uint8Array>`](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream) &#124; `null` | Response body                                                                                 |
+
+Methods:
+
+```typescript
+// convert body to plaintext
+async text(): Promise<string>
+
+// convert body to JSON object (may throw an error if conversion failed)
+async json(): Promise<any>
+```
+
+:::info
+After calling `text()` or `json()`, the body (a `ReadableStream` object) will be consumed and locked from further access. See [Using readable streams](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API/Using_readable_streams) for additional info.
+:::
+
+## Examples
+
+### GET Request with Querystring
+
+```typescript showLineNumbers
+const queryString = "name=Arthur-Dent&age=42";
+
+const httpClient = await HttpAgent.acquire("http-config-ref");
+
+const response = await httpClient?.fetch(`/api/path?${queryString}`);
+
+// if the response status is 2xx
+if (response.ok) {
+    // ...
+}
+```
+
+### POST Request and Parse Response
+
+```typescript showLineNumbers
+const data = {
+    name: "Arthur Dent",
+    age: 42,
+    job: {
+        title: "Sandwich-maker",
+        salary: 0,
+    },
+    quotes: [
+        "Is there any tea on this spaceship?",
+        "This must be Thursday. I never could get the hang of Thursdays.",
+        "Would it save you a lot of time if I just gave up and went mad now?",
+    ],
+};
+
+const httpClient = await HttpAgent.acquire("http-config-ref");
+
+const response = await httpClient?.fetch("/api/path", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json; charset=UTF-8",
+    },
+    body: JSON.stringify(data), // convert body to string
+});
+
+const statusCode = response.status;
+
+// if the response status is 2xx
+if (response.ok) {
+    // get body as string
+    const body = await response.text();
+    // or get body as JSON object (you can only call one of them once):
+    // const body = await response.json();
+
+    // get headers
+    const authorization = response.headers.has("Authorization");
+    const contentType = response.headers.get("Content-Type");
+
+    // ...
+}
+```

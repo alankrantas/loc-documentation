@@ -1,0 +1,89 @@
+```javascript title="database-query.js" showLineNumbers
+import {
+    DatabaseAgent,
+    LoggingAgent,
+    SessionStorageAgent,
+} from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx) {
+    // read sql object from session
+    const sql = await SessionStorageAgent.get("sql");
+
+    /* or comment out the line above and replace sql object with the following declaration:
+    const sql = {
+        configName: "db config name",
+        statement: "select * from table where col_1 = ? and col_2 = ?;",
+        params: ["value_1", "value_2"],
+    }
+    */
+
+    // skip logic if sql session variable does not exist (is null)
+    if (!sql) return;
+
+    // throws an error if fields in sql are missing
+    if (
+        !(typeof sql == "object") ||
+        !("configName" in sql) ||
+        !("statement" in sql) ||
+        !("params" in sql)
+    )
+        throw new Error("sql is not an object or has missing fields!");
+
+    // log sql object
+    LoggingAgent.info({ sql: sql });
+
+    let dbClient = null;
+    let resp = null;
+    let db_query_status = "error";
+    let db_error = null;
+
+    try {
+        // aquire database client
+        dbClient = await DatabaseAgent.acquire(sql.configName);
+        LoggingAgent.info("database client acquired");
+        LoggingAgent.info({
+            dataSourceId: dbClient.uid.dataSourceId,
+            connectionId: dbClient.uid.connectionId,
+        });
+
+        // run select or action query
+        if (sql.statement.toLowerCase().includes("select")) {
+            resp = await dbClient?.query(sql.statement, sql.params);
+        } else {
+            await dbClient?.execute(sql.statement, sql.params);
+        }
+
+        db_query_status = "ok";
+    } catch (e) {
+        db_error = {
+            error: true,
+            errorMessage: `database query error: ${e.message}`,
+            stack: e.stack,
+            taskKey: ctx.task.taskKey,
+        };
+        LoggingAgent.error(db_error);
+    } finally {
+        // release database connection
+        await dbClient?.release();
+    }
+
+    // log query result and db action status
+    LoggingAgent.info({ db_resp: resp });
+    LoggingAgent.info(`db_action_status: ${db_action_status}`);
+
+    // write query result, query status and error into session storage
+    await SessionStorageAgent.putJson("db_resp", resp);
+    await SessionStorageAgent.putString("db_query_status", db_query_status);
+    await SessionStorageAgent.putJson("db_error", db_error);
+}
+
+export async function handleError(ctx, error) {
+    // error logging
+    LoggingAgent.error({
+        error: true,
+        errorMessage: error.message,
+        stack: error.stack,
+        taskKey: ctx.task.taskKey,
+    });
+}
+```

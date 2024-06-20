@@ -1,0 +1,9 @@
+{
+    "label": "Event and Data Lineage",
+    "position": 8,
+    "link": {
+        "type": "generated-index",
+        "description": "Active metadata that can define business-level data flows.",
+        "keywords": ["LOC", "Execution", "Task"]
+    }
+}

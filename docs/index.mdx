@@ -1,0 +1,97 @@
+---
+sidebar_position: 1
+tags:
+    - LOC
+---
+
+# LOC Documentation
+
+**LOC Documentation** (or LOC-Doc) is the official user guide and reference for [**FST Network**](https://www.fst.network/)'s cloud-native data product platform, [**Logic Operating Centre (LOC)**](https://www.fst.network/logic-operation-centre).
+
+The site is built with [**Docusaurus 3.0**](https://docusaurus.io/) and deployed to AWS ECR.
+
+## Docs Index
+
+This site currently contains the following docs:
+
+### General Docs
+
+-   [LOC-Docs Revision](/docs/revision)
+-   [System FAQs](/docs/category/system-faqs)
+-   [About and Contact](/docs/about-and-contact)
+
+### Main Docs
+
+import ThemedImage from "@theme/ThemedImage";
+import useBaseUrl from "@docusaurus/useBaseUrl";
+import Link from "@docusaurus/Link";
+
+<div className="padded">
+    <Link to="/main">
+        <span className="img-button">
+            <ThemedImage
+                width="60%"
+                alt="LOC-logo"
+                sources={{
+                    light: useBaseUrl("/img/logo/LOC-logo.svg"),
+                    dark: useBaseUrl("/img/logo/LOC-logo-w.svg"),
+                }}
+            />
+        </span>
+        <br />
+        <h3>➥ Docs for Logic Operating Centre (LOC)</h3>
+    </Link>
+</div>
+
+> For docs of LOC `v0.10` and earlier releases, see [Legacy Docs](/legacy/intro).
+
+### SDK Docs
+
+<div className="padded-sm">
+    <Link to="/sdk-ts">
+        <span className="img-button">
+            <img
+                src={require("/img/language/Javascript.png").default}
+                alt="Javascript"
+            />{" "}
+            <img
+                src={require("/img/language/Typescript.png").default}
+                alt="Typescript"
+            />
+        </span>
+        <br />
+        <h3>➥ Docs for SDK for JavaScript / TypeScript</h3>
+    </Link>
+</div>
+
+<div className="padded-sm">
+    <Link to="/sdk-csharp">
+        <span className="img-button">
+            <img
+                src={require("/img/language/Csharp.png").default}
+                alt="Csharp"
+            />
+        </span>
+        <br />
+        <h3>➥ Docs for SDK for C# (C Sharp)</h3>
+    </Link>
+</div>
+
+## Helper Tools
+
+<div className="padded-sm">
+    <Link to="/logic-code-generator">
+        <span className="img-button">
+            <img
+                src={require("/img/language/Javascript.png").default}
+                alt="Javascript"
+            />{" "}
+            <img
+                src={require("/img/language/Typescript.png").default}
+                alt="Typescript"
+            />
+        </span>
+        <br />
+        <h3>➥ Logic Code Generator & Unit Tester</h3>
+    </Link>
+</div>

@@ -1,0 +1,132 @@
+---
+sidebar_position: 4
+tags:
+    - LOC
+    - Data Process
+    - Logic
+---
+
+# Edit and Manage Data Process
+
+To edit or delete an existing data processes.
+
+## Edit a Data Process
+
+Editing a data process will create a new revision of it.
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="studio1" label="LOC Studio" default>
+
+1. Select a data process in the explorer (**Data Process** ➞ **Explorer**) and click **Edit Data Process** <img src={require("./img/Edit.png").default} width="32px" alt="Save" className="img-bg" /> on the top right. (You can also search or filter data processes with name, permanent ID (PID), tags or time range in the search box on the left.)
+
+2. If the data process does not have any linked logic, click on **Add Generic Logic** and **Add Aggregator Logic** to add them.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Data-process-edit.png").default}
+        width="80%"
+        alt="Data-process-edit"
+    />
+</div>
+
+3. If the data process already have linked logic, you can add more generic logic by clicking **Add Logic**.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Data-process-edit-2.png").default}
+        width="50%"
+        alt="Data-process-edit-2"
+    />
+</div>
+
+4. To remove a linked logic from the data process or to update the revision, hover the cursor to <span style={{fontSize:'24px'}}><b>&nbsp;⋮&nbsp;</b></span> on the top-right corner of a logic and select **Unlink** or **Change Revision**.
+
+<div className="gridEqual">
+    <div className="right-padded-sm">
+        <img src={require("./img/Logic-card.png").default} alt="Logic-card" />
+    </div>
+    <div className="center">
+        <big>➥</big>
+    </div>
+    <div className="padded-sm">
+        <img
+            src={require("./img/Menu-data-process-edit.png").default}
+            alt="Menu-data-process-edit"
+        />
+    </div>
+</div>
+
+:::info Agent Configuration and Logic Variables
+See [Agent Configuration](/main/category/agent-configuration) for how to setup agent configurations and logic variables for a logic in a data process.
+:::
+
+5. Click **Save** <img src={require("./img/Save.png").default} width="32px" alt="Save" /> on the top right to save the changes (which will create a new revision), or **Cancel** <img src={require("./img/Cancel.png").default} width="32px" alt="Cancel" className="img-bg" /> to discard them.
+
+  </TabItem>
+</Tabs>
+
+:::warning Update Trigger Linking Revision
+If the data process is already linked to a trigger, the trigger has to be edited to link the correct data process version.
+:::
+
+## Edit Tags of a Data Process
+
+<Tabs>
+  <TabItem value="studio2" label="LOC Studio" default>
+
+Select a data process and click **Edit Tags** <img src={require("./img/Tag.png").default} width="32px" alt="Tag" className="img-bg" /> on the top right.
+
+  </TabItem>
+</Tabs>
+
+## Delete a Data Process
+
+<Tabs>
+  <TabItem value="studio3" label="LOC Studio" default>
+
+Select a data process and click **Delete Data Process** <img src={require("./img/Delete.png").default} width="32px" alt="Delete" className="img-bg" /> on the top right.
+
+:::warning
+If a data process is linked to one or more triggers, deleting it will make the triggers inoperable.
+:::
+
+  </TabItem>
+</Tabs>
+
+## Move a Data Process to Another Scenario
+
+<Tabs>
+  <TabItem value="studio4" label="LOC Studio" default>
+
+1. Right-click on a data process and select **Move Data Process**.
+
+2. Right-click on the destination scenario and select **Move Data Process to Here**.
+
+3. Edit the new data process name and click **Done**.
+
+  </TabItem>
+</Tabs>
+
+## Browse a Data Process
+
+<Tabs>
+  <TabItem value="studio5" label="LOC Studio" default>
+
+1. In LOC Studio, go to **Data Process** ➞ **Flat Search View**.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Nav-flat-search.png").default}
+        alt="Nav-flat-search"
+    />
+</div>
+
+2. Browse and search the data processes.
+
+3. You can click the right arrow <img src={require("./img/Right.png").default} width="20px" alt="Right" className="img-bg" /> to expand the details and logic list of a data process, copy <img src={require("./img/Copy.png").default} width="20px" alt="Copy" className="img-bg" /> permanent IDs (PIDs) or inspect <img src={require("./img/View.png").default} width="20px" alt="View" className="img-bg" /> a data process in the explorer.
+
+  </TabItem>
+</Tabs>

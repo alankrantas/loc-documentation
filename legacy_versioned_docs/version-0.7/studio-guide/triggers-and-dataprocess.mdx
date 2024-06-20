@@ -1,0 +1,58 @@
+---
+sidebar_position: 3
+tags:
+    - LOC
+    - Studio
+    - Dataprocess
+    - Trigger
+---
+
+# Triggers and Data Process
+
+This is the developer's sections for deploying and managing user assets:
+
+-   Triggers:
+    -   API Route
+-   Data processes
+
+:::info
+Studio does not yet support managing message queue and scheduler triggers.
+:::
+
+## API Route
+
+For managing API routes, one of the most used trigger for data processes.
+
+See [Quick Start](/legacy/0.7/quickstart#create-an-api-route) for how to create an API route in Studio.
+
+<div className="center-padded-sm">
+    <img src={require("./img/apiroute.png").default} alt="apiroute" />
+</div>
+
+:::tip
+A new created API route would need a bit time to take effect (the gateway returns `404` before the route is ready).
+
+If a data process has been linked to an API route, and you later undeploy the data process to update it, you'll have to manually **re-link** it to the API route (modify the API route then link again).
+
+If multiple data processes are linked to an API route, they will be invoked _synchronously_.
+:::
+
+## Data Process - DP Interactive Map
+
+For managing units, scenarios, data processes and logic, tag, revision info in them. You can drag, zoom or inspect the detail of the logic blocks.
+
+See [Quick Start](/legacy/0.7/quickstart#create-a-project-and-a-scenario) for how to deploy a data process in Studio.
+
+<div className="center-padded-sm">
+    <img src={require("./img/dpmap.png").default} alt="dpmap" />
+</div>
+
+:::tip
+Anything in a data process _can only be modified_ when it's undeployed.
+
+The data process' revision number will add `1` after being updated. If you edit a data process created by someone else, they will receive an notification email. You can also add new comments as update logs while editing a logic.
+:::
+
+:::note
+For now only one unit `Default` is supported in Studio and cannot be changed.
+:::

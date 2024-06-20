@@ -1,0 +1,70 @@
+---
+sidebar_position: 3
+tags:
+    - LOC
+    - Logic
+    - Error Handling
+---
+
+# Unit Test Logic Source
+
+To test-run a logic entry file in LOC simple runtime using mocked input data.
+
+<details>
+  <summary>What is the difference between LOC Simple Runtime and LOC Runtime?</summary>
+
+LOC simple runtime is a special runtime built for unit test purpose, and does not own dedicated CPU cores like the LOC runtime. The logic source would be built into a temporary asset, which will not be used to create actual logic.
+
+A logic running in the simple runtime have access to most of the agents, including the [event store agent](/main/feature/agent/agent-list#event-store-agent). Be noted that the unit test only shows [execution status](/main/feature/execution-and-task/view#execution-status) and logs (from the [logging agent](/main/feature/agent/agent-list#logging-agent)) while task result is not viewable.
+
+</details>
+
+## Run Test of an Entry File
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="studio1" label="LOC Studio" default>
+
+1. Select an existing [entry file](/main/feature/logic/source) in the logic source, and click **Build for Test** <img src={require("./img/Test.png").default} width="32px" alt="Test" /> on the top right.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Build-for-test.png").default}
+        alt="Build-for-test"
+    />
+</div>
+
+2. The unit test will run the logic as if it is in a data process invoked by a mocked API route trigger. The following mocked input can be configured:
+
+| Mocked Input | Description                                                                                                                                                                                                       |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Inbound      | HTTP request querystring or body                                                                                                                                                                                  |
+| Logic Body   | "Existing" session storage keys and values (see: [Session Storage Agent](/main/feature/agent/agent-list#session-storage-agent))                                                                                   |
+| Outbound     | [Agent configuration reference](/main/feature/agent-config/add-config) (for creating agent configurations, see [Create an Agent Configuration](/main/feature/agent-config/manage#create-an-agent-configuration).) |
+
+:::info
+The mocked API route will be a `GET` request, the same as in [manually executing a data process](/main/feature/data-process/execute).
+:::
+
+3. Wait for the logic to finish building and executing.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Build-for-test-result.png").default}
+        alt="Build-for-test-result"
+    />
+</div>
+
+The execution result and log should be available shortly:
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Build-for-test-log.png").default}
+        alt="Build-for-test-log"
+    />
+</div>
+
+  </TabItem>
+</Tabs>

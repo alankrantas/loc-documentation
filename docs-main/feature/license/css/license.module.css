@@ -1,0 +1,19 @@
+.trial {
+    background-color: #e4f5fb;
+    color: black;
+}
+
+.active {
+    background-color: #ecfaf7;
+    color: black;
+}
+
+.expired {
+    background-color: #f0f2f5;
+    color: black;
+}
+
+.inactive {
+    background-color: #fff0f2;
+    color: black;
+}

@@ -1,0 +1,78 @@
+---
+sidebar_position: 1
+tags:
+    - LOC
+    - Execution
+    - Task
+    - Error Handling
+---
+
+# Overview
+
+An overview of the concept and purpose of LOC executions, tasks and their results.
+
+## What is an Execution and a Task?
+
+When one or more data processes are triggered to be executed, the process is referred as an **Execution** with each data process is run as a **task**.
+
+```mermaid
+flowchart LR;
+    n1{{Trigger}}-->n2;
+    n1-->n3;
+    subgraph s1 [Execution]
+    subgraph s2 [Task #A]
+    n2[Data Process #1];
+    end
+    subgraph s3 [Task #B]
+    n3[Data Process #2];
+    end
+    end
+    n4(["Execution\nresult"]);
+    n2-->|task result|n4;
+    n3-->|task result|n4;
+```
+
+### Execution and Task Results
+
+> See: [Inspect Execution Result](/main/feature/execution-and-task/view) and [Logging and Finalise Task Result](/main/feature/execution-and-task/logging-and-finalise)
+
+Each task generate a **task result**, and all task results in the same execution will be combined into an **execution result**.
+
+A task result can be defined using SDK's result agent in the aggregator logic.
+
+Both task and execution results contain metadata and other data includes:
+
+-   Timestamps
+-   Execution status
+-   Task payloads
+-   Execution/task results
+-   Logs (from logging agent)
+-   ID of execution, task, data process, logic, etc.
+
+As mentioned above, an execution result may also be returned to the trigger invoker depending on the trigger type and mode, for example, as part of the HTTP responses of an API route.
+
+## Railway and Error Handling in Task
+
+> See: [Error Handling in Task](/main/feature/execution-and-task/error-handling)
+
+During a task, the LOC runtime will execute each logic in the data process one by one. The process is called a **railway**.
+
+The default error handling behavior in LOC is: **if one logic fails, the task fails**. Or, if a logic throws an error (or an agent in the LOC runtime throws an error due to how the logic uses it), LOC will _switch_ the railway and pass the error to the rest of logic.
+
+```mermaid
+flowchart TD;
+    subgraph "Task railway"
+    n1[Generic #1 ✅]-->n2;
+    n2[Generic #2 ❌]-->n3;
+    n3[Generic #3 ❌]-->n4;
+    n4[Aggregator ❌];
+    end
+    n5(("LOC\nruntime"));
+    n6(Compiled with Error ❌);
+    n5-.->|"execute"|n1;
+    n5-.->|"execute (<b>ERROR!</b>)"|n2;
+    n5-.->|"switch to error"|n2;
+    n5-.->|"execute with error"|n3;
+    n5-.->|"execute with error"|n4;
+    n4-->n6;
+```

@@ -1,0 +1,243 @@
+---
+sidebar_position: 1
+tags:
+    - LOC
+    - CLI
+---
+
+# General, Profile and Login
+
+CLI commands for
+
+-   General purposes
+-   [Login profiles](/legacy/0.10/cli-handbook/cli-commands/general-profile-login#login-profile)
+-   [Login/logout](/legacy/0.10/cli-handbook/cli-commands/general-profile-login#login)
+
+Also see: [Introduction and Setup](http://localhost:3000/legacy/0.10/cli-handbook/setup)
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+## General
+
+### Show Help
+
+```bash
+loc help [command]
+loc [command] -h
+loc [command] --help
+```
+
+List available commands or show help on a specific command.
+
+#### Example:
+
+```bash
+loc help dp
+loc dp create -h
+loc dp list --help
+```
+
+### Show CLI Version
+
+```bash
+loc version
+loc -V
+```
+
+### Generate Shell Completion Scripts
+
+```bash
+loc completion <SHELL>
+```
+
+Generate completion scripts for specific shells. This will provide completion suggestions while pressing `tab`.
+
+`<SHELL>` can be specified to be one of the following options:
+
+| Shell        | Platform    |
+| ------------ | ----------- |
+| `bash`       | Linux/macOS |
+| `elvish`     | Linux/macOS |
+| `fish`       | Linux/macOS |
+| `powershell` | Windows     |
+| `zsh`        | Linux/macOS |
+
+<details>
+    <summary>How to setup CLI completion script</summary>
+
+<Tabs>
+  <TabItem value="bash" label="Bash" default>
+
+Create a `loc.bash` with CLI:
+
+```bash
+mkdir -p /usr/local/bin/bash
+loc completion bash > /usr/local/bin/bash/loc.bash
+```
+
+Then edit `~/.bashrc`:
+
+```bash
+echo "source /usr/local/bin/bash/loc.bash" >> ~/.bashrc
+```
+
+  </TabItem>
+  <TabItem value="fish" label="fish">
+
+Create a `loc.fish` with CLI:
+
+```bash
+mkdir -p ~/.config/fish/completions
+loc completion fish > ~/.config/fish/completions/loc.fish
+```
+
+  </TabItem>
+  <TabItem value="zsh" label="zsh">
+
+Create a `_loc` script with CLI:
+
+```bash
+mkdir -p ~/.zsh/completion
+loc completion zsh > ~/.zsh/completion/_loc
+```
+
+Then edit `~/.zshrc`:
+
+```bash
+sudo nano ~/.zshrc
+```
+
+Add the following lines into `~/.zshrc` then save (`Ctrl` + `x` then `y`):
+
+```bash title="~/.zshrc" showLineNumbers
+fpath+=~/.zsh/completion
+autoload -U loc
+loc
+```
+
+  </TabItem>
+  <TabItem value="powershell" label="PowerShell">
+
+First check if the `$PROFILE` script exists:
+
+```shell
+test-path $PROFILE
+```
+
+If printed `false`, create the `$PROFILE` script with
+
+```shell
+New-Item -Path $PROFILE -Type File -Force
+```
+
+Then append the CLI script to `$PROFILE`:
+
+```shell
+loc completion powershell >> $PROFILE
+```
+
+  </TabItem>
+</Tabs>
+
+</details>
+
+## Login Profile
+
+> `loc profile`
+
+A login **Profile** is the local profile (name, description and URL) for connecting your LOC server. The Profiles will be stored globally so any CLI binaries on the same computer would access the same Profiles.
+
+### List All Profiles
+
+```bash
+loc profile list|ls
+```
+
+### Create a Profile
+
+```bash
+loc profile create|new [OPTIONS]
+```
+
+Create a login Profile.
+
+The options, if not provided as parameters, would be prompted by CLI:
+
+| Option                          | Description                              |
+| ------------------------------- | ---------------------------------------- |
+| `--name <NAME>`\*               | Login Profile name                       |
+| `--description <DESCRIPTION>`\* | Login Profile description (can be blank) |
+| `--server-url <SERVER URL>`\*   | LOC server base URL                      |
+
+> \*= will be prompted if not provided
+
+### Select a Profile
+
+```bash
+loc profile use <PROFILE NAME>
+```
+
+You must select a login Profile to use in order to login and manage assets in your LOC instance.
+
+### Show Current Profile
+
+```bash
+loc profile current [-v|--verbose]
+```
+
+| Option                  | Description                                |
+| ----------------------- | ------------------------------------------ |
+| `-v` &#124; `--verbose` | Show more details of current logic profile |
+
+### Inspect a Profile
+
+```bash
+loc profile get <PROFILE NAME>
+```
+
+:::tip
+Inspecting the current profile you're using is the same as `loc profile current -v`.
+:::
+
+### Delete a Profile
+
+```bash
+loc profile delete <PROFILE NAME>
+```
+
+## Login
+
+```bash
+loc login [OPTIONS]
+```
+
+Login LOC (requires a profile set and selected). This will generate a token which is required for managing assets in your LOC instance.
+
+| Option                    | Description                                      |
+| ------------------------- | ------------------------------------------------ |
+| `--username <USERNAME>`\* | LOC username                                     |
+| `--password <PASSWORD>`\* | LOC password (not recommended)                   |
+| `--password-stdin`        | Take password from stdin (standard input stream) |
+
+> \*= will be prompted if not provided
+
+:::note
+You will be logout of CLI after some time of inactivity (token expired).
+
+The CLI token does not effect the Studio token. You can login both at the same time.
+
+If you are using Bash or similar shells, you can save your password in a file (for example, `secret`):
+
+```bash
+loc login --username <username> --password-stdin < ./secret
+```
+
+Then press `Enter`.
+:::
+
+## Logout
+
+```bash
+loc logout
+```

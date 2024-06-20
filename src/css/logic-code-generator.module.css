@@ -1,0 +1,332 @@
+.container {
+    width: "100%";
+    height: "100vh";
+    display: "flex";
+    justifycontent: "center";
+    alignitems: "center";
+}
+
+.gridOneSide {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 35% 65%;
+}
+
+.gridOneSide2 {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 65% 35%;
+}
+
+.gridEqual {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 50% 50%;
+}
+
+.gridSelect {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 90fr 5fr 5fr;
+}
+
+.btnInfo {
+    background-color: #808080;
+    border: none;
+    color: white;
+    padding: 4px 4px;
+    font-size: 14px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.btnInfo:hover {
+    background-color: #a0a0a0;
+}
+
+.btnInfoDark {
+    background-color: #606060;
+    border: none;
+    color: white;
+    padding: 4px 4px;
+    font-size: 14px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.btnInfoDark:hover {
+    background-color: #808080;
+}
+
+.btnAdd {
+    display: block;
+    position: relative;
+    width: 100%;
+    background-color: #4bbee4;
+    border: none;
+    color: white;
+    padding: 4px 4px;
+    font-size: 18px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.btnAdd:hover {
+    background-color: #9adbf0;
+}
+
+.btnAddDark {
+    display: block;
+    position: relative;
+    width: 100%;
+    background-color: #0e475a;
+    border: none;
+    color: white;
+    padding: 4px 4px;
+    font-size: 18px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.btnAddDark:hover {
+    background-color: #1a85a8;
+}
+
+.btnEdit {
+    display: block;
+    position: relative;
+    height: 100%;
+    width: 100%;
+    background-color: #20b2aa;
+    border: none;
+    color: white;
+    font-size: 18px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.btnEdit:hover {
+    background-color: #36dbd2;
+}
+
+.btnEditDark {
+    display: block;
+    position: relative;
+    height: 100%;
+    width: 100%;
+    background-color: #0f5753;
+    border: none;
+    color: white;
+    font-size: 18px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.btnEditDark:hover {
+    background-color: #167d77;
+}
+
+.btnDel {
+    display: block;
+    position: relative;
+    height: 100%;
+    width: 100%;
+    background-color: #ff435a;
+    border: none;
+    color: white;
+    font-size: 18px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.btnDel:hover {
+    background-color: #ffa4af;
+}
+
+.btnDelDark {
+    display: block;
+    position: relative;
+    height: 100%;
+    width: 100%;
+    background-color: #6f000e;
+    border: none;
+    color: white;
+    font-size: 18px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.btnDelDark:hover {
+    background-color: #cd001a;
+}
+
+.btnExecute {
+    position: relative;
+    width: 100%;
+    background-color: #4bbee4;
+    border: none;
+    color: white;
+    padding: 8px 4px;
+    font-size: 18px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.btnExecute:hover {
+    background-color: #9adbf0;
+}
+
+.btnExecuteDark {
+    position: relative;
+    width: 100%;
+    background-color: #0e475a;
+    border: none;
+    color: white;
+    padding: 4px 4px;
+    font-size: 18px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.btnExecuteDark:hover {
+    background-color: #1a85a8;
+}
+
+.btnOption {
+    display: block;
+    width: 100%;
+    border: none;
+    padding: 8px 8px;
+    font-size: 16px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.btnOptionDark {
+    display: block;
+    width: 100%;
+    border: none;
+    padding: 8px 8px;
+    font-size: 16px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.fonTitle {
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.fontSubtitle {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.fontOk {
+    font-size: 14px;
+    color: white;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+.fontOkBg {
+    padding: 2px;
+    background-color: #228b22;
+    opacity: 0.8;
+}
+
+.fontAlert {
+    font-size: 14px;
+    color: white;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+.fontAlertBg {
+    padding: 2px;
+    background-color: #b22222;
+    opacity: 0.8;
+}
+
+.fontValidateColor {
+    font-size: 16px;
+    color: #a0522d;
+}
+
+.fontValidateColorDark {
+    font-size: 16px;
+    color: #ffe4c4;
+}
+
+.spanBlock {
+    display: block;
+    background-color: #fdf5e6;
+}
+
+.spanBlockDark {
+    display: block;
+    background-color: #708090;
+}
+
+.checkbox {
+    display: inline-block;
+    height: 20px;
+    width: 20px;
+    margin-right: 4px;
+}
+
+.querystring {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: "Fira Mono";
+    text-align: left;
+    padding: 16px 16px;
+}
+
+.tooltip {
+    font-size: 15px;
+    text-align: left;
+    position: relative;
+    display: inline-block;
+}
+
+.tooltiptext {
+    font-size: 12px;
+    font-family: "Fira Mono";
+    text-align: left;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 300px;
+    background-color: #606060;
+    color: #fff;
+    border-radius: 8px;
+    padding: 8px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -150px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #606060 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}

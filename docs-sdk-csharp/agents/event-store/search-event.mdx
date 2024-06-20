@@ -1,0 +1,473 @@
+---
+sidebar_position: 3
+tags:
+    - LOC
+    - SDK
+    - Agent
+    - Event
+    - CSharp
+---
+
+# Method: Search Events - C Sharp
+
+```csharp
+public async static Task<SearchEventResponse> SearchEvent(SearchEventRequest search) {}
+```
+
+| Parameter | Type                                        | Description             |
+| --------- | ------------------------------------------- | ----------------------- |
+| `search`  | [`SearchEventRequest`](#searcheventrequest) | Event search parameters |
+
+A method of the [Event Agent](/sdk-csharp/agents/event-store/intro).
+
+Search events in the event store that fit the search parameters.
+
+Returns type [`SearchEventResponse`](#searcheventresponse), which includes an array of queried events.
+
+## Parameter Type
+
+### `SearchEventRequest`
+
+Event search parameters. If one search parameter have no conditions, set it to `null`.
+
+Properties:
+
+| Property      | Type                           | Description                                                          |
+| ------------- | ------------------------------ | -------------------------------------------------------------------- |
+| `Queries`     | [`List<Query>`](#query)        | Query conditions; default: empty collection                          |
+| `Excludes`    | `List<Query>`                  | Exclude conditions; default: empty collection                        |
+| `Filters`     | [`List<Filter>`](#filter)      | Filter conditions; default: empty collection                         |
+| `Sorts`       | [`List<Sort>`](#sort)          | Sort conditions; default: empty collection                           |
+| `Aggregation` | [`Aggregation?`](#aggregation) | Aggregation syntax; default: `null`                                  |
+| `From`        | `ulong`                        | Return events start from n<sup>th</sup> queried result; default: `0` |
+| `Size`        | `ulong`                        | Maximum query size; default: `0`                                     |
+
+Constructors:
+
+```csharp
+public SearchEventRequest()
+public SearchEventRequest(
+    List<Query> queries, // Queries
+    List<Query> excludes, // Excludes
+    List<Filter> filters, // Filters
+    List<Sort> sorts, // Sorts
+    Aggregation aggregation, // Aggregation
+    ulong from, // From
+    ulong size // Size
+)
+```
+
+### Sub Parameter Type
+
+#### `Query`
+
+Conditions to match (or not match) value in specific fields. All conditions will be applied for searching events.
+
+Properties:
+
+| Property    | Type                        | Description                                                                      |
+| ----------- | --------------------------- | -------------------------------------------------------------------------------- |
+| `Field`     | `string`                    | [Event field name](/sdk-csharp/agents/event-store/intro#events-fields-for-query) |
+| `QueryType` | [`IQueryType`](#iquerytype) | Match type and parameters                                                        |
+
+Constructor:
+
+```csharp
+public Query(
+    string field, // Field
+    IQueryType queryType // QueryType
+)
+```
+
+#### `IQueryType`
+
+The following classes are derived from `IQueryType`:
+
+```csharp
+public class Match : IQueryType {}
+public class MatchPhrase : IQueryType {}
+public class Term : IQueryType {}
+```
+
+All classes has the following properties:
+
+| Property | Description                                     |
+| -------- | ----------------------------------------------- |
+| `Value`  | `string` value to be matched to the event field |
+
+Each has the following constructors:
+
+```csharp
+public Match(string value)
+public MatchPhrase(string value)
+public Term(string value)
+```
+
+These classes represent three match types based on Elasticsearch API:
+
+-   [**match**](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query.html): the value matches _any word_ in the field (fuzzy search). Standard full-text search, suitable for most use cases.
+-   [**match_phrase**](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query-phrase.html): words order in the value matches words order in the field. For example, value `"has been"` matches `it has been raining`.
+-   [**term**](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-term-query.html): the value matchees _exactly_ to the field.
+
+#### `Filter`
+
+Conditions to filter value in specific fields using either **range filter** or **wildcard filter**. All conditions will be applied for filtering events.
+
+Properties:
+
+| Property | Type                | Description                                                                      |
+| -------- | ------------------- | -------------------------------------------------------------------------------- |
+| `Field`  | `string`            | [Event field name](/sdk-csharp/agents/event-store/intro#events-fields-for-query) |
+| `Query`  | [`IQuery`](#iquery) | Filter type and parameters                                                       |
+
+Constructor:
+
+```csharp
+public Filter(
+    string field, // Field
+    IQuery query // Query
+)
+```
+
+#### `IQuery`
+
+The following classes are derived from `IQuery`:
+
+```csharp
+public class Range : IQuery {}
+public class Wildcard : IQuery {}
+```
+
+Properties of these classes:
+
+| Property of `Range` | Type     | Description                                |
+| ------------------- | -------- | ------------------------------------------ |
+| `Gte`               | `ulong?` | Greater than or equal to (null = no limit) |
+| `Lte`               | `ulong?` | Less than or equal to (null = no limit)    |
+
+| Property of `Wildcard` | Type     | Description                                                    |
+| ---------------------- | -------- | -------------------------------------------------------------- |
+| `Value`                | `string` | Value with wildcard operators to be matched to the event field |
+
+Each has the following constructors:
+
+```csharp
+public Range()
+
+public Wildcard(
+    string value // Value
+)
+```
+
+The wildcard filter value can contain the following operators:
+
+-   `?`: any single character
+-   `*`: zero to more than one characters
+
+For example, `event-?-*` matches `event-A-1` and `event-B-123`, etc.
+
+#### `Sort`
+
+Conditions to sort events by specific fields. All conditions will be applied for sorting events.
+
+Properties:
+
+| Property | Type                      | Description                                                                      |
+| -------- | ------------------------- | -------------------------------------------------------------------------------- |
+| `Field`  | `string`                  | [Event field name](/sdk-csharp/agents/event-store/intro#events-fields-for-query) |
+| `Order`  | [`SortOrder`](#sortorder) | Sort order                                                                       |
+
+Constructor:
+
+```csharp
+public Sort(
+    string field, // Field
+    SortOrder order // Order
+)
+```
+
+#### `SortOrder`
+
+```csharp
+public enum SortOrder
+{
+    Asc = 1,  // Ascending
+    Desc = 2  // Descending
+}
+```
+
+#### `Aggregation`
+
+Properties:
+
+| Property  | Type                                |
+| --------- | ----------------------------------- |
+| `Queries` | [`List<Query>`](#query-aggregation) |
+| `Size`    | `ulong?`                            |
+| `After`   | `Dictionary<string, string>`        |
+
+Constructors:
+
+```csharp
+public Aggregation()
+public Aggregation(
+    List<Query> queries, // Queries
+    ulong? size, // Size
+    Dictionary<string, string> after // After
+)
+```
+
+#### `Query` (Aggregation)
+
+Properties:
+
+| Property          | Type                                        |
+| ----------------- | ------------------------------------------- |
+| `Field`           | `string`                                    |
+| `AggregationType` | [`IAggregation`](#iaggregation-aggregation) |
+
+Constructor:
+
+```csharp
+public Query(
+    string field, // Field
+    IAggregation aggregationType // AggregationType
+)
+```
+
+#### `IAggregation` (Aggregation)
+
+The following classes are derived from `IQuery`:
+
+```csharp
+public class Terms : IAggregation {}
+public class DateHistogram : IAggregation {}
+```
+
+Properties of these classes:
+
+| Property of `Terms` (Aggregator) | Type                       |
+| -------------------------------- | -------------------------- |
+| `Order`                          | [`SortOrder?`](#sortorder) |
+
+| Property of `DateHistogram` (Aggregator) | Type                       |
+| ---------------------------------------- | -------------------------- |
+| `Interval`                               | `string`                   |
+| `Order`                                  | [`SortOrder?`](#sortorder) |
+
+Each has the following constructors:
+
+```csharp
+public Terms(
+    SortOrder order // Order
+)
+public DateHistogram(
+    string interval, // Interval
+    SortOrder order // Order
+)
+```
+
+## Return Type
+
+### `SearchEventResponse`
+
+Search result of matched events.
+
+| Property      | Type                                       | Description                                                                 |
+| ------------- | ------------------------------------------ | --------------------------------------------------------------------------- |
+| `Events`      | [`List<Event>`](#event)                    | Queried events (empty collection if none matches)                           |
+| `Count`       | `ulong`                                    | Number of events to be queried (`Size` parameter from `SearchEventRequest`) |
+| `Total`       | `ulong`                                    | Actual queried number of events                                             |
+| `Took`        | `ulong`                                    | Query time (milllisecond)                                                   |
+| `Aggregation` | [`AggregationResult?`](#aggregationresult) | Aggregation results                                                         |
+
+### Sub Return Types
+
+#### `Event`
+
+Queried event object.
+
+:::info
+The properties are _not_ the [field names](/sdk-csharp/agents/event-store/intro#events-fields-for-query) for query, exclude, filter or sort conditions.
+:::
+
+| Property                     | Type                                                    | Description             |
+| ---------------------------- | ------------------------------------------------------- | ----------------------- |
+| `LabelId`                    | `string`                                                | Event label ID          |
+| `LabelName`                  | `string`                                                | Event label name        |
+| `SourceDigitalIdentity`      | `string`                                                | Source digital identity |
+| `TargetDigitalIdentity`      | `string`                                                | Target digital identity |
+| `Meta`                       | `string`                                                | Meta                    |
+| `Type`                       | `number`                                                | Type or group           |
+| `Timestamp`                  | `DateTime`                                              | Emit timestamp          |
+| `Sequence`                   | `ulong`                                                 | Emit sequence           |
+| `ExecutionId`                | `string`                                                | Execution ID            |
+| `TaskId`                     | `string`                                                | Task ID                 |
+| `DataProcessIdentityContext` | [`VersionedIdentityContext`](#versionedidentitycontext) | Data process identity   |
+| `LogicIdentityContext`       | `VersionedIdentityContext`                              | Logic identity          |
+
+#### `VersionedIdentityContext`
+
+> Refer to: [`VersionedIdentityContext`](/sdk-csharp/metadata/task#versionedidentitycontext)
+
+#### `AggregationResult`
+
+| Property  | Type                               |
+| --------- | ---------------------------------- |
+| `After`   | `Dictionary<string, string>`       |
+| `Buckets` | `List<Dictionary<string, string>>` |
+
+## Examples
+
+### Search Events
+
+```csharp showLineNumbers
+var query = await EventAgent.SearchEvent(
+    new SearchEventRequest
+    {
+        Queries = new List<Query>
+        {
+            new Query(
+                "label_name",
+                new Query.Match("some label name")
+            ),
+            new Query(
+                "source_digital_identity",
+                new Query.Match("some source DID")
+            ),
+            // more match conditions...
+        },
+        Size = 1000,
+    }
+);
+
+var events = query.Events;
+
+foreach(var event in events)
+{
+    string labelName = event.LabelName;
+    string meta = event.Meta;
+    string logicPid = event.LogicIdentityContext.PermanentIdentity.ToString();
+}
+```
+
+### Exclude Events
+
+```csharp showLineNumbers
+var query = await EventAgent.SearchEvent(
+    new SearchEventRequest
+    {
+        Excludes = new List<Query>
+        {
+            new Query(
+                "target_digital_identity",
+                new Query.Match("some target DID")
+            ),
+            // more match conditions...
+        },
+        Size = 1000,
+    }
+);
+
+var events = query.Events;
+```
+
+### Filter Events
+
+#### Filter with Range
+
+Filter events emitted in the past hour (the timestamp field can be compared using unix time):
+
+```csharp showLineNumbers
+var query = await EventAgent.SearchEvent(
+    new SearchEventRequest
+    {
+        Filters = new List<Filter>
+        {
+            new Filter(
+                "timestamp",
+                new Range{
+                    Gte = DateTimeOffset.ToUnixTimeSeconds() - 60 * 60,
+                    Lte = DateTimeOffset.ToUnixTimeSeconds()
+                }
+            ),
+            // more match conditions...
+        },
+        Size = 1000,
+    }
+);
+
+var events = query.Events;
+```
+
+#### Filter with Wildcard
+
+```csharp showLineNumbers
+var query = await EventAgent.SearchEvent(
+    new SearchEventRequest
+    {
+        Filters = new List<Filter>
+        {
+            new Filter(
+                "label_name",
+                new Wildcard("some?name*")
+            ),
+            // more match conditions...
+        },
+        Size = 1000,
+    }
+);
+
+var events = query.Events;
+```
+
+### Sort Events
+
+```csharp showLineNumbers
+var query = await EventAgent.SearchEvent(
+    new SearchEventRequest
+    {
+        Sorts = new List<Sort>
+        {
+            new Sort(
+                "target_digital_identity",
+                SortOrder.Desc
+            ),
+            // more match conditions...
+        },
+        Size = 1000,
+    }
+);
+
+var events = query.Events;
+```
+
+### Search Events with Multiple Conditions
+
+```csharp showLineNumbers
+var query = await EventAgent.SearchEvent(
+    new SearchEventRequest
+    {
+        Queries = new List<Query>
+        {
+            ...
+        },
+        Excludes = new List<Query>
+        {
+            ...
+        },
+        Filters = new List<Filter>
+        {
+            ...
+        },
+        Sorts = new List<Sort>
+        {
+            ...
+        },
+        From = 0,
+        Size = 1000,
+    }
+);
+
+var events = query.Events;
+```

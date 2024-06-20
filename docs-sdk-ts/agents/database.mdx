@@ -1,0 +1,294 @@
+---
+sidebar_position: 8
+tags:
+    - LOC
+    - SDK
+    - Agent
+    - Agent Configuration
+    - Database
+    - JavaScript
+    - TypeScript
+---
+
+# Database Agent - JS/TS
+
+Read and write an external database server.
+
+| Logic Type       | Available |
+| ---------------- | --------- |
+| Generic logic    | ✅        |
+| Aggregator logic | ❌        |
+
+## Database Agent Configuration
+
+> See: [Agent Configuration](/main/category/agent-configuration)
+
+A **Database Agent Configuration** defines an external database server that will be allowed to be accessed from LOC runtime.
+
+The Database Agent requires a configuration reference name so that it can access data on the database server. The reference name can be added to a logic while creating or editing a data process.
+
+## Import and Usage
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+
+```javascript showLineNumbers
+import {
+    // highlight-next-line
+    DatabaseAgent,
+} from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx) {
+    const dbClient = await DatabaseAgent.acquire("db-config-ref");
+    const result = await dbClient?.query("SELECT * FROM table1;", []);
+}
+
+export async function handleError(ctx, error) {
+    // ... same
+}
+```
+
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+
+```typescript showLineNumbers
+import {
+    // highlight-next-line
+    DatabaseAgent,
+    GenericContext,
+    RailwayError,
+} from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx: GenericContext) {
+    const dbClient = await DatabaseAgent.acquire("db-config-ref");
+    const result = await dbClient?.query("SELECT * FROM table1;", []);
+}
+
+export async function handleError(ctx: GenericContext, error: RailwayError) {
+    // ... same
+}
+```
+
+  </TabItem>
+</Tabs>
+
+## Class Reference
+
+### Type
+
+-   `DatabaseAgent`
+
+### Method: Acquire Database Client
+
+```typescript
+async acquire(configurationName: string): Promise<DatabaseClient>
+```
+
+| Parameter           | Description                                 |
+| ------------------- | ------------------------------------------- |
+| `configurationName` | Database Agent Configuration reference name |
+
+Acquire a [Database client](#database-client) using a configuration reference name. Throws an error if the configuration cannot be found.
+
+## Database Client
+
+### Type
+
+-   `DatabaseClient`
+
+> Importable from `@fstnetwork/loc-logic-sdk`
+
+### Method: Select Query
+
+```typescript
+async query(rawSql: string, params: any[]): Promise<Database.QueryResults>
+```
+
+| Parameter | Type     | Description                                       |
+| --------- | -------- | ------------------------------------------------- |
+| `rawSql`  | `string` | SQL prepared statement                            |
+| `params`  | `any[]`  | Values to be inserted into the prepared statement |
+
+Execute a select query and returns a [`QueryResults`](#queryresults) object.
+
+:::warning Always Use Prepared Statements
+It is strongly recommended to query a database using [prepared statements](https://en.wikipedia.org/wiki/Prepared_statement). For example, the following code works but is vulnerable to [SQL injection attack](https://en.wikipedia.org/wiki/SQL_injection):
+
+```typescript
+// bad practice
+const result = await dbClient.query(
+    `SELECT * FROM table1 WHERE col_1 = ${value1} AND col_2 = ${value2};`,
+    [],
+);
+```
+
+Instead, seperate parameters into the `params` array:
+
+```typescript
+const result = await dbClient.query(
+    "SELECT * FROM table1 WHERE col_1 = ? AND col_2 = ?;",
+    [value1, value2],
+);
+```
+
+:::
+
+:::tip Prepared Statement Placeholders
+
+| Supported Database   | Placeholder     |
+| -------------------- | --------------- |
+| MySQL/Oracle         | `?`             |
+| Microsoft SQL Server | `@P1`, `@P2`... |
+| PostgreSQL           | `$1`, `$2`...   |
+
+:::
+
+#### `QueryResults`
+
+Results from select query.
+
+| Property  | Type                                                         | Description                  |
+| --------- | ------------------------------------------------------------ | ---------------------------- |
+| `columns` | [`Database.QueryResultColumn[]`](#databasequeryresultcolumn) | Column descriptions          |
+| `rows`    | `Array<{ [key: string]: any }>`                              | Columns names and row values |
+
+If a column in the result has the name of `ColName`, the value can be accessed as `rows[index].ColName` or `rows[index]["ColName"]`.
+
+:::info
+PostgreSQL returns lowered-case column names, which makes it `rows[index].colname`.
+:::
+
+#### `Database.QueryResultColumn`
+
+| Property | Type     | Description      |
+| -------- | -------- | ---------------- |
+| `name`   | `string` | Column name      |
+| `type`   | `string` | Column data type |
+
+### Method: Action Query
+
+```typescript
+async execute(rawSql: string, params: any[]): Promise<any>
+```
+
+| Parameter | Type     | Description                                       |
+| --------- | -------- | ------------------------------------------------- |
+| `rawSql`  | `string` | SQL prepared statement                            |
+| `params`  | `any[]`  | Values to be inserted into the prepared statement |
+
+Execute an action query (insert, update, delete, etc.). Returns the number of affected rows.
+
+### Method: Begin Transaction
+
+```typescript
+async beginTransaction(): Promise<DatabaseClient>
+```
+
+Begin a [transaction](https://en.wikipedia.org/wiki/Database_transaction#In_SQL). All action queries will only take effect when `commitTransaction()` is called.
+
+<details>
+  <summary>Modify Transaction Isolation Level</summary>
+
+Advanced users can modify the [transaction isolation level](<https://en.wikipedia.org/wiki/Isolation_(database_systems)#Isolation_levels>) with the following SQL statement:
+
+```sql
+--MySQL, MS SQL Server
+SET TRANSACTION ISOLATION LEVEL <LEVEL>
+
+--PostgreSQL, Oracle
+SET TRANSACTION <LEVEL>
+```
+
+The default level setting is [**READ COMMITTED**](<https://en.wikipedia.org/wiki/Isolation_(database_systems)#Read_committed>).
+
+</details>
+
+### Method: Commit Transaction
+
+```typescript
+async commitTransaction(): Promise<void>
+```
+
+Commit a transaction.
+
+### Method: Rollback Transaction
+
+```typescript
+async rollbackTransaction(): Promise<void>
+```
+
+Rollback a transaction. The database may throw an error if `commitTransaction()` is already called.
+
+### Method: Release Connection
+
+```typescript
+async release(): Promise<void>
+```
+
+The LOC runtime will also try to close unreleased connection when the task completes execution.
+
+## Examples
+
+### Query From Table
+
+```typescript showLineNumbers
+const dbClient = await DatabaseAgent.acquire("db-config-ref");
+
+const value1 = "value1";
+const value2 = "value2";
+
+const result = await dbClient?.query(
+    "SELECT * FROM table1 WHERE col_1 = ? AND col_2 = ?;",
+    [value1, value2],
+);
+
+const rows = result?.rows;
+
+// iterate through rows
+rows.forEach((row) => {
+    const value1 = row.col_1;
+    const value2 = row.col_2;
+    // ...
+});
+
+await dbClient?.release();
+```
+
+### Insert Data Into Table
+
+```typescript showLineNumbers
+const dbClient = await DatabaseAgent.acquire("db-config-ref");
+
+const value1 = "value1";
+const value2 = "value2";
+
+await dbClient?.execute("INSERT INTO table1 (col_1, col_2) VALUES (?, ?);", [
+    value1,
+    value2,
+]);
+```
+
+### Error Handling with Transaction
+
+```typescript showLineNumbers
+const dbClient = await DatabaseAgent.acquire("db-config-ref");
+
+try {
+    await dbClient?.beginTransaction();
+
+    // a series of SQL action queries to be completed
+
+    await dbClient?.commitTransaction();
+} catch (e) {
+    try {
+        await dbClient?.rollbackTransaction();
+    } catch (e) {
+        // error occurred after commit
+    }
+} finally {
+    await dbClient?.release();
+}
+```

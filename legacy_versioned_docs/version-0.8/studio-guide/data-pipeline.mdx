@@ -1,0 +1,54 @@
+---
+sidebar_position: 4
+tags:
+    - LOC
+    - Studio
+    - Dataprocess
+    - Logic
+---
+
+# Data Pipeline: Logic and Data Process
+
+## Data Process
+
+Data processes are data pipelines created and run in LOC and are consisted of logic. You can browse them in **Explorer** (using the project hierarchy) or **Flat Search View** (as a list).
+
+<div className="center-padded-sm">
+    <img src={require("./img/dataprocess.png").default} alt="dataprocess" />
+</div>
+
+<div className="center-padded-sm">
+    <img src={require("./img/dataprocess2.png").default} alt="dataprocess2" />
+</div>
+
+:::note
+A data process is "deployed" once it was created. It would only be executed either invoked by triggers or to be run manually.
+
+Modifying an existing data process creates a new revision.
+
+You can delete a data process even though some logic are already linked to it.
+:::
+
+## Logic
+
+[Logic](/legacy/0.8/tutorials/loc-feat-overview#data-process-and-logic) are code modules to be linked into one or more data processes.
+
+Depends on how and where the logic are created, there are two types of logic can be browsed: [cloud logic and native logic](/legacy/0.8/tutorials/loc-feat-overview#cloud-logic-vs-native-logic). Only cloud logic are editable in Studio.
+
+<div className="center-padded-sm">
+    <img src={require("./img/logic.png").default} alt="logic" />
+</div>
+
+<div className="center-padded-sm">
+    <img src={require("./img/logic2.png").default} alt="logic2" />
+</div>
+
+:::note
+A logic is "deployed" once it was created. It has to be linked into a data process to be executed with it.
+
+A logic cannot be deleted if it is linked to any data process.
+
+Modifying an existing cloud logic or uploading a modified logic from CLI (native logic) creates a new revision.
+
+You can add agent configuration and logic variables to a linked logic.
+:::

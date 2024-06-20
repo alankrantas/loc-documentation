@@ -1,0 +1,9 @@
+{
+    "label": "Event Store Agent - C Sharp",
+    "position": 3,
+    "link": {
+        "type": "generated-index",
+        "keywords": ["LOC", "SDK", "Agent", "Event", "CSharp"],
+        "slug": "/category/event-store"
+    }
+}

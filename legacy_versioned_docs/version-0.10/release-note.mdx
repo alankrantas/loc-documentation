@@ -1,0 +1,56 @@
+---
+sidebar_position: 99
+tags:
+    - LOC
+    - Release-Note
+---
+
+# Release Note
+
+LOC `v0.10` is a minor update that focus on various improvements in LOC Studio.
+
+## Release Versions
+
+| Component | Current Version |
+| --------- | --------------- |
+| Core      | `v0.10.2`       |
+| Studio    | ` v1.5.1`       |
+| CLI       | `v0.10.2`       |
+| SDK       | `v0.10.0`       |
+
+## Major New Features
+
+### Summary
+
+| New Feature                                           | Summary                                                          |
+| ----------------------------------------------------- | ---------------------------------------------------------------- |
+| **Schedule Trigger in Studio**                        | Adds schedule trigger support and functionalities in LOC Studio. |
+| **Improved Execution History Interface**              | Improves user experience in inspecting execution results.        |
+| **API Route Encapsulation and Task Result HTTP Code** | Enable creating RESTful responses in task results.               |
+
+### Detailed List
+
+-   Studio: adds Scheduler panel for managing [schedule triggers](/legacy/0.10/studio-guide/triggers#create-a-schedule).
+-   Studio: adds option for manually trigger a data process with a mocked API route or schedule.
+-   Studio: triggers now links a data process with a specific revision. Modifying the linked data process no longer break the trigger.
+-   Studio: reworked [execution history](/legacy/0.10/studio-guide/data-discovery#execution) interface which now provides more detailed status for the execution, task(s) and logic and logging from logic are easier to access.
+-   Studio: menu item adjustments and UI layout enhancements.
+
+#### Core `v0.10.1`
+
+-   Core: improve API trigger response when errors have occurred during execution.
+
+#### Core/CLI `v0.10.2` / SDK `v0.10.0`
+
+-   Core/SDK: result agent now supports [specifying HTTP status code](/legacy/0.10/sdk-reference/result#specify-http-status-code) for the API route response. If an execution contains multiple data processes, the HTTP code with highest priority will be selected.
+-   CLI: supports setting API route encapsulation while creating or editing an API route from CLI.
+
+### What's New in LOC-Doc?
+
+-   Adds docs for Core `v0.10.x`, Studio `v1.5.x` and SDK `v0.10.x`.
+
+-   Adds a tutorial: [Create an ETL Pipeline with Schedule](/legacy/0.10/tutorials/create-schedule).
+-   Trigger "schedule" is now renamed to **schedule**, "single data process execution" to **manual trigger**, and "trigger manifest" to **trigger tasks**.
+-   Remove version patch number in versioned docs, for example, rename `0.10.0` to `0.10`.
+-   [Logic Code Unit Tester](/logic-code-generator): adding unit test and mock data feature to the Logic Code Generator.
+-   Various improvements and fixes.

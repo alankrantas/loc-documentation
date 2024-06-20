@@ -1,0 +1,379 @@
+---
+sidebar_position: 7
+tags:
+    - LOC
+    - SDK
+    - Agent
+    - Agent Configuration
+    - HTTP
+    - CSharp
+---
+
+# HTTP Agent - C Sharp
+
+Send HTTP request to a HTTP endpoint and fetch the response.
+
+| Logic Type       | Available |
+| ---------------- | --------- |
+| Generic logic    | ✅        |
+| Aggregator logic | ❌        |
+
+## HTTP Agent Configuration
+
+> See: [Agent Configuration](/main/category/agent-configuration)
+
+A **HTTP Agent Configuration** defines an external HTTP host that will be allowed to be accessed from LOC runtime.
+
+The HTTP Agent requires a configuration reference name so that it can access external endpoints on the host. The reference name can be added to a logic while creating or editing a data process.
+
+## Import and Usage
+
+The agent can be used without using additional namespaces:
+
+```csharp showLineNumbers
+public static class Logic
+{
+
+    public static async Task Run(Context ctx)
+    {
+        var httpClient = await HttpAgent.Acquire("http-config-ref");
+        var response = await httpClient.Send("/api/path");
+    }
+
+    public static async Task HandleError(Context ctx, Exception error)
+    {
+        // ... same
+    }
+}
+```
+
+## Class Reference
+
+### Type
+
+-   `HttpAgent`
+
+### Method: Acquire HTTP Client
+
+```csharp
+public async static Task<HttpClient> Acquire(string name) {}
+```
+
+| Parameter | Description                             |
+| --------- | --------------------------------------- |
+| `name`    | HTTP Agent Configuration reference name |
+
+Acquire a [HTTP client](#http-client) using a configuration reference name. Throws an error if the configuration cannot be found.
+
+## HTTP Client
+
+### Type
+
+-   Public static class `HttpClient`
+
+### Methods: Send HTTP Request
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="get" label="GET">
+
+```csharp
+public async Task<HttpResponseMessage> Get(string path) {}
+```
+
+| Parameters | Type     | Description                 |
+| ---------- | -------- | --------------------------- |
+| `path`     | `string` | HTTP request path (no host) |
+
+  </TabItem>
+  <TabItem value="post" label="POST" default>
+
+```csharp
+public async Task<HttpResponseMessage> Post(string path) {}
+public async Task<HttpResponseMessage> Post(SendHttpRequest request) {}
+```
+
+| Parameters | Type                                  | Description                 |
+| ---------- | ------------------------------------- | --------------------------- |
+| `path`     | `string`                              | HTTP request path (no host) |
+| `request`  | [`SendHttpRequest`](#sendhttprequest) | HTTP request parameters     |
+
+  </TabItem>
+  <TabItem value="put" label="PUT">
+
+```csharp
+public async Task<HttpResponseMessage> Put(string path) {}
+public async Task<HttpResponseMessage> Put(SendHttpRequest request) {}
+```
+
+| Parameters | Type                                  | Description                 |
+| ---------- | ------------------------------------- | --------------------------- |
+| `path`     | `string`                              | HTTP request path (no host) |
+| `request`  | [`SendHttpRequest`](#sendhttprequest) | HTTP request parameters     |
+
+  </TabItem>
+  <TabItem value="patch" label="PATCH">
+
+```csharp
+public async Task<HttpResponseMessage> Patch(string path) {}
+public async Task<HttpResponseMessage> Patch(SendHttpRequest request) {}
+```
+
+| Parameters | Type                                  | Description                 |
+| ---------- | ------------------------------------- | --------------------------- |
+| `path`     | `string`                              | HTTP request path (no host) |
+| `request`  | [`SendHttpRequest`](#sendhttprequest) | HTTP request parameters     |
+
+  </TabItem>
+  <TabItem value="delete" label="DELETE">
+
+```csharp
+public async Task<HttpResponseMessage> Delete(string path) {}
+public async Task<HttpResponseMessage> Delete(SendHttpRequest request) {}
+```
+
+| Parameters | Type                                  | Description                 |
+| ---------- | ------------------------------------- | --------------------------- |
+| `path`     | `string`                              | HTTP request path (no host) |
+| `request`  | [`SendHttpRequest`](#sendhttprequest) | HTTP request parameters     |
+
+  </TabItem>
+  <TabItem value="send" label="Send">
+
+```csharp
+public async Task<HttpResponseMessage> Send(HttpMethod method, string path) {}
+public async Task<HttpResponseMessage> Send(HttpMethod method, SendHttpRequest request) {}
+```
+
+| Parameters | Type                                                                                                 | Description                 |
+| ---------- | ---------------------------------------------------------------------------------------------------- | --------------------------- |
+| `method`   | [`HttpMethod`](https://learn.microsoft.com/en-us/dotnet/api/system.net.http.httpmethod?view=net-7.0) | HTTP request method         |
+| `path`     | `string`                                                                                             | HTTP request path (no host) |
+| `request`  | [`SendHttpRequest`](#sendhttprequest)                                                                | HTTP request parameters     |
+
+  </TabItem>
+</Tabs>
+
+Send HTTP request to a HTTP endpoint. Returns a [`HttpResponseMessage`](#httpresponsemessage) object.
+
+:::info
+The URL can only contain the path (without host name, which is already in the HTTP Agent Configuration).
+
+The path can contain querystring.
+:::
+
+#### `SendHttpRequest`
+
+HTTP request parameters, including path and method.
+
+Properties:
+
+| Property     | Type                                                                                                                         | Description              |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| `Path`       | `string`                                                                                                                     | HTTP request path        |
+| `Method`     | [`HttpMethod`](https://learn.microsoft.com/en-us/dotnet/api/system.net.http.httpmethod?view=net-7.0)                         | HTTP request method      |
+| `Headers`    | [`HttpContentHeaders`](https://learn.microsoft.com/en-us/dotnet/api/system.net.http.headers.httpcontentheaders?view=net-7.0) | HTTP request headers     |
+| `BodyStream` | [`Stream`](https://learn.microsoft.com/en-us/dotnet/api/system.io.stream?view=net-7.0)                                       | HTTP request body        |
+| `BodyLength` | `ulong`                                                                                                                      | HTTP request body length |
+
+:::info
+All HTTP agent client methods will set the method parameter automatically. You don't need to set it manually.
+:::
+
+Constructors:
+
+```csharp
+public SendHttpRequest(string path)
+public SendHttpRequest(
+    string path, // Path
+    HttpContent content
+)
+```
+
+The second constructor accepts a [`HttpContent`](#httpcontent) object, which can define the request body, encoding and content type.
+
+#### `HttpContent`
+
+> Refer to: [`HttpContent`](#httpcontent). See [here](https://learn.microsoft.com/en-us/dotnet/api/system.net.http.httpcontent?view=net-7.0#remarks) for available HTTP content types.
+
+#### `HttpResponseMessage`
+
+> Refer to: [`HttpResponseMessage`](https://learn.microsoft.com/en-us/dotnet/api/system.net.http.httpresponsemessage?view=net-7.0).
+>
+> The `Content` property is [`HttpContent`](https://learn.microsoft.com/en-us/dotnet/api/system.net.http.httpcontent?view=net-7.0) class and `Headers` is [`HttpResponseHeaders`](https://learn.microsoft.com/en-us/dotnet/api/system.net.http.headers.httpresponseheaders?view=net-7.0) class.
+
+## Examples
+
+### GET Request with Querystring
+
+```csharp showLineNumbers
+const string queryString = "name=Arthur-Dent&age=42";
+
+var httpClient = await HttpAgent.Acquire("http-config-ref");
+
+var response = await httpClient.Get($"/api/path?{queryString}");
+
+// if the response status is 2xx
+if (response.IsSuccessStatusCode) {
+    // ...
+}
+```
+
+### POST Request and Parse Response
+
+```csharp title="Import namespace(s)" showLineNumbers
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+```
+
+```csharp showLineNumbers
+var data = new JsonObject
+{
+    ["name"] = "Arthur Dent",
+    ["age"] = 42,
+    ["job"] = new JsonObject
+    {
+        ["title"] = "Sandwich-maker",
+        ["salary"] = 0
+    },
+    ["quotes"] = new JsonArray(
+        "Is there any tea on this spaceship?",
+        "This must be Thursday. I never could get the hang of Thursdays.",
+        "Would it save you a lot of time if I just gave up and went mad now?"
+    ),
+};
+
+var httpClient = await HttpAgent.Acquire("http-config-ref");
+
+var response = await httpClient.Post(new SendHttpRequest(
+    "/api/path",
+    new StringContent(
+        data.ToJsonString(), // convert body to string
+        Encoding.UTF8, // encoding
+        "application/json" // content type
+    )
+));
+
+int statusCode = (int) response.StatusCode;
+
+// if the response status is 2xx
+if (response.IsSuccessStatusCode)
+{
+
+    // get response body as string
+    string body = await response.Content.ReadAsStringAsync();
+
+    // get headers
+    if (response.Headers.Contains("Authorization")){
+        string authorization = response.Headers.GetValues("Authorization").First().ToString();
+    }
+    if (response.Headers.Contains("Content-Type")){
+        string contentType = response.Headers.GetValues("Content-Type").First().ToString();
+    }
+
+    // ...
+}
+```
+
+You can parse the body string into a JSON object (see the [examples](/sdk-csharp/payload/http-payload#examples) in parsing trigger HTTP payload).
+
+## Advanced Examples
+
+### POST Request Using User-Defined Classes
+
+We can also serialise user-defined classes as the POST request body:
+
+```csharp title="Import namespace(s) and declare classes" showLineNumbers
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+internal class Person
+{
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+
+    [JsonPropertyName("age")]
+    public int? Age { get; set; }
+
+    [JsonPropertyName("job")]
+    public Job? Job { get; set; }
+
+    [JsonPropertyName("quotes")]
+    public List<string>? Quotes { get; set; }
+
+    public Person(string name, int age, Job job, List<string> quotes)
+    {
+        Name = name;
+        Age = age;
+        Job = job;
+        Quotes = quotes;
+    }
+}
+
+internal class Job
+{
+    [JsonPropertyName("title")]
+    public string? Title { get; set; }
+
+    [JsonPropertyName("salary")]
+    public int? Salary { get; set; }
+
+    public Job(string title, int salary)
+    {
+        Title = title;
+        Salary = salary;
+    }
+}
+
+// source generation context for Person
+// highlight-start
+[JsonSourceGenerationOptions()]
+[JsonSerializable(typeof(Person))]
+internal partial class PersonSourceGenerationContext : JsonSerializerContext
+{
+}
+// highlight-end
+```
+
+:::info
+You can move user-defined classes into shared modules as `public` classes. See the [tutorial](/main/tutorial/shared-modules) for examples.
+:::
+
+```csharp showLineNumbers
+Person person = new(
+    "Arthur Dent",
+    42,
+    new Job(
+        "Sandwich-maker",
+        0
+    ),
+    new List<string>()
+    {
+        "Is there any tea on this spaceship?",
+        "This must be Thursday. I never could get the hang of Thursdays.",
+        "Would it save you a lot of time if I just gave up and went mad now?"
+    }
+);
+
+var httpClient = await HttpAgent.Acquire("http-config-ref");
+
+var response = await httpClient.Post(new SendHttpRequest(
+    "/api/path",
+    new StringContent(
+        // highlight-start
+        JsonSerializer.Serialize<Person>(
+            person,
+            PersonSourceGenerationContext.Default.Person
+        ), // convert class to string using source generation context
+        // highlight-end
+        Encoding.UTF8, // encoding
+        "application/json" // content type
+    )
+));
+
+// ...
+```

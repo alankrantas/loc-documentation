@@ -1,0 +1,226 @@
+---
+sidebar_position: 9
+tags:
+    - LOC
+    - SDK
+    - Agent
+    - Agent Configuration
+    - File Storage
+    - JavaScript
+    - TypeScript
+---
+
+# File Storage Agent - JS/TS
+
+Read and write an external file server.
+
+| Logic Type       | Available |
+| ---------------- | --------- |
+| Generic logic    | ✅        |
+| Aggregator logic | ❌        |
+
+## File Storage Agent Configuration
+
+> See: [Agent Configuration](/main/category/agent-configuration)
+
+A **File Storage Agent Configuration** defines an external file server that will be allowed to be accessed from LOC runtime.
+
+The File Storage Agent requires a configuration reference name so that it can access files on the file server. The reference name can be added to a logic while creating or editing a data process.
+
+## Import and Usage
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+
+```javascript showLineNumbers
+import {
+    // highlight-next-line
+    FileStorageAgent,
+} from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx) {
+    const fileClient = await FileStorageAgent.acquire("file-config-ref");
+    const file = await fileClient?.simpleGet("dir/file.txt");
+}
+
+export async function handleError(ctx, error) {
+    // ... same
+}
+```
+
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+
+```typescript showLineNumbers
+import {
+    // highlight-next-line
+    FileStorageAgent,
+    GenericContext,
+    RailwayError,
+} from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx: GenericContext) {
+    const fileClient = await FileStorageAgent.acquire("file-config-ref");
+    const file = await fileClient?.simpleGet(path);
+}
+
+export async function handleError(ctx: GenericContext, error: RailwayError) {
+    // ... same
+}
+```
+
+  </TabItem>
+</Tabs>
+
+## Class Reference
+
+### Type
+
+-   `FileStorageAgent`
+
+### Method: Acquire File Storage Client
+
+```typescript
+async acquire(configurationName: string): Promise<FileStorageAgentClient>
+```
+
+| Parameter           | Description                                     |
+| ------------------- | ----------------------------------------------- |
+| `configurationName` | File Storage Agent Configuration reference name |
+
+Acquire a [File Storage Client](#file-storage-client) using a configuration reference name. Throws an error if the configuration cannot be found.
+
+## File Storage Client
+
+### Type
+
+-   `FileStorageAgentClient`
+
+> Importable from `@fstnetwork/loc-logic-sdk`
+
+### Method: Read File
+
+```typescript
+async simpleGet(path: string): Promise<Uint8Array>
+```
+
+| Parameter | Type     | Description                        |
+| --------- | -------- | ---------------------------------- |
+| `path`    | `string` | File name and path (no `/` prefix) |
+
+Read a file from the file server. Returns a `Uint8Array` array, which can be converted to string using Web API [`TextDecoder`](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder).
+
+### Method: Write File
+
+```typescript
+async simplePut(path: string, data: Uint8Array | string, options?: FileStorage.PutOptions): Promise<number>
+```
+
+Write a file to the file server.
+
+| Parameter  | Type                                               | Description                                                                      |
+| ---------- | -------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `path`     | `string`                                           | File name and path (no `/` prefix)                                               |
+| `data`     | `Uint8Array` &#124; `string`                       | File content                                                                     |
+| `options?` | [`FileStorage.PutOptions`](#filestorageputoptions) | Optional; for SMB (Server Message Block) storages to ensure the directory exists |
+
+#### `FileStorage.PutOptions`
+
+```typescript
+{
+    ensureDir?: boolean;
+}
+```
+
+### Method: Delete File
+
+```typescript
+async delete(path: string): Promise<void>
+```
+
+| Parameter | Type     | Description                        |
+| --------- | -------- | ---------------------------------- |
+| `path`    | `string` | File name and path (no `/` prefix) |
+
+Delete a file from the file server.
+
+### Method: List Directories and Files
+
+```typescript
+async list(path: string): Promise<Array<FileStorage.FileType>>
+```
+
+| Parameter | Type     | Description                        |
+| --------- | -------- | ---------------------------------- |
+| `path`    | `string` | File name and path (no `/` prefix) |
+
+List directories and files at a given path on the file server.
+
+Returns an array of type [`FileStorage.FileType`](#filestoragefiletype).
+
+#### `FileStorage.FileType`
+
+| Fields | Type                                                  | Description |
+| ------ | ----------------------------------------------------- | ----------- |
+| `name` | `string`                                              | Item name   |
+| `type` | `"file"` &#124; `"directory"` &#124; `"symbolicLink"` | Item type   |
+
+The type indicates that an item is a file, a directory or a symbolic link (in SMB).
+
+### Method: Create Directory
+
+```typescript
+async createDirAll(path: string): Promise<void>
+```
+
+| Parameter | Type     | Description                    |
+| --------- | -------- | ------------------------------ |
+| `path`    | `string` | Directory path (no `/` prefix) |
+
+Create a directory at a given path on the file server.
+
+:::warning
+Not supported on Amazon S3 storages.
+:::
+
+## Examples
+
+### Read a File
+
+```typescript showLineNumbers
+const fileClient = await FileStorageAgent.acquire("file-config-ref");
+
+const file = await fileClient?.simpleGet("dir/file.txt");
+
+const data = new TextDecoder().decode(file);
+```
+
+### Write a File
+
+```typescript showLineNumbers
+const data = `The chances of finding out what really is going on
+are so absurdly remote that the only thing to do is
+to say hang the sense of it and keep yourself occupied`;
+
+const fileClient = await FileStorageAgent.acquire("file-config-ref");
+
+await fileClient?.simplePut("dir/file.txt", data);
+```
+
+### List Directories and Files
+
+```typescript showLineNumbers
+const fileClient = await FileStorageAgent.acquire("file-config-ref");
+
+const fileList = await fileClient?.list("dir");
+
+// iterate through all items in the list
+fileList.forEach((item) => {
+    const name = item.name;
+    const type = item.type;
+    // ...
+});
+```

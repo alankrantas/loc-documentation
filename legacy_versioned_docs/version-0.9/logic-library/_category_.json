@@ -1,0 +1,9 @@
+{
+    "label": "Logic Module Library",
+    "position": 8,
+    "link": {
+        "type": "generated-index",
+        "description": "Logic module templates and examples for handy references.",
+        "keywords": ["LOC"]
+    }
+}

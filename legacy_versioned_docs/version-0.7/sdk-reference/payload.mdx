@@ -1,0 +1,381 @@
+---
+sidebar_position: 3
+tags:
+    - LOC
+    - Agent
+    - JavaScript
+    - TypeScript
+    - Trigger
+---
+
+# Payload
+
+```typescript
+export async function run(ctx) {
+    // highlight-next-line
+    const payload = await ctx.payload();
+}
+```
+
+Payload is the data sent by triggers as initial input and is accessible from the [context](/legacy/0.7/sdk-reference/context-and-task) object. Currently there are two payload types:
+
+-   HTTP request
+-   Message queue (MQ) message
+-   Data event (not yet implemented)
+
+#### Availability
+
+-   ✓ Generic logic
+-   ✓ Aggregator logic
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import Link from "@docusaurus/Link";
+
+## Loading Payload
+
+```typescript
+payload(): Promise<Payload>
+```
+
+The payload would _only_ be lazy-loaded after calling `payload()` in a logic. The payload is a union type, which means it can be one of the following types at runtime:
+
+-   `{ http: HttpPayload; }`
+-   `{ messageQueue: MessagePayload; }`
+-   `{ event: EventPayload; }`
+
+#### Example
+
+<Tabs>
+  <TabItem value="js1" label="JavaScript" default>
+
+```javascript title="HTTP payload" showLineNumbers
+export async function run(ctx) {
+    // load payload
+    // highlight-next-line
+    const payload = await ctx.payload();
+
+    // read HTTP payload body
+    // highlight-next-line
+    const data = payload.http.request.data;
+
+    // ...
+}
+```
+
+```javascript title="Messqge queue payload" showLineNumbers
+export async function run(ctx) {
+    // load payload
+    // highlight-next-line
+    const payload = await ctx.payload();
+
+    // read message queue body
+    // highlight-next-line
+    const data = payload.messageQueue.data;
+
+    // ...
+}
+```
+
+  </TabItem>
+  <TabItem value="ts1" label="TypeScript">
+
+```typescript title="HTTP payload" showLineNumbers
+// highlight-next-line
+import { ..., HttpPayload } from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx) {
+  // load payload as HTTP payload
+  // highlight-next-line
+  const payload = await ctx.payload() as { "http": HttpPayload };
+
+  // read HTTP payload body
+  // highlight-next-line
+  const data = payload.http.request.data;
+
+  // ...
+}
+```
+
+```typescript title="Messqge queue payload"
+// highlight-next-line
+import { ..., MessagePayload } from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx) {
+  // load payload as MQ payload
+  // highlight-next-line
+  const payload = await ctx.payload() as { "messageQueue": MessagePayload };
+
+  // read message queue body
+  // highlight-next-line
+  const data = payload.messageQueue.data;
+
+  // ...
+}
+```
+
+  </TabItem>
+</Tabs>
+
+<details>
+    <summary><b>Tip</b> on Using <b>Type Guards</b> or <b>JSDoc Annotations</b> for Safer Payload Typing</summary>
+
+#### TypeScript Type Guards (Type Narrowing)
+
+What we did above in the TypeScript example is the so-called [**type assertion**](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-assertions), which means you take the responsibility of type safty and tell the TypeScript compiler to shut up. This is handy when you are absolutely sure what kind of payload is expected in one logic.
+
+However, type assertions cannot prevent `payload` getting a wrong type of object at runtime and may cause errors. While we still use type assertions in most of our examples for the sake of demostration, you should _use it at your own risk_.
+
+A safer way is to use a [**type guard**](https://www.typescriptlang.org/docs/handbook/2/narrowing.html) to narrow down the union type:
+
+```typescript showLineNumbers
+const payload = await ctx.payload();
+
+let data: number[];
+// highlight-start
+if ("http" in payload) {
+    // check if it's HTTP payload
+    // payload will be narrowed down to { http: HttpPayload; } here
+    data = payload.http.request.data;
+} else if ("messageQueue" in payload) {
+    // check if it's MQ payload
+    // payload will be narrowed down to { messageQueue: MessagePayload; } here
+    data = payload.messageQueue.data;
+} else {
+    // if none of above, throw an error
+    // payload will be narrowed down to { event: EventPayload; } here
+    // however since it is not yet implemented, we throw an error
+    // to stop the data process:
+    throw new Error("this logic only accepts http/mq payload");
+}
+// highlight-end
+
+// data will have the payload content
+```
+
+The `if...else` (or using `switch` for the same effect) is the so-called _type guards_. They check on conditions that only certain types can satisfy, for example, if the object has a specific field that only one certain type would have. TypeScript compiler would thus be able to "narrow" down the type and allows us to operate it saftly.
+
+#### JSDoc Annotations
+
+If you are developing JavaScript data processes in editors with intellisense feature like VS Code, you can also use <Link to="https://jsdoc.app/">JSDoc</Link> annotations like `@param` or `@type` to indicate types:
+
+```javascript showLineNumbers
+import { LoggingAgent, HttpPayload } from "@fstnetwork/loc-logic-sdk";
+
+// highlight-next-line
+/** @param {import('@fstnetwork/loc-logic-sdk').GenericContext} ctx */
+export async function run(ctx) {
+    // mark ctx as GenericContext type
+
+    // highlight-next-line
+    /** @type { { http: HttpPayload } } */
+    const payload = ctx.payload(); // marked payload as { http: HttpPayload } type
+
+    const data = payload.http.request.data; // inferred as string
+}
+
+// highlight-start
+/**
+ * @param {import('@fstnetwork/loc-logic-sdk').GenericContext} ctx
+ * @param {import('@fstnetwork/loc-logic-sdk').RailwayError} error
+ */
+// highlight-end
+export async function handleError(ctx, error) {
+    LoggingAgent.error(error.message);
+}
+```
+
+Move your mouse over `payload` and you should see VS Code does mark it as `{ http: HttpPayload }` type.
+
+Again, this doesn't affect how the code runs or prevent potential errors, but it will be useful to discover type errors early in the development process.
+
+</details>
+
+## HTTP Payload
+
+Type: `HttpPayload`
+
+| Member                      | Type                                                                 | Description                       | Example |
+| --------------------------- | -------------------------------------------------------------------- | --------------------------------- | ------- |
+| `apiGatewayIdentityContext` | `DataSourceIdentityContext`, which is `{ id: string, name: string }` | API gateway permanent ID and name |
+| `apiIdentityContext`        | `DataSourceIdentityContext`                                          | API route permanent ID and name   |
+| `requestId`                 | `string`                                                             | Request ID                        |
+| `request`                   | `HttpRequest` (see below)                                            | Request content                   |
+| `source?`                   | `Peer`, which is `{ address: Address; }` &#124; `null`               | Request source                    |
+| `destination?`              | `Peer` &#124; `null`                                                 | Request destination               |
+
+:::note
+Type `Address`:
+
+= `{ socketAddr: SocketAddress; } | { pipe: Pipe; }`
+
+= `{ socketAddr: { address: string; protocol: "tcp" | "udp"; }} | { pipe: { mode: number; path: string; }}`
+:::
+
+### HTTP Request
+
+Type: `HttpRequest`
+
+This type contains content of the actual HTTP request:
+
+| Member    | Type                                                                                         | Description       | Example                                  |
+| --------- | -------------------------------------------------------------------------------------------- | ----------------- | ---------------------------------------- |
+| `host`    | `string`                                                                                     | Request host name |
+| `path`    | `string`                                                                                     | API route         | `/path/subpath`                          |
+| `scheme`  | `string`                                                                                     | HTTP scheme       | `http` or `https`                        |
+| `method`  | `string`                                                                                     | HTTP method       | `GET`, `POST`, etc.                      |
+| `version` | `"HTTP/0.9"` &#124; `"HTTP/1.0"` &#124; `"HTTP/1.1"` &#124; `"HTTP/2.0"` &#124; `"HTTP/3.0"` | HTTP version      |
+| `headers` | `{ [k: string]: unknown; }`                                                                  | Request headers   | `{ "content-type": "application/json" }` |
+| `query`   | `string`                                                                                     | URL query string  | `param1=value1` (no question mark)       |
+| `data`    | `number[]`                                                                                   | Request body      |
+
+#### Example: read API route path and headers
+
+<Tabs>
+  <TabItem value="js2" label="JavaScript" default>
+
+```javascript showLineNumbers
+const payload = await ctx.payload();
+
+const path = payload.http.request.path;
+const headers = payload.http.request.headers;
+
+// read specific headers
+const contentType = headers["content-type"];
+const authorization = headers["authorization"];
+```
+
+  </TabItem>
+  <TabItem value="ts2" label="TypeScript">
+
+```typescript showLineNumbers
+const payload = (await ctx.payload()) as { http: HttpPayload };
+
+const path = payload.http.request.path;
+const headers = payload.http.request.headers;
+
+// read specific headers
+const contentType = headers["content-type"];
+const authorization = headers["authorization"];
+```
+
+  </TabItem>
+</Tabs>
+
+:::warning
+Some header fields may be `null` if they are not sent with the HTTP request.
+:::
+
+#### Example: parsing GET querystring
+
+<Tabs>
+  <TabItem value="js3" label="JavaScript" default>
+
+```javascript showLineNumbers
+const payload = await ctx.payload();
+
+const query = payload.http.request.query;
+
+const searchParams = new URLSearchParams(query);
+
+// assume the querystring is ?name=<name>&age=<age>
+// access parsed fields (return null if not exist)
+const name = searchParams.get("name");
+const age = searchParams.get("age");
+```
+
+  </TabItem>
+  <TabItem value="ts3" label="TypeScript">
+
+```typescript showLineNumbers
+const payload = (await ctx.payload()) as { http: HttpPayload };
+
+const query = payload.http.request.query;
+
+const searchParams = new URLSearchParams(query);
+
+// assume the querystring is ?name=<name>&age=<age>
+// access parsed fields (return null if not exist)
+const name = searchParams.get("name") as string;
+const age = searchParams.get("age") as number;
+```
+
+  </TabItem>
+</Tabs>
+
+:::note
+`URLSearchParams` is part of the [Web API](https://developer.mozilla.org/en-US/docs/Web/API) which is supported in LOC's logic runtime.
+:::
+
+#### Example: parsing POST JSON body
+
+<Tabs>
+  <TabItem value="js4" label="JavaScript" default>
+
+```javascript showLineNumbers
+const payload = await ctx.payload();
+
+const data = payload.http.request.data;
+
+// decode to string then parse to JSON
+const parsed = JSON.parse(new TextDecoder().decode(new Uint8Array(data)));
+
+// assume the payload is { "name": <name>, "age": <age> }
+// access parsed fields using optional chaining (return undefined if not exist)
+const name = parsed?.name;
+const age = parsed?.age;
+```
+
+  </TabItem>
+  <TabItem value="ts4" label="TypeScript">
+
+```typescript showLineNumbers
+const payload = (await ctx.payload()) as { http: HttpPayload };
+
+const data = payload.http.request.data;
+
+// decode to string then parse to JSON
+const parsed: { name: string; age: number } = JSON.parse(
+    new TextDecoder().decode(new Uint8Array(data)),
+);
+
+// assume the payload is { "name": <name>, "age": <age> }
+// access parsed fields using optional chaining (return undefined if not exist)
+const name = parsed?.name;
+const age = parsed?.age;
+```
+
+  </TabItem>
+</Tabs>
+
+:::tip
+The question mark (`?`) we've used with `payload` is the [optional chaining](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining) operator. It prevents JavaScript throwing error if we try to access a non-existant attribute or sub-attribute in a object, which may very well happen if the JSON payload is incorrect in the first place.
+:::
+
+## Message Queue Payload
+
+Type: `MessageQueuePayload`
+
+| Member                  | Type                                                            | Description                     |
+| ----------------------- | --------------------------------------------------------------- | ------------------------------- |
+| `clientIdentityContext` | `DataSourceIdentityContext` (see [HTTP payload](#http-payload)) | MQ client permanent ID and name |
+| `subscriber`            | `Subscriber`                                                    | MQ subscriber                   |
+| `data`                  | `number[]`                                                      | MQ data                         |
+
+`Subscriber` type describe the message queue source:
+
+<Tabs>
+  <TabItem value="kafka" label="Apache Kafka" default>
+
+-   Subscriber type: `KafkaSubscriber`
+
+| Member      | Type       | Description                       |
+| ----------- | ---------- | --------------------------------- |
+| `brokers`   | `string[]` | Broker names in the Kafka cluster |
+| `groupId`   | `string`   | MQ group ID                       |
+| `topic`     | `string`   | MQ topic                          |
+| `partition` | `number`   | MQ partition                      |
+| `offset`    | `number`   | MQ offset                         |
+
+  </TabItem>
+</Tabs>

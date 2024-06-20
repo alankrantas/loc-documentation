@@ -1,0 +1,177 @@
+---
+sidebar_position: 4
+tags:
+    - LOC
+    - SDK
+    - Agent
+    - Event
+    - CSharp
+---
+
+# Method: Search Event Sequences - C Sharp
+
+```csharp
+public async static Task<SearchEventWithPatternResponse> SearchEventWithPattern(SearchEventWithPatternRequest search) {}
+```
+
+| Parameter | Type                                                | Description                      |
+| --------- | --------------------------------------------------- | -------------------------------- |
+| `search`  | [`SearchEventWithPattern`](#searcheventwithpattern) | Event sequence search parameters |
+
+A method of the [Event Agent](/sdk-csharp/agents/event-store/intro).
+
+Search event sequences that match a pattern, that all events are emitted with the right order and each matches given conditions.
+
+Returns [`SearchEventWithPatternResponse`](#searcheventwithpatternresponse), which contains matched event sequences.
+
+## Parameter Type
+
+### `SearchEventWithPattern`
+
+Event sequence search parameters.
+
+Properties:
+
+| Property    | Type                                                            | Description                                                                                                                                                   |
+| ----------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Sequences` | [`List<Sequence>`](#sequence)                                   | A set of event query conditions; default: empty collection                                                                                                    |
+| `MaxSpan`   | `string`                                                        | Search timestamp span ([syntax reference](https://www.elastic.co/guide/en/elasticsearch/reference/current/api-conventions.html#time-units)); default: `"30s"` |
+| `Filter`    | [`Filter?`](/sdk-csharp/agents/event-store/search-event#filter) | Filter conditions (see [Search Events](/sdk-ts/agents/event-store/search-event#filter))                                                                       |
+
+:::warning
+`Sequences` must contain at least _2_ set of conditions in order to search event sequences. An error will be thrown if only one set is provided.
+:::
+
+Constructors:
+
+```csharp
+public SearchEventWithPatternRequest()
+public SearchEventWithPatternRequest(
+    List<Sequence> sequences, // Sequences
+    string maxSpan, // MaxSpan
+    Filter filter // Filter
+)
+```
+
+### Sub Parameter Type
+
+#### `Sequence`
+
+Properties:
+
+| Property       | Type                            | Description                                               |
+| -------------- | ------------------------------- | --------------------------------------------------------- |
+| `Conditions`   | [`List<Condition>`](#condition) | Query condition for each event; default: empty collection |
+| `SharedFields` | `List<string>`                  | Event shared field values; default: empty collection      |
+| `Type`         | `string`                        | Event type or group; default: `"any"`                     |
+
+Constructors:
+
+```csharp
+public Sequence()
+public Sequence(
+        List<Condition> conditions, // Conditions
+        List<string> sharedFields, // SharedFields
+        string type // Type
+    )
+```
+
+#### `Condition`
+
+Properties:
+
+| Property | Type        | Description                                                                      |
+| -------- | ----------- | -------------------------------------------------------------------------------- |
+| `Field`  | `string`    | [Event field name](/sdk-csharp/agents/event-store/intro#events-fields-for-query) |
+| `Value`  | `string`    | Value to be matched                                                              |
+| `Op`     | [`Op`](#op) | Operator                                                                         |
+
+Constructor:
+
+```csharp
+public Condition(
+        string field, // Field
+        string value, // Value
+        Op op // Op
+    )
+```
+
+#### `Op`
+
+Operators for event query condition in the sequence:
+
+```csharp
+public enum Op
+{
+    Eq = 1,  // Equal to
+    Ne = 2,  // Not equal to
+    Gt = 3,  // Greater than
+    Lt = 4,  // Less than
+    Gte = 5,  // Greater than or equal to
+    Lte = 6,  // Less than or equal to
+}
+```
+
+## Return Type
+
+### `SearchEventWithPatternResponse`
+
+Search result of matched event sequences.
+
+| Member      | Type                                       | Description       |
+| ----------- | ------------------------------------------ | ----------------- |
+| `Sequences` | [`List<SequenceResult>`](#sequencesresult) | Queried sequences |
+
+### Sun Return Type
+
+#### `SequencesResult`
+
+Events in a queried sequence.
+
+| Member     | Type                                                               | Description                  |
+| ---------- | ------------------------------------------------------------------ | ---------------------------- |
+| `Events`   | [`List<Event>`](/sdk-csharp/agents/event-store/search-event#event) | Queried events in a sequence |
+| `JoinKeys` | `List<string>`                                                     |                              |
+
+## Examples
+
+```csharp showLineNumbers
+var query = await EventAgent.SearchEventWithPattern(
+    new SearchEventWithPattern(
+        new Sequence(
+            new Condition(
+                "label_name",
+                "some label name",
+                Op.Eq
+            )
+        ),
+        new Sequence(
+            new Condition(
+                "source_digital_identity",
+                "some source DID",
+                Op.Eq
+            ),
+            new Condition(
+                "target_digital_identity",
+                "some target DID",
+                Op.Ne
+            )
+        ),
+        // more conditions...
+        "30s"  // max span
+    )
+);
+
+var sequences = query.Sequences;
+
+foreach (var sequence in sequences)
+{
+    var events = sequence.Events;
+    foreach (var event in events)
+    {
+        string label_name = event.LabelName;
+        string meta = event.Meta;
+        string logicPid = event.LogicIdentityContext.PermanentIdentity.ToString();
+    }
+}
+```

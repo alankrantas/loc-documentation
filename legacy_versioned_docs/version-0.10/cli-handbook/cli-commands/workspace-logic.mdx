@@ -1,0 +1,133 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - CLI
+    - Logic
+---
+
+# Workspace and Logic
+
+CLI commands for managing assets in LOC:
+
+-   Initialise CLI workspace
+-   [Logic](#logic)
+
+Also see:
+
+-   [Create and Deploy Data Process](/legacy/0.10/cli-handbook/create-deploy-project)
+-   [LOC Features Overview](/legacy/0.10/tutorials/loc-feat-overview)
+
+:::info
+Some commands require to be logged in the LOC server.
+
+**Do not** manually edit anything under `/.loc` - use CLI commands to manage assets instead.
+:::
+
+## Initialise a CLI Workspace
+
+```bash
+loc init [WORKSPACE DIR]
+```
+
+Will create necessary sub-directories and files if not exist either under current directory or in a new directory (if `WORKSPACE DIR` is specified).
+
+Will not overwrite files if existed.
+
+## Logic
+
+> `loc logic`
+
+Logic are modulised functions which data processes are consisted of. The source code are managed in the form of script files.
+
+### List All Logic
+
+```bash
+loc logic list|ls [--logic-type <LOGIC TYPE>] [--remote]
+```
+
+| Option                        | Description                                                                                                      |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `--logic-type <LOGIC TYPE>`\* | Logic type (`Generic` or `Aggregator`)                                                                           |
+| `--remote`                    | List all remote logic on LOC server instead. If not provided, the local logic (deployed or not) would be listed. |
+
+> \*= will be prompted if not provided
+
+### Create a Logic
+
+```bash
+loc logic create|new [OPTIONS]
+```
+
+| Option                                | Description                                                                                  |
+| ------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `--name <NAME>`\*                     | Logic name                                                                                   |
+| `--logic-type <TYPE>`\*               | Logic type (`Generic` or `Aggregator`)                                                       |
+| `--language <LANGUAGE>`\*             | Logic code language (`JavaScript` or `TypeScript`)                                           |
+| `--entrypoint-file-path <FILENANE>`\* | Filename of the source logic (by default it would be `<logic name>.js` or `<logic name>.ts`) |
+
+> \*= will be prompted if not provided
+
+:::note
+Generic logic source file will be generated under `/generic-logic-source/` and aggregator logic at `/aggregator-logic-source/`, with related metadata updated in `/.loc/logic-manifest.yaml`.
+
+If a source file already exists while creating a logic, the file will not be overwritten.
+:::
+
+### Build and Deploy Logic
+
+```bash
+loc logic build [-a|--all] [logic names]
+```
+
+To build (compile) and upload logic to LOC server, which will become _native logic_.
+
+| Option              | Description                                                    |
+| ------------------- | -------------------------------------------------------------- |
+| `-a` &#124; `--all` | Build all logic in current workspace (overrides `logic names`) |
+| `logic names`\*     | Names of logic to be built and deployed (seperated by spaces)  |
+
+> \*= will be prompted if not provided
+
+:::note
+Deploying a new source logic will update its ID in `/.loc/logic-manifest.yaml`, whereas deploying a modified local logic will updates its revision number (ID unchanged).
+
+A new revision of a deployed logic has to be manually linked (using [`loc dp edit`](/legacy/0.10/cli-handbook/cli-commands/project-dp#edit-a-data-process-including-linkingunlinking-logic)) into data processes to be used.
+
+If a logic is already deployed, deploying the unmodified source logic will not create a new revision.
+
+Only source files exists in `/.loc/logic-manifest.yaml` can be deployed.
+:::
+
+### Edit Logic Metadata
+
+```bash
+loc logic edit [--name <NAME>]
+```
+
+Edit name, description and filename of a logic (does not affect the source code file). CLI will prompt you for these options.
+
+| Option          | Description                |
+| --------------- | -------------------------- |
+| `--name <NAME>` | Name of logic to be edited |
+
+:::warning
+Changing the logic name _does not_ change the file name.
+:::
+
+### Delete Logic
+
+```bash
+loc logic delete [--logic-type <LOGIC TYPE>] [--remote]
+```
+
+| Option                        | Description                                                                                                          |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `--logic-type <LOGIC TYPE>`\* | Logic type (`Generic` or `Aggregator`). Will be prompted by CLI if not provided.                                     |
+| `--remote`                    | Delete remote logic on LOC server. If not provided, the local logic metadata (not the source file) would be deleted. |
+
+> \*= will be prompted if not provided
+
+:::note
+A logic cannot be deleted if it is linked to any data process. Use [`loc dp edit`](/legacy/0.10/cli-handbook/cli-commands/project-dp#edit-a-data-process-including-linkingunlinking-logic) to unlink it and update the data process with [`loc project deploy`](/legacy/0.10/cli-handbook/cli-commands/project-dp#deploy-a-project-with-its-scenarios-and-data-processes).
+:::

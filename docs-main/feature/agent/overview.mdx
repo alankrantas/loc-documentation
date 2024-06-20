@@ -1,0 +1,37 @@
+---
+sidebar_position: 1
+tags:
+    - LOC
+    - Agent
+---
+
+# Overview
+
+**Agents** are built-in services to access internal or external data sources, as well as runtime metadata from the execution, task and triggers, etc.
+
+```mermaid
+flowchart LR;
+    subgraph "LOC"
+    subgraph "LOC runtime"
+    subgraph "Task"
+    n1[Logic];
+    end
+    n1<-->|SDK|n2;
+    n2((Agents));
+    n3(["Session\nstorage"]);
+    end
+    n4(["Local\nstorage"]);
+    n5[("Event store")];
+    end
+    n6[("External\nstorages")];
+    n2<-.->n3;
+    n2<-.->n4;
+    n2<-.->n5;
+    n2<-.->n6;
+```
+
+## List of Agents
+
+> See: [List of Agents](/main/feature/agent/agent-list)
+
+The specs and examples of agents are available in SDK docs.

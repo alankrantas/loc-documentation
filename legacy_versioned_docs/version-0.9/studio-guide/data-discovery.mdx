@@ -1,0 +1,40 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - Studio
+    - Event
+---
+
+# Data Discovery
+
+## Execution
+
+For browsing and filtering **execution histories** of data processes as [tasks](/legacy/0.9/tutorials/loc-feat-overview#triggers-tasks-and-executions). For each task an execution contains logs (from [Logging Agent](/legacy/0.9/sdk-reference/logging)), trigger [payload](/legacy/0.9/sdk-reference/payload) as well as result (from [Result Agent](/legacy/0.9/sdk-reference/result)) from each task.
+
+Click the plus sign (**+**) to expand the **Logic** sub panel, which will list logic PIDs and their logs.
+
+<div className="center-padded-sm">
+    <img src={require("./img/execution.png").default} alt="execution" />
+</div>
+
+See [View Execution History](/legacy/0.9/tutorials/create-api-route#view-execution-history) in one of the tutorial for more details.
+
+## Event
+
+For browsing and filtering [events](/legacy/0.9/tutorials/loc-feat-overview#events) (emitted by [Event Store Agent](/legacy/0.9/sdk-reference/eventstore)). Each event includes label name, source DID, target DID, meta and time/task-related metadata.
+
+:::tip
+You can click **Event Lineage Graph** to inspect the data lineage graph. You can also filter events before doing so, to narrow down events you want to display.
+:::
+
+<div className="center-padded-sm">
+    <img src={require("./img/event.png").default} alt="event" />
+</div>
+
+If you click an event by its label name or source/target DID, you will be switched to the **Label Name** or **DID** panels.
+
+See the following tutorials of how to emit and inspect events/data lineages:
+
+-   [Emit and Inspect Events](/legacy/0.9/tutorials/emit-and-inspect-event)
+-   [Events and Multiple Data Processes](/legacy/0.9/tutorials/event-and-multiple-dp)

@@ -1,0 +1,113 @@
+---
+sidebar_position: 3
+tags:
+    - LOC
+    - SDK
+    - Task
+    - CSharp
+---
+
+# Task Metadata - C Sharp
+
+A **task** object contains task and execution metadata.
+
+:::info
+Do not confuse with .NET C#'s [System.Threading.Tasks](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task?view=net-7.0).
+:::
+
+| Logic Type       | Available |
+| ---------------- | --------- |
+| Generic logic    | ✅        |
+| Aggregator logic | ✅        |
+
+A task is a data process in execution. An execution is a collection of tasks invoked together by a trigger.
+
+## Import and Usage
+
+```csharp showLineNumbers
+public static class Logic
+{
+
+    public static async Task Run(Context ctx)
+    {
+        var task = await ctx.GetTask();
+    }
+
+    public static async Task HandleError(Context ctx, Exception error)
+    {
+        // ... same
+    }
+}
+```
+
+## Class Reference
+
+### Type
+
+-   `LogicTask`
+
+### Properties
+
+| Property         | Type                                                    | Description                                                                                      |
+| ---------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `TaskKey`        | [`TaskKey`](#taskkey)                                   | Task ID and execution ID                                                                         |
+| `StartTimestamp` | `DateTime`                                              | Task start datetime                                                                              |
+| `DataProcess`    | [`VersionedIdentityContext`](#versionedidentitycontext) | Data process identity metadata                                                                   |
+| `CurrentLogic`   | `VersionedIdentityContext`                              | Current logic's identity metadata                                                                |
+| `ExecutedLogics` | `List<VersionedIdentityContext>`                        | A collection of identity metadata of executed logic. Returns an empty collection if none exists. |
+
+### Sub Class Reference
+
+#### `TaskKey`
+
+Collection of task and execution ID.
+
+| Property      | Type      | Description  |
+| ------------- | --------- | ------------ |
+| `TaskId`      | `UInt128` | Task ID      |
+| `ExecutionId` | `UInt128` | Execution ID |
+
+Methods:
+
+```csharp
+// convert task ID to string
+public string.TaskIdString() {}
+
+// convert task ID to byte array
+public byte[] TaskIdBytes() {}
+
+// convert execution ID to string
+public string ExecutionIdString() {}
+
+// convert execution ID to byte array
+public byte[] ExecutionIdBytes() {}
+```
+
+#### `VersionedIdentityContext`
+
+Describes the identity of a logic, data process or other assets in LOC.
+
+| Property            | Type                                                                            | Description              |
+| ------------------- | ------------------------------------------------------------------------------- | ------------------------ |
+| `Name`              | `string`                                                                        | Name                     |
+| `PermanentIdentity` | [`Guid`](https://learn.microsoft.com/en-us/dotnet/api/system.guid?view=net-7.0) | Permanent identity (PID) |
+| `Revision`          | `int`                                                                           | Revision number          |
+
+## Examples
+
+```csharp showLineNumbers
+// get task
+var task = await ctx.GetTask();
+
+// get task ID
+string taskId = task.TaskKey.TaskIdString();
+
+// get execution ID
+string executionId = task.TaskKey.ExecutionIdString();
+
+// get current logic's PID
+string logicPid = task.CurrentLogic.PermanentIdentity.ToString();
+
+// get the last executed logic's name before current logic (null if none)
+string? lastLogicName = task.ExecutedLogics.Count() > 0 ? task.ExecutedLogics[^1].Name : null;
+```

@@ -1,0 +1,78 @@
+---
+sidebar_position: 1
+tags:
+    - LOC
+    - SDK
+    - JavaScript
+    - TypeScript
+---
+
+# Docs for LOC SDK for JS/TS
+
+This is the docs for FST Network's [**LOC Logic SDK for JavaScript and TypeScript**](https://www.npmjs.com/package/@fstnetwork/loc-logic-sdk), a helper package and client interface for JS/TS logic.
+
+For docs of earlier SDK releases, see [release note](/sdk-ts/release-note).
+
+For main docs of LOC itself, see [Docs for Logic Operating Centre](/main).
+
+A web-based logic code template and unit tool designed for SDK JS/TS, the [Logic Code Generator](/logic-code-generator), is also available on this site.
+
+## Target SDK Version
+
+-   `0.10.x`
+
+## Supported Language
+
+| Language                                                              | Version                                                           |
+| --------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript) | `ES6/ES2015` and above ([JSDoc](https://jsdoc.app/) is supported) |
+| [TypeScript](https://www.typescriptlang.org/docs/)                    | `3.7.0` and above                                                 |
+
+## Studio Support
+
+The SDK and its JavaScript/TypeScript runtime can be included in LOC via licensing and will be automatically imported for the logic building in LOC Studio. The users do not need to install or setup additional packages.
+
+## Studio Project Configuration
+
+The following default project file in [logic source](/main/feature/logic/source) is shared by all cloud logic:
+
+```json title="package.json"
+{
+    "dependencies": {
+        "@fstnetwork/loc-logic-sdk": "^0.10.0"
+    }
+}
+```
+
+Additional third-party packages can be added under `dependencies`.
+
+## Local Installation for CLI
+
+> Requires [Node.js](https://nodejs.org/en). Latest LTS version recommended.
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="npm" label="NPM" default>
+
+```bash
+npm i @fstnetwork/loc-logic-sdk@0.10.0
+```
+
+  </TabItem>
+  <TabItem value="yarn" label="Yarn">
+
+```bash
+yarn add @fstnetwork/loc-logic-sdk@0.10.0
+```
+
+  </TabItem>
+  <TabItem value="pnpm" label="PNPM">
+
+```bash
+pnpm i @fstnetwork/loc-logic-sdk@0.10.0
+```
+
+  </TabItem>
+</Tabs>

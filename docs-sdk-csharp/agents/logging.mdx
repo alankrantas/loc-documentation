@@ -1,0 +1,306 @@
+---
+sidebar_position: 5
+tags:
+    - LOC
+    - SDK
+    - Agent
+    - Error Handling
+    - CSharp
+---
+
+# Logging Agent - C Sharp
+
+Write a log.
+
+| Logic Type       | Available |
+| ---------------- | --------- |
+| Generic logic    | ✅        |
+| Aggregator logic | ✅        |
+
+Logs will be collected in the task's task result and look like this:
+
+```
+2023-12-31T12:59:59.000000000+00:00     Info    plaintext       some logging
+2024-01-01T01:00:00.000000000+00:00     Error   json            {"error":true,"errorMessage":"some error","stack":"Error: some error...","taskId":"..."}
+```
+
+:::info
+Logs output with `Console.Write()` or `Console.WriteLine()` will not show up in the execution result.
+:::
+
+## Import and Usage
+
+The agent can be used without using additional namespaces:
+
+```csharp showLineNumbers
+public static class Logic
+{
+
+    public static async Task Run(Context ctx)
+    {
+        await LoggingAgent.Info("some logging");
+    }
+
+    public static async Task HandleError(Context ctx, Exception error)
+    {
+        await LoggingAgent.Error("some error");
+    }
+}
+```
+
+## Class Reference
+
+### Type
+
+-   Public static class `LoggingAgent`
+
+### Methods: Write a Log
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="error" label="Error">
+
+```csharp
+public async static Task Error(string message) {}
+public async static Task Error(object message) {}
+```
+
+| Parameter | Description                         |
+| --------- | ----------------------------------- |
+| `value`   | A `string` message or "JSON" object |
+
+Write a log with `Error` severity level.
+
+  </TabItem>
+  <TabItem value="warn" label="Warn">
+
+```csharp
+public async static Task Warn(string message) {}
+public async static Task Warn(object message) {}
+```
+
+| Parameter | Description                         |
+| --------- | ----------------------------------- |
+| `value`   | A `string` message or "JSON" object |
+
+Write a log with `Warn` severity level.
+
+  </TabItem>
+  <TabItem value="info" label="Info" default>
+
+```csharp
+public async static Task Info(string message) {}
+public async static Task Info(object message) {}
+```
+
+| Parameter | Description                         |
+| --------- | ----------------------------------- |
+| `value`   | A `string` message or "JSON" object |
+
+Write a log with `Info` severity level.
+
+  </TabItem>
+  <TabItem value="debug" label="Debug">
+
+```csharp
+public async static Task Debug(string message) {}
+public async static Task Debug(object message) {}
+```
+
+| Parameter | Description                         |
+| --------- | ----------------------------------- |
+| `value`   | A `string` message or "JSON" object |
+
+Write a log with `Debug` severity level.
+
+  </TabItem>
+  <TabItem value="trace" label="Trace">
+
+```csharp
+public async static Task Trace(string message) {}
+public async static Task Trace(object message) {}
+```
+
+| Parameter | Description                         |
+| --------- | ----------------------------------- |
+| `value`   | A `string` message or "JSON" object |
+
+Write a log with `Trace` severity level.
+
+  </TabItem>
+  <TabItem value="log" label="Log">
+
+```csharp
+public async static Task Log(string level, string message) {}
+```
+
+| Parameter | Description                         |
+| --------- | ----------------------------------- |
+| `level`   | Log severity level                  |
+| `value`   | A `string` message or "JSON" object |
+
+Write a log with custom severity level.
+
+  </TabItem>
+</Tabs>
+
+:::warning
+Using objects of user-defined class will cause the fields not parsed properly.
+
+Use [**Dictionary**](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2?view=net-7.0) or [**JsonObject**](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonobject?view=net-7.0) instead.
+:::
+
+The methods represent different logging severity levels:
+
+| Log Type | Severity |
+| -------- | -------- |
+| Error    | Highest  |
+| Warn     |          |
+| Info     |          |
+| Debug    |          |
+| Trace    | Lowest   |
+
+## Examples
+
+### Write Logs
+
+```csharp showLineNumbers
+// log a string
+await LoggingAgent.Info("don't panic!");
+
+// log a JSON object
+var task = await ctx.GetTask();
+
+await LoggingAgent.Error(
+    new Dictionary<string, object?>()
+    {
+        { "taskId", task.TaskKey.TaskIdString() },
+        { "error", new Dictionary<string, object?>()
+            {
+                { "message", error.Message },
+                { "stack", error.StackTrace }
+            }
+        },
+        { "list", new List<string>()
+            {
+                "item 1",
+                "item 2",
+                "item 3"
+            }
+        }
+    }
+);
+
+// or
+
+/*
+- import the following namespace:
+
+using System.Text.Json.Nodes;
+*/
+await LoggingAgent.Error(
+    new JsonObject
+    {
+        ["taskId"] = task.TaskKey.TaskIdString(),
+        ["error"] = new JsonObject
+        {
+            ["message"] = error.Message,
+            ["stack"] = error.StackTrace
+        },
+        ["list"] = new JsonArray(
+            "item 1",
+            "item 2",
+            "item 3"
+        )
+    }
+);
+```
+
+> See the [example of session storage agent](/sdk-csharp/agents/session-storage#examples) for how to use classes extended from `JsonNode`.
+
+:::tip Log Session/Local Storage Value
+
+You can log the received `JsonNode` object from session or local storages without any conversion:
+
+```csharp showLineNumbers
+JsonNode? data = (await SessionStorageAgent.Get("data"))?.JsonValue;
+
+await LoggingAgent.Info(data);
+```
+
+:::
+
+## Advanced Examples
+
+### Log User-Defined Classes
+
+Assuming we have a `Person` and a `Job` class with its source context class defined:
+
+```csharp title="Import namespace(s) and declare classes" showLineNumbers
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
+
+internal class Person
+{
+  [JsonPropertyName("name")]
+  public string? Name { get; set; }
+
+  [JsonPropertyName("age")]
+  public int? Age { get; set; }
+
+  [JsonPropertyName("job")]
+  public Job? Job { get; set; }
+
+  [JsonPropertyName("quotes")]
+  public List<string>? Quotes { get; set; }
+
+  public Person(string name, int age, Job job, List<string> quotes)
+  {
+    Name = name;
+    Age = age;
+    Job = job;
+    Quotes = quotes;
+  }
+}
+
+internal class Job
+{
+  [JsonPropertyName("title")]
+  public string? Title { get; set; }
+
+  [JsonPropertyName("salary")]
+  public int? Salary { get; set; }
+
+  public Job(string title, int salary)
+  {
+    Title = title;
+    Salary = salary;
+  }
+}
+
+// source generation context for Person
+// highlight-start
+[JsonSourceGenerationOptions()]
+[JsonSerializable(typeof(Person))]
+internal partial class PersonSourceGenerationContext : JsonSerializerContext
+{
+}
+// highlight-end
+```
+
+You can convert the object to a JSON string, then convert it to a `JsonNode` object for the logging agent:
+
+```csharp showLineNumbers
+JsonNode personData = JsonNode.Parse(
+    JsonSerializer.Serialize<Person>(
+        person,
+        PersonSourceGenerationContext.Default.Person
+    )
+);
+
+// highlight-next-line
+await LoggingAgent.Info(personData);
+```

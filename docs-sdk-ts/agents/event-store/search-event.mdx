@@ -1,0 +1,354 @@
+---
+sidebar_position: 3
+tags:
+    - LOC
+    - SDK
+    - Agent
+    - Event
+    - JavaScript
+    - TypeScript
+---
+
+# Method: Search Events - JS/TS
+
+```typescript
+async search(request: Search): Promise<SearchResult>
+```
+
+| Parameter | Type                | Description             |
+| --------- | ------------------- | ----------------------- |
+| `request` | [`Search`](#search) | Event search parameters |
+
+A method of the [Event Agent](/sdk-ts/agents/event-store/intro).
+
+Search events in the event store that fit the search parameters.
+
+Returns type [`SearchResult`](#searchresult), which includes an array of queried events.
+
+## Parameter Type
+
+### `Search`
+
+> Importable from `@fstnetwork/loc-logic-sdk`
+
+Event search parameters. If one search parameter have no conditions, set it to `null`.
+
+| Property       | Type                                        | Description                                            |
+| -------------- | ------------------------------------------- | ------------------------------------------------------ |
+| `queries?`     | [`Query[]`](#query) &#124; `null`           | Query conditions                                       |
+| `excludes?`    | `Query[]` &#124; `null`                     | Exclude conditions                                     |
+| `filters?`     | [`Filter[]`](#filter) &#124; `null`         | Filter conditions                                      |
+| `sort?`        | [`Sort[]`](#sort) &#124; `null`             | Sort conditions                                        |
+| `aggregation?` | [`Aggregation`](#aggregation) &#124; `null` | Aggregation syntax                                     |
+| `from?`        | `number` &#124; `null`                      | Return events start from n<sup>th</sup> queried result |
+| `size?`        | `number` &#124; `null`                      | Maximum query size                                     |
+
+### Sub Parameter Type
+
+#### `Query`
+
+Conditions to match (or not match) value in specific fields. All conditions will be applied for searching events.
+
+```typescript
+type Query =
+    | {
+          field: string;
+          type: "match";
+          value: string;
+      }
+    | {
+          field: string;
+          type: "match_phrase";
+          value: string;
+      }
+    | {
+          field: string;
+          type: "term";
+          value: string;
+      };
+```
+
+| Fields  | Description                                                                  |
+| ------- | ---------------------------------------------------------------------------- |
+| `field` | [Event field name](/sdk-ts/agents/event-store/intro#events-fields-for-query) |
+| `type`  | Match type (`"match"`, `"match_phrase"` or `"term"`)                         |
+| `value` | `string` value to be matched                                                 |
+
+The three match types are based on Elasticsearch API:
+
+-   [**match**](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query.html): the value matches _any word_ in the field (fuzzy search). Standard full-text search, suitable for most use cases.
+-   [**match_phrase**](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query-phrase.html): words order in the value matches words order in the field. For example, value `"has been"` matches `it has been raining`.
+-   [**term**](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-term-query.html): the value matches _exactly_ to the field.
+
+#### `Filter`
+
+Conditions to filter value in specific fields using either **range filter** or **wildcard filter**. All conditions will be applied for filtering events.
+
+```typescript
+type Filter =
+    | {
+          field: string;
+          gte?: number | null;
+          lte?: number | null;
+          type: "range";
+      }
+    | {
+          field: string;
+          type: "wildcard";
+          value: string;
+      };
+```
+
+| Fields  | Type                   | Description                                                                  |
+| ------- | ---------------------- | ---------------------------------------------------------------------------- |
+| `field` | `string`               | [Event field name](/sdk-ts/agents/event-store/intro#events-fields-for-query) |
+| `type`  | `string`               | Filter type (`"range"` or `"wildcard"`)                                      |
+| `gte?`  | `number` &#124; `null` | (Range filter only) greater than or equal to (null = no limit)               |
+| `lte?`  | `number` &#124; `null` | (Range filter only) less than or equal to (null = no limit)                  |
+| `value` | `string`               | (Wildcard filter only) Value with wildcard operators to be matched           |
+
+The wildcard filter value can contain the following operators:
+
+-   `?`: any single character
+-   `*`: zero to more than one characters
+
+For example, `event-?-*` matches `event-A-1` and `event-B-123`, etc.
+
+#### `Sort`
+
+Conditions to sort events by specific fields. All conditions will be applied for sorting events.
+
+```typescript
+interface Sort {
+    field: string;
+    order: SortOrder;
+}
+
+type SortOrder = "asc" | "desc";
+```
+
+| Sort Order | Description |
+| ---------- | ----------- |
+| `"asc"`    | Ascending   |
+| `"desc"`   | Descending  |
+
+#### `Aggregation`
+
+```typescript
+interface Aggregation {
+    after?: {
+        [k: string]: string;
+    };
+    queries: Query[];
+    size?: number | null;
+}
+```
+
+## Return Type
+
+### `SearchResult`
+
+> Importable from `@fstnetwork/loc-logic-sdk`
+
+Search result of matched events.
+
+| Property       | Type                                                    | Description                                                     |
+| -------------- | ------------------------------------------------------- | --------------------------------------------------------------- |
+| `events`       | [`Event[]`](#event)                                     | Queried events (empty array if none matches)                    |
+| `count`        | `number`                                                | Number of events to be queried (`size` parameter from `Search`) |
+| `total`        | `number`                                                | Actual queried number of events                                 |
+| `took`         | `number`                                                | Query time (milliseconds)                                       |
+| `aggregation?` | [`AggregationResult`](#aggregationresult) &#124; `null` | Aggregation results                                             |
+
+### Sub Return Types
+
+#### `Event`
+
+Queried event object.
+
+:::info
+Not to be confused with `Event.Event` for `emit()`. The properties are _not_ the [field names](/sdk-ts/agents/event-store/intro#events-fields-for-query) for query, exclude, filter or sort conditions either.
+:::
+
+| Property                     | Type                                                    | Description             |
+| ---------------------------- | ------------------------------------------------------- | ----------------------- |
+| `label`                      | [`Label`](#label)                                       | Event label             |
+| `sourceDigitalIdentity`      | `string`                                                | Source digital identity |
+| `targetDigitalIdentity`      | `string`                                                | Target digital identity |
+| `meta`                       | `string`                                                | Meta                    |
+| `type`                       | `number`                                                | Type or group           |
+| `timestamp`                  | `string`                                                | Emit timestamp          |
+| `sequence`                   | `string`                                                | Emit sequence           |
+| `executionId`                | `string`                                                | Execution ID            |
+| `taskId`                     | `string`                                                | Task ID                 |
+| `dataProcessIdentityContext` | [`VersionedIdentityContext`](#versionedidentitycontext) | Data process identity   |
+| `logicIdentityContext`       | `VersionedIdentityContext`                              | Logic identity          |
+
+#### `Label`
+
+Event label id/name.
+
+| Property | Type     | Description      |
+| -------- | -------- | ---------------- |
+| `id`     | `string` | Event label ID   |
+| `name`   | `string` | Event label name |
+
+#### `VersionedIdentityContext`
+
+> Refer to: [`VersionedIdentityContext`](/sdk-csharp/metadata/task#versionedidentitycontext)
+
+#### `AggregationResult`
+
+```typescript
+interface AggregationResult {
+    after: {
+        [k: string]: string;
+    };
+    buckets: Bucket[];
+    [k: string]: unknown;
+}
+```
+
+## Examples
+
+### Search Events
+
+```typescript showLineNumbers
+const query = await EventAgent.search({
+    // highlight-start
+    queries: [
+        {
+            field: "label_name",
+            type: "match",
+            value: "some label name",
+        },
+        {
+            field: "source_digital_identity",
+            type: "match",
+            value: "some source DID",
+        },
+        // more match conditions...
+    ],
+    // highlight-end
+    excludes: null,
+    filters: null,
+    sorts: null,
+    aggregation: null,
+    from: 0,
+    size: 1000,
+});
+
+const events = query?.events;
+
+// iterate through events
+events.forEach((event) => {
+    const labelName = event.label.name;
+    const meta = event.meta;
+    const logicPid = event.logicIdentityContext.permanentIdentity;
+    // ...
+});
+```
+
+### Exclude Events
+
+```typescript showLineNumbers
+const query = await EventAgent.search({
+    queries: null,
+    // highlight-start
+    excludes: [
+        {
+            field: "target_digital_identity",
+            type: "match",
+            value: "some target DID",
+        },
+        // more exclude conditions...
+    ],
+    // highlight-end
+    filters: null,
+    sorts: null,
+    aggregation: null,
+    from: 0,
+    size: 1000,
+});
+
+const events = query?.events;
+```
+
+### Filter Events
+
+#### Filter with Range
+
+Filter events emitted in the past hour (the timestamp field can be compared using unix time):
+
+```typescript showLineNumbers
+const query = await EventAgent.search({
+    queries: null,
+    excludes: null,
+    // highlight-start
+    filters: [
+        {
+            field: "timestamp",
+            gte: Date.now() - 60 * 60 * 1000,
+            lte: Date.now(),
+            type: "range",
+        },
+        // more filter conditions...
+    ],
+    // highlight-end
+    sorts: null,
+    aggregation: null,
+    from: 0,
+    size: 1000,
+});
+
+const events = query?.events;
+```
+
+#### Filter with Wildcard
+
+```typescript showLineNumbers
+const query = await EventAgent.search({
+    queries: null,
+    excludes: null,
+    // highlight-start
+    filters: [
+        {
+            field: "label_name",
+            type: "wildcard",
+            value: "some?name*",
+        },
+        // more filter conditions...
+    ],
+    // highlight-end
+    sorts: null,
+    aggregation: null,
+    from: 0,
+    size: 1000,
+});
+
+const events = query?.events;
+```
+
+### Sort Events
+
+```typescript showLineNumbers
+const query = await EventAgent.search({
+    queries: null,
+    excludes: null,
+    filters: null,
+    // highlight-start
+    sorts: [
+        {
+            field: "target_digital_identity",
+            order: "desc",
+        },
+        // more sort conditions...
+    ],
+    // highlight-end
+    aggregation: null,
+    from: 0,
+    size: 1000,
+});
+
+const events = query?.events;
+```

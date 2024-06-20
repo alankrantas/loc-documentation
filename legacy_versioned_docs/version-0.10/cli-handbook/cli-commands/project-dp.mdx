@@ -1,0 +1,323 @@
+---
+sidebar_position: 3
+tags:
+    - LOC
+    - CLI
+    - Project
+    - Scenario
+    - Dataprocess
+---
+
+# Project, Scenario and Data Process
+
+CLI commands for managing assets in LOC:
+
+-   [Projects](#project)
+-   [Scenarios](#scenario)
+-   [Data processes](#data-process)
+
+Also see:
+
+-   [Create and Deploy Data Process](/legacy/0.10/cli-handbook/create-deploy-project)
+-   [LOC Features Overview](/legacy/0.10/tutorials/loc-feat-overview)
+
+:::info
+All commands here require a initialised workspace (using [`loc init`](/legacy/0.10/cli-handbook/cli-commands/workspace-logic#initialise-a-cli-workspace)). Some commands require to be logged in the LOC server.
+
+**Do not** manually edit anything under `/.loc` - use CLI commands to manage assets instead.
+:::
+
+## Project
+
+> `loc project`
+
+A project contains a collection of scenarios.
+
+### List All Projects
+
+```bash
+loc project list|ls [--remote]
+```
+
+| Option     | Description                                                                                                                     |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `--remote` | List remote projects owned by you on LOC server instead. If not provided, the local projects (deployed or not) would be listed. |
+
+### Create a New Project
+
+```bash
+loc project create|new [OPTIONS]
+```
+
+| Option                           | Description                          |
+| -------------------------------- | ------------------------------------ |
+| `--unit-id <UNIT ID>`            | Unit ID the project to be created in |
+| `--name <NAME>`\*                | Project name                         |
+| `---description <DESCRIPTION>`\* | Project description (can be blank)   |
+
+> \*= will be prompted if not provided
+
+### Inspect a Project
+
+```bash
+loc project get [OPTIONS]
+```
+
+Get information of a project with either its name or ID.
+
+| Option                    | Description  |
+| ------------------------- | ------------ |
+| `--project-name <NAME>`\* | Project name |
+| `--project-id <ID>`       | Project ID   |
+
+> \*= will be prompted if not provided
+
+### Edit a Project
+
+```bash
+loc project edit [OPTIONS]
+```
+
+Edit name and description of a project.
+
+The options, if not provided as parameters, would be prompted by CLI (by letting you select from available projects):
+
+| Option                              | Description                         |
+| ----------------------------------- | ----------------------------------- |
+| `--project-name <NAME>`\*           | Name of project to be edited        |
+| `--project-id <ID>`                 | ID of project to be edited          |
+| `--name <NEW NAME>`\*               | New project name                    |
+| `--description <NEW DESCRIPTION>`\* | New project description             |
+| `--unit-id <UNIT ID>`               | New binding unit ID for the project |
+
+> \*= will be prompted if not provided
+
+### Delete a Project
+
+```bash
+loc project delete [OPTIONS] [--remote]
+```
+
+| Option                    | Description                                                                                                                                    |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--project-name <NAME>`\* | Name of project to be deleted                                                                                                                  |
+| `--project-id <ID>`       | ID of project to be deleted                                                                                                                    |
+| `--remote`                | Delete your deployed project on LOC server and remove its ID from local workspace. If not provided, the project would only be deleted locally. |
+
+> \*= will be prompted if not provided
+
+:::note
+A project cannot be deleted if it contains any data processes.
+:::
+
+### Deploy a Project (with its Scenarios and Data Processes)
+
+> Sync everything in the remote project (except triggers) with your local project
+
+```bash
+loc project deploy
+```
+
+Upload and update a project (will be prompted by CLI) with all its scenarios/data processes to LOC server. This action is the equivalent to Git's `git commit` plus `git push` at the project level.
+
+:::info
+Be noted that any changes on LOC server will be overwritten. Run [`loc project pull`](#pull-a-project) to sync your local project first.
+
+_Deploy_ a locally-deleted asset will sync the deletion to the remote asset.
+
+Deploying/updating a project also won't deploy/update any logic.
+:::
+
+### Pull a Project
+
+> Sync everything in the local project (except triggers) with the remote project
+
+```bash
+loc project pull
+```
+
+Pull a project from LOC server and sync (overwrite) to local workspace, equivalent to Git's `git fetch --force` at the project level (do not affect logic or logic source files). If the local project does not exist, it will be created.
+
+:::warning
+If you delete a remote project, scenario or data process in Studio, the local metadata will cause the pulling not working properly since the remote asset ceased to exist. You can delete the asset locally then use [```loc project deploy```] to sync the deletion.
+:::
+
+## Scenario
+
+> `loc scenario`
+
+A scenario belongs to a project and contains a collection of data processes.
+
+### List All Scenarios
+
+```bash
+loc scenario list|ls [--remote]
+```
+
+| Option     | Description                                                                                                                       |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `--remote` | List remote scenarios owned by you on LOC server instead. If not provided, the local scenarios (deployed or not) would be listed. |
+
+### Create a Scenario
+
+```bash
+loc scenario create|new [OPTIONS]
+```
+
+| Option                            | Description                         |
+| --------------------------------- | ----------------------------------- |
+| `--name <NAME>`\*                 | Scenario name                       |
+| `--description <DESCRIPTION>`\*   | Scenario description (can be blank) |
+| `--project-name <PROJECT NAME>`\* | Linked project name                 |
+| `--project-id <PROJECT ID>`       | Linked project ID                   |
+
+> \*= will be prompted if not provided
+
+### Inspect a Scenario
+
+```bash
+loc scenario get [OPTIONS]
+```
+
+Get information of a scenario with either its name or ID.
+
+| Option                     | Description                                      |
+| -------------------------- | ------------------------------------------------ |
+| `--scenario-name <NAME>`\* | Scenario name (will be prompted if not provided) |
+| `--scenario-id <ID>`       | Scenario ID                                      |
+
+> \*= will be prompted if not provided
+
+### Edit a Scenario
+
+```bash
+loc scenario edit [OPTIONS]
+```
+
+| Option                              | Description                             |
+| ----------------------------------- | --------------------------------------- |
+| `--scenario-name <NAME>`\*          | Name of scenario to be edited           |
+| `--scenario-id <ID>`                | Scenario ID                             |
+| `--name <NEW NAME>`\*               | New scenario ID                         |
+| `--description <NEW DESCRIPTION>`\* | New scenario description (can be blank) |
+
+> \*= will be prompted if not provided
+
+### Delete a Scenario
+
+```bash
+loc scenario delete [OPTIONS]
+```
+
+| Option                     | Description                                                                                                                                    |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--scenario-name <NAME>`\* | Name of scenario to be deleted                                                                                                                 |
+| `--scenario-id <ID>`       | Scenario ID                                                                                                                                    |
+| `---remote`                | Delete your deployed scenario on LOC server and remove its ID from local workspace. If not provided, only the local scenario would be deleted. |
+
+> \*= will be prompted if not provided
+
+:::note
+A scenario cannot be deleted if it contains any data processes.
+:::
+
+## Data Process
+
+> `loc data-process|dp`
+
+A data process (the LOC data pipeline) belongs to a scenario and is consisted with at least one generic logic and only one aggregator logic.
+
+### List All Data Processes
+
+```bash
+loc dp list|ls [--remote]
+```
+
+| Option     | Description                                                                                                                               |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `--remote` | List remote data processes owned by you on LOC server instead. If not provided, the local data process (deployed or not) would be listed. |
+
+### Create a Data Process
+
+```bash
+loc dp create|new [OPTIONS]
+```
+
+| Option                          | Description                            |
+| ------------------------------- | -------------------------------------- |
+| `--name <NAME>`\*               | Data process name                      |
+| `--description <DESCRIPTION>`\* | Data process decription (can be blank) |
+
+> \*= will be prompted if not provided
+
+### Inspect a Data Process
+
+```bash
+loc dp get [OPTIONS]
+```
+
+Get information of a data process with either its name or PID.
+
+| Option                                    | Description                                                                                                                 |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `--data-process-name <NAME>`\*            | Data process name                                                                                                           |
+| `--data-process-permanent-identity <PID>` | Data process permanent ID                                                                                                   |
+| `--remote`                                | Only query remote data process owned by you on LOC server. Otherwise, a local data process (deployed or not) will be shown. |
+
+> \*= will be prompted if not provided
+
+### Edit a Data Process (Including Linking/Unlinking Logic)
+
+```bash
+loc dp edit [--name <DP NAME TO BE EDITED>]
+```
+
+Edit a data process, including link or unlink generic/aggregator logic in it.
+
+CLI will prompt you to select a project, a scenario (if you did not select them with [`loc checkout`](#check-out-specific-projectscenario)) and a data process (if `--name ` is not provided).
+
+You can change the data process' name and description, then CLI will prompt you to press `e` to edit linked logic.
+
+:::note
+A data process can be deployed _even though it has no linked logic_. (However it will not be eligible to be executed.)
+
+Only deployed logic (which have PIDs in `/.loc/logic-manifest.yaml`) can be linked. This also means this command requires to be logged in to access the remote logic.
+
+If the logic has multiple revisions existing on LOC server, CLI will also prompt you to select a revision.
+:::
+
+### Delete a Data Process
+
+```bash
+loc dp delete [OPTIONS]
+```
+
+| Option                                    | Description                                                                                                                                                                                           |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--data-process-name <NAME>`\*            | Name of data process to be deleted                                                                                                                                                                    |
+| `--data-process-permanent-identity <PID>` | Permanent ID of data process to be deleted                                                                                                                                                            |
+| `--remote`                                | Delete your remote data process on LOC server as well as the local data process metadata (whether or not it had been deleted locally). If not provided, the local process would be marked as deleted. |
+
+> \*= will be prompted if not provided
+
+:::note
+A data process can be deleted _even though it has linked logic or triggers_. A warning message will be shown.
+
+If a data process is deleted locally, deploying the project would apply the deletion to the remote server.
+:::
+
+## Check Out Specific Project/Scenario
+
+```bash
+loc checkout [--reset] [<PROJECT NAME> <SCENARIO NAME>]
+```
+
+Select a given project/scenario as shortcut for commands like [`loc dp create`](#create-a-data-process) and [`loc dp edit`](#edit-a-data-process-including-linkingunlinking-logic), so you won't have to select project/scenario repeatly.
+
+| Option    | Description                               |
+| --------- | ----------------------------------------- |
+| `--reset` | Reset (unselect) current project/scenario |
+
+:::note
+This command does not effect [`loc project deploy`](#deploy-a-project-with-its-scenarios-and-data-processes), which will still prompt you to select a project.
+:::

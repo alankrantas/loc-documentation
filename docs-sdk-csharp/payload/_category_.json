@@ -1,0 +1,9 @@
+{
+    "label": "Trigger Payload",
+    "position": 4,
+    "link": {
+        "type": "generated-index",
+        "keywords": ["LOC", "SDK", "Task", "Trigger", "Payload", "CSharp"],
+        "slug": "/category/payload"
+    }
+}

@@ -1,0 +1,29 @@
+---
+sidebar_position: 3
+tags:
+    - LOC
+    - Execution
+    - Task
+---
+
+# Logging and Finalise Task Result
+
+To write logs and task result using SDK.
+
+## Write Logs
+
+Logs in the execution result can be written using logging agent of the SDK.
+
+See: [Logging Agent](/main/feature/agent/agent-list#logging-agent)
+
+## Finalise Task Result
+
+The task result of a data process can be set using the result agent of the SDK.
+
+See: [Result Agent](/main/feature/agent/agent-list#result-agent)
+
+The object (with fields and values) passed to the result agent will become the entire content of the task result.
+
+:::warning Duplicated Task Result Keys
+If task results of the same execution contain **duplicated keys**, one value will be **overwritten** by another. This is an intended behavior.
+:::

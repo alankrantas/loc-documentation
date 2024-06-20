@@ -1,0 +1,51 @@
+---
+tags:
+    - LOC
+    - Logic
+    - JavaScript
+    - TypeScript
+---
+
+# QueryString Parser
+
+Parse QueryString from the HTTP request into an object.
+
+| Logic type | Input           | Output                                                                       |
+| ---------- | --------------- | ---------------------------------------------------------------------------- |
+| Generic    | `ctx.payload()` | Session variable `params` (type: `any` or `null` if not parsed successfully) |
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import QueryStringParserJSExample from "../_logic-template-sources/_querystring-parser-js.mdx";
+import QueryStringParserJSDocExample from "../_logic-template-sources/_querystring-parser-jsdoc.mdx";
+import QueryStringParserTSExample from "../_logic-template-sources/_querystring-parser-ts.mdx";
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+
+<QueryStringParserJSExample />
+
+  </TabItem>
+  <TabItem value="js-doc" label="JavaScript (with JSDoc)">
+
+<QueryStringParserJSDocExample />
+
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+
+<QueryStringParserTSExample />
+
+  </TabItem>
+</Tabs>
+
+:::tip
+If the QueryString is `?name=Arthur-Dent&age=42`, the `params` object will be parsed into
+
+```javascript
+{
+    name: "Arthur-Dent",
+    age: 42
+}
+```
+
+:::

@@ -1,0 +1,9 @@
+{
+    "label": "Miscellaneous",
+    "position": 10,
+    "link": {
+        "type": "generated-index",
+        "description": "Uncategorised features available in LOC.",
+        "keywords": ["LOC"]
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "label": "System FAQs",
+    "position": 4,
+    "link": {
+        "type": "generated-index",
+        "description": "System FAQs for FST Network's LOC",
+        "keywords": ["LOC"]
+    }
+}

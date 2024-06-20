@@ -1,0 +1,173 @@
+---
+sidebar_position: 1
+tags:
+    - LOC
+    - CLI
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+# Setup CLI
+
+**LOC CLI** is the command line tool for developers to deploy data processes and manage other assets in LOC.
+
+Also see [Command Reference](/legacy/0.6/category/cli-command-reference).
+
+## Setup
+
+### CLI Executable Binary
+
+[FST Network](/docs/about-and-contact) provides **CLI executable binaries** to our clients, which is portable and can be used without any installation. The following platforms are supported:
+
+-   Linux (64-bit)
+-   macOS (64-bit)
+-   Windows (64-bit)
+
+:::info
+This hankbook is based on CLI `v0.6.1` and LOC SDK `v0.6.4`.
+
+The hand book also assumes that you have renamed your file to `loc` (or `loc.exe` in Windows), and copy it to a local directory (for example, `/CLI`).
+
+We'll often refer this directory as **local workspace**. You can add the dir to the system variable `$PATH` if you want to access it globally.
+:::
+
+Now open a terminal (PowerShell or Windows Terminal on Windows), switch to the local workspace and test the binary:
+
+```bash
+./loc -h
+```
+
+:::tip
+macOS and Linux users would have to mark the binary as executable:
+
+```bash
+sudo chmod a+x ./loc
+```
+
+:::
+
+Or if you are using Command Prompt on Windows or accessing it via `$PATH`:
+
+```bash
+loc -h
+```
+
+You should see CLI print out a list of available commands.
+
+### Local Development Environment
+
+#### Node.js
+
+Firstly you'll need to install **[Node.js](https://nodejs.org/en/download/)** on your machine.
+
+<Tabs>
+  <TabItem value="linux" label="Linux" default>
+
+```bash
+sudo apt install curl
+curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+sudo apt-get update
+sudo apt install nodejs
+```
+
+  </TabItem>
+  <TabItem value="mac" label="macOS">
+
+```bash
+brew update
+brew install node
+```
+
+  </TabItem>
+  <TabItem value="windows" label="Windows">
+
+Windows users can simply download the installer. (You do not have to check the option _"Automically install the necessary tools"_).
+
+  </TabItem>
+</Tabs>
+
+#### Docker Desktop
+
+**Docker Desktop** is required only if you want to use the local simple runtime:
+
+-   [Install on Windows](https://docs.docker.com/desktop/install/windows-install/)
+-   [Install on macOS](https://docs.docker.com/desktop/install/mac-install/)
+-   [Instsll on Linux](https://docs.docker.com/desktop/install/linux-install/)
+
+#### Optional Tools
+
+Some other tools are not absolute necessary but are recommended:
+
+1. A code editor that supports JavaScript and TypeScript IntelliSense, for example, [Visual Studio Code](https://code.visualstudio.com/download) with [JavaScript and TypeScript Nightly extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-typescript-next) installed.
+2. Windows 10 users can also install [Windows Terminal](https://docs.microsoft.com/en-us/windows/terminal/install) to replace Command Prompt and PowerShell.
+3. A HTTP client like [Insomnia](https://insomnia.rest/download) or [Postman](https://www.postman.com/downloads/).
+
+<details>
+    <summary><b>Tip</b> on developing in VS Code</summary>
+
+1. Go to `File` -> `New Window`
+2. Click `Open Folder...`
+3. Select local workspace (the directory where the CLI binary is)
+4. Open a new terminal with `Terminal` -> `New Terminal`. Now you can use CLI commands.
+
+</details>
+
+## Setting Up a Profile
+
+CLI connects to your LOC environment with a _profile_, which contains connection information like base and authentication URLs, etc.
+
+For any operations involving LOC festures and assets, you are also required to login with your LOC account.
+
+:::info
+To sign up, please contact your LOC Studio administrator. You'll receive an email with a temporary password (which you are required to change it by logging in _Studio_). You can use it for CLI login after that.
+
+You can also use [Local Simple Runtime](/legacy/0.6/cli-handbook/local-runtime), which does not require an account.
+:::
+
+An example of profile file (again provided by FST Network) looks like this:
+
+```yaml title="myprofile.yaml" showLineNumbers
+baseURL: https://api.loc-***.fst.network
+namespace: ********
+
+ArthurL: https://auth.*****.fst.network/auth
+realm: *****
+clientId: loc-*****
+```
+
+<details>
+    <summary><b>Tip</b> on creating blank files</summary>
+
+You can either copy the profile from your team or create a blank file then copy/paste the content.
+
+macOS and Linux users can do this with
+
+```bash
+touch <profile name>.yaml
+```
+
+Or (for Windows users)
+
+```bash
+type nul > <profile name>.yaml
+```
+
+Then open the file with an editor, copy/paste the profile and save it.
+
+</details>
+
+We recommend you to save profile files in a sub-directory like `/profiles`, which makes your file at `/profiles/myprofile.yaml`.
+
+Then run the following command to setup your profile to CLI:
+
+```bash
+./loc p set -f ./profiles/myprofile.yaml -p myprofile
+./loc p use myprofile
+```
+
+Now **myprofile** is setuped as your default profile. You can then login LOC (if your LOC account has been created by your team and you've changed your password):
+
+```bash
+./loc login
+```

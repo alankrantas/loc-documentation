@@ -1,0 +1,282 @@
+---
+sidebar_position: 10
+tags:
+    - LOC
+    - Agent
+    - JavaScript
+    - TypeScript
+---
+
+# HTTP Agent
+
+```typescript
+import { HttpAgent } from "@fstnetwork/loc-logic-sdk";
+```
+
+For sending HTTP requests to specific hosts.
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+#### Availability
+
+-   ✓ Generic logic
+-   ✗ Aggregator logic
+
+:::info
+This agent requires **agent configuration**. See [tutorial](/legacy/0.8/tutorials/http-agent-configuration) for details.
+:::
+
+:::note
+The following `HttpAgentClient` methods and `HTTP` type are _deprecated_ and no longer supported in LOC `v0.8.0`:
+
+-   `httpClient.get()`, `httpClient.post()` ...etc.
+-   `Http.ContentType` and `Http.Response`
+    :::
+
+## Acquire HTTP Client
+
+```typescript
+async HttpAgent.acquire(configurationName: string): Promise<HttpAgentClient>
+```
+
+Returns a `HttpAgentClient` object based on agent configuration reference that have been added to a logic, which includes a host URL and may include authentication information via the `Authorization` header.
+
+Throws an error if the configuration cannot be found.
+
+#### Example
+
+```typescript showLineNumbers
+const httpClient = await HttpAgent.acquire("my-http-configuration");
+```
+
+## Fetch from URL
+
+The `fetch()` method is borrowed from [Web API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) for sending HTTP requests:
+
+```typescript showLineNumbers
+async httpClient.fetch(input: Request | string, init?: RequestInit): Promise<Response>
+```
+
+| Parameters        | Description     | Example                                                               |
+| ----------------- | --------------- | --------------------------------------------------------------------- |
+| `input`           | URL path        | `/api/path`                                                           |
+| `init` (optional) | Request options | `{ method: "POST", headers: { "Content-Type": "application/json" } }` |
+
+:::info
+Unlike the `fetch` API elsewhere, you can only use path as `input`. Using a full URL (host + path) would throw an error.
+:::
+
+#### Example: Send a HTTP POST Request
+
+```typescript showLineNumbers
+const path = "/api/path";
+
+const data = {
+    // mocked JSON data
+    name: "Arthur Dent",
+    age: 42,
+};
+
+const httpClient = await HttpAgent.acquire("my-http-configuration");
+
+// send HTTP POST request
+const response = await httpClient?.fetch(path, {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json; charset=UTF-8", // content type is JSON
+    },
+    body: JSON.stringify(data), // convert JSON to string
+});
+```
+
+#### Example: Send a HTTP GET Request with QueryString
+
+```typescript showLineNumbers
+const path = "/api/path";
+
+const data = {
+    // mocked JSON data
+    name: "Arthur Dent",
+    age: 42,
+};
+
+// convert JSON to QueryString ("name=Arthur+Dent&age=42")
+const queryString = new URLSearchParams(data).toString();
+
+const httpClient = await HttpAgent.acquire("my-http-configuration");
+
+// send HTTP GET request with path + querystring
+const response = await httpClient?.fetch(`${path}?${queryString}`);
+```
+
+## HTTP Response
+
+The `response` object has the following attributes and methods:
+
+| Members      | Type                                                                             | Description                                                                                   |
+| ------------ | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `status`     | `number`                                                                         | HTTP response status code                                                                     |
+| `statusText` | `string`                                                                         | HTTP response status message                                                                  |
+| `ok`         | `boolean`                                                                        | If request was successful (HTTP code 200~299)                                                 |
+| `type`       | [`ResponseType`](https://developer.mozilla.org/en-US/docs/Web/API/Response/type) | Response type (`"basic"`, `"cors"`, `"default"`, `"error"`, `"opaque"` or `"opaqueredirect"`) |
+| `url`        | `string`                                                                         | Response URL                                                                                  |
+| `headers`    | [`Headers`](https://developer.mozilla.org/en-US/docs/Web/API/Headers)            | Response headers                                                                              |
+| `body`       | `ReadableStream<Uint8Array>` &#124; `null`                                       | Response body                                                                                 |
+| `text()`     | `Promise<string>`                                                                | (Method) convert body to plaintext                                                            |
+| `json()`     | `Promise<any>`                                                                   | (Method) convert body to JSON                                                                 |
+
+### Headers
+
+Type `Headers` has many methods, but we'll only list the most relevant ones here:
+
+| Members             | Return value           | Description                              |
+| ------------------- | ---------------------- | ---------------------------------------- |
+| `has(name: string)` | `boolean`              | If a header name exists (true/false)     |
+| `get(name: string)` | `string` &#124; `null` | Read a header (return null if not exist) |
+
+#### Example: Parse HTTP POST JSON Response
+
+```typescript showLineNumbers
+const response = await httpClient?.fetch(path, {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json; charset=UTF-8",
+    },
+    body: JSON.stringify(data),
+});
+
+let body = null;
+
+// if HTTP status is ok
+if (response.ok) {
+    // convert response body to JSON
+    // highlight-start
+    body = await response.json();
+    hasAuthorization = response.headers.has("Authorization");
+    contentType = response.headers.get("Content-Type");
+    // highlight-end
+
+    // do something with body (parsed JSON)...
+}
+
+// body is the parsed JSON
+```
+
+:::warning
+`response.json()` and `response.text()` may not return body properly without using `await`.
+:::
+
+## Other Examples
+
+#### Example: POST a file as form data
+
+```typescript showLineNumbers
+const path = "path/my-api";
+
+// file name
+const fileName = "test";
+// a mocked text file content
+const filedata = `Ford!
+there's an infinite number of monkeys outside
+who want to talk to us about this script for
+Hamlet they've worked out.`;
+
+// append file to FormData (you can append multiple files)
+const formData = new FormData();
+formData.append(fileName, filedata);
+
+const httpClient = await HttpAgent.acquire("my-http-configuration");
+const response = await httpClient?.fetch(path, {
+    method: "POST",
+    body: formData, // will set the encoding type as multipart/form-data
+});
+
+// read response if needed
+```
+
+The file content would be sent as a key-value pair of a form data.
+
+#### Example: POST a file with multipart
+
+```typescript showLineNumbers
+const path = "path/my-api";
+
+// a mocked text file content
+const filedata = `Ford!
+there's an infinite number of monkeys outside
+who want to talk to us about this script for
+Hamlet they've worked out.`;
+
+const fileName = "test"; // file name or label
+const fileFullName = "test.txt"; // full file name
+const fileType = "text/plain"; // file content type
+
+const httpClient = await HttpAgent.acquire("my-http-configuration");
+
+// ========== start of template ==========
+
+// multipart headers (use task ID as boundary)
+const boundaryValue = ctx.task.taskId.id;
+const headers = {
+    "Content-Type": `multipart/form-data; boundary=${boundaryValue}`,
+};
+
+// multipart body template
+const body =
+    `--${boundaryValue}` +
+    "\r\n" +
+    `Content-Disposition: form-data; name=${fileName}; filename=${fileFullName}` +
+    "\r\n" +
+    `Content-Type: ${fileType}` +
+    "\r\n\r\n" +
+    `${filedata}` +
+    "\r\n" +
+    `--${boundaryValue}--` +
+    "\r\n";
+
+// ========== end of template ==========
+
+const response = await httpClient?.fetch(path, {
+    method: "POST",
+    headers: headers,
+    body: body,
+});
+
+// read response if needed
+```
+
+Change the file content type to the one that match your file.
+
+#### Example: Emit a CloudEvent
+
+Send a HTTP request using the [CloudEvents](https://cloudevents.io/) format:
+
+```typescript showLineNumbers
+const path = "path/my-api";
+
+const data = {
+    name: "Arthur Dent",
+    age: 42,
+};
+
+const headers = {
+    "ce-specversion": "1.0",
+    "ce-type": "com.example.someevent", // CloudEvent type or label
+    "ce-time": new Date().toISOString(),
+    "ce-id": ctx.task.taskId.id, // id = task id
+    "ce-source": ctx.task.currentLogic.permanentIdentity, // source = logic PID
+    "Content-Type": "application/json; charset=utf-8",
+    "Content-Length": String(data.length),
+};
+
+const httpClient = await HttpAgent.acquire("my-http-configuration");
+
+const response = await httpClient?.fetch(path, {
+    method: "POST",
+    headers: headers,
+    body: JSON.stringify(data),
+});
+
+// read response if needed
+```

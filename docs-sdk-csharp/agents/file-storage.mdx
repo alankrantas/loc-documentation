@@ -1,0 +1,207 @@
+---
+sidebar_position: 9
+tags:
+    - LOC
+    - SDK
+    - Agent
+    - Agent Configuration
+    - FileStorage
+    - CSharp
+---
+
+# File Storage Agent - C Sharp
+
+Read and write an external file server.
+
+| Logic Type       | Available |
+| ---------------- | --------- |
+| Generic logic    | ✅        |
+| Aggregator logic | ❌        |
+
+## File Storage Agent Configuration
+
+> See: [Agent Configuration](/main/category/agent-configuration)
+
+A **File Storage Agent Configuration** defines an external file server that will be allowed to be accessed from LOC runtime.
+
+The File Storage Agent requires a configuration reference name so that it can access files on the file server. The reference name can be added to a logic while creating or editing a data process.
+
+## Import and Usage
+
+The agent can be used without using additional namespaces:
+
+```csharp showLineNumbers
+public static class Logic
+{
+
+    public static async Task Run(Context ctx)
+    {
+        var fileClient = await FileStorageAgent.Acquire("file-config-ref");
+        var file = await fileClient.get("dir/file.txt");
+    }
+
+    public static async Task HandleError(Context ctx, Exception error)
+    {
+        // ... same
+    }
+}
+```
+
+## Class Reference
+
+### Type
+
+-   Public static class `FileStorageAgent`
+
+### Method: Acquire File Storage Client
+
+```csharp
+public async static Task<FileStorageClient> Acquire(string name) {}
+```
+
+| Parameter | Description                                     |
+| --------- | ----------------------------------------------- |
+| `name`    | File Storage Agent Configuration reference name |
+
+Acquire a [File Storage Client](#file-storage-client) using a configuration reference name. Throws an error if the configuration cannot be found.
+
+## File Storage Client
+
+### Type
+
+-   `FileStorageClient`
+
+### Method: Read File
+
+```csharp
+public async Task<byte[]> SimpleGetFile(string filePath) {}
+```
+
+| Parameter  | Type     | Description                        |
+| ---------- | -------- | ---------------------------------- |
+| `filePath` | `string` | File name and path (no `/` prefix) |
+
+Read a file from the file server. Returns a `byte[]` array.
+
+### Method: Write File
+
+```csharp
+public async Task SimplePutFile(string filePath, byte[] content, bool ensureDirectory = false) {}
+```
+
+Write a file to the file server.
+
+| Parameter         | Type     | Description                                                                             |
+| ----------------- | -------- | --------------------------------------------------------------------------------------- |
+| `filePath`        | `string` | File name and path (no `/` prefix)                                                      |
+| `content`         | `byte[]` | File content                                                                            |
+| `ensureDirectory` | `bool`   | For SMB (Server Message Block) storages to ensure the directory exists; default `false` |
+
+### Method: Delete File
+
+```csharp
+public async Task DeleteFile(string filePath) {}
+```
+
+| Parameter  | Type     | Description                        |
+| ---------- | -------- | ---------------------------------- |
+| `filePath` | `string` | File name and path (no `/` prefix) |
+
+Delete a file from the file server.
+
+### Method: List Directories and Files
+
+```csharp
+public async Task<List<FileInfo>> ListFile(string filePath) {}
+```
+
+| Parameter  | Type     | Description                        |
+| ---------- | -------- | ---------------------------------- |
+| `filePath` | `string` | File name and path (no `/` prefix) |
+
+List directories and files at a given path on the file server.
+
+Returns collection [`List<FileInfo>`](#fileinfo).
+
+#### `FileInfo`
+
+| Fields | Type       | Description |
+| ------ | ---------- | ----------- |
+| `Name` | `string`   | Item name   |
+| `Type` | `FileType` | Item type   |
+
+`FileType` (an enumeration type) indicates that an item is a file, a directory or a symbolic link (in SMB):
+
+```csharp
+public enum FileType
+{
+    File = 1,
+    Directory = 2,
+    SymbolicLink = 3,
+}
+```
+
+### Method: Create Directory
+
+```typescript
+public async Task CreateDirAll(string directoryPath) {}
+```
+
+| Parameter       | Type     | Description                    |
+| --------------- | -------- | ------------------------------ |
+| `directoryPath` | `string` | Directory path (no `/` prefix) |
+
+Create a directory at a given path on the file server.
+
+:::warning
+Not supported on Amazon S3 storages.
+:::
+
+## Examples
+
+### Read a File
+
+```csharp title="Import namespace(s)" showLineNumbers
+using System.Text;
+```
+
+```csharp showLineNumbers
+var fileClient = await FileStorageAgent.Acquire("file-config-ref");
+
+byte[] file = await fileClient.SimpleGetFile("dir/file.txt");
+
+string data = Encoding.UTF8.GetString(file);
+```
+
+### Write a File
+
+```csharp title="Import namespace(s)" showLineNumbers
+using System.Text;
+```
+
+```csharp showLineNumbers
+string data = `The chances of finding out what really is going on
+are so absurdly remote that the only thing to do is
+to say hang the sense of it and keep yourself occupied`;
+
+var fileClient = await FileStorageAgent.Acquire("file-config-ref");
+
+await fileClient.SimplePutFile(
+    "dir/file.txt",
+    Encoding.UTF8.GetString(data)
+);
+```
+
+### List Directories and Files
+
+```csharp showLineNumbers
+var fileClient = await FileStorageAgent.Acquire("file-config-ref");
+
+var fileList = await fileClient.ListFile("dir");
+
+foreach (var item in fileList)
+{
+    string name = item.Name;
+    int fileType = (int) item.Type;
+}
+```

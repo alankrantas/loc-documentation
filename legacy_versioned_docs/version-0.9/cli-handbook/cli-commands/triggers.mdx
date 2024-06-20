@@ -1,0 +1,138 @@
+---
+sidebar_position: 4
+tags:
+    - LOC
+    - CLI
+    - Trigger
+---
+
+# Triggers
+
+CLI commands for managing assets in LOC:
+
+-   [API Routes](#api-route)
+
+## API Route
+
+> `loc api api-route|ar`
+
+An [API route](/legacy/0.9/tutorials/create-api-route) is a HTTP endpoint linking one or more data processes.
+
+### List All API Routes
+
+```bash
+loc api ar list [--remote]
+```
+
+| Option     | Description                                                                                                                |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `--remote` | List all remote API routes on LOC server instead. If not provided, the local API routes (deployed or not) would be listed. |
+
+### Create a new API Route
+
+> Required logged in
+
+```bash
+loc api ar create|new [OPTIONS]
+```
+
+| Option                                              | Description                                                    |
+| --------------------------------------------------- | -------------------------------------------------------------- |
+| `--unit-id <UNIT ID>`                               | Unit ID the project to be created in                           |
+| `--project-name <NAME>`\*                           | Project name                                                   |
+| `--project-id <ID>`                                 | Project ID                                                     |
+| `--name <NAME>`\*                                   | API route name                                                 |
+| `--description <DESCRIPTION>`\*                     | API route description (can be blank)                           |
+| `--method <METHOD>`\*                               | HTTP method to be accepted (see below)                         |
+| `--path <PATH>`\*                                   | API route path                                                 |
+| `--mode <MODE>`\*                                   | API route mode (`Sync` or `Async`)                             |
+| `--response-content-type <RESPONSE_CONTENT_TYPE>`\* | API route response body type (`Auto`, `Json`, `Xml` or `Yaml`) |
+
+> \*= will be prompted if not provided
+
+CLI will prompt you to choose at least one deployed data processes to be linked.
+
+Supported HTTP methods:
+
+-   `GET`
+-   `POST`
+-   `PUT`
+-   `DELETE`
+-   `OPTIONS`
+-   `CONNET`
+-   `HEAD`
+-   `TRACE`
+
+### Edit an API Route
+
+```bash
+loc api ar edit [OPTIONS]
+```
+
+| Option                                              | Description                                                                                                                           |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `--project-name <NAME>`\*                           | Project name                                                                                                                          |
+| `--project-id <ID>`                                 | Project ID                                                                                                                            |
+| `--api-route-name <NAME>`\*                         | Name of API route to be edited                                                                                                        |
+| `--api-route-id <ID>`                               | ID of API route to be edited                                                                                                          |
+| `--name <NAME>`\*                                   | New API route name                                                                                                                    |
+| `--description <DESCRIPTION>`\*                     | New API route description (can be blank)                                                                                              |
+| `--mode <MODE> `\*                                  | API route mode (`Sync` or `Async`)                                                                                                    |
+| `--response-content-type <RESPONSE_CONTENT_TYPE>`\* | API route response body type (`Auto`, `Json`, `Xml` or `Yaml`)                                                                        |
+| `--remote`                                          | Edit remote API route on LOC server directly. If not provided, the changes will only be applied to local API route (deployed or not). |
+
+> \*= will be prompted if not provided
+
+CLI will prompt you to press `e` to edit the linked data processes, or press `enter` to skip.
+
+### Delete an API Route
+
+```bash
+loc api ar delete [OPTIONS]
+```
+
+| Option                      | Description                                                                                                                                        |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--project-name <NAME>`\*   | Project name                                                                                                                                       |
+| `--project-id <ID>`         | Project ID                                                                                                                                         |
+| `--api-route-name <NAME>`\* | Name of API route to be deleted                                                                                                                    |
+| `--api-route-id <ID>`       | ID of API route to be deleted                                                                                                                      |
+| `--remote`                  | Delete remote logic on LOC server and remove its ID from local workspace. If not provided, the local API route (deployed or not) would be deleted. |
+
+> \*= will be prompted if not provided
+
+### Deploy an API Route
+
+> Sync the API routes in the remote project with your local versions
+
+```bash
+loc api ar deploy [OPTIONS]
+```
+
+Deploy all API routes from a _deployed_ local project.
+
+| Option                      | Description                     |
+| --------------------------- | ------------------------------- |
+| `--project-name <NAME>`\*   | Project name                    |
+| `--project-id <ID>`         | Project ID                      |
+| `--api-route-name <NAME>`\* | Name of API route to be deleted |
+| `--api-route-id <ID>`       | ID of API route to be deleted   |
+
+> \*= will be prompted if not provided
+
+### Pull an API Routes
+
+> Sync the API routes in your local project with their remote versions
+
+```bash
+loc api ar pull [OPTIONS]
+```
+
+Pull all API routes from a remote project.
+
+| Option                    | Description  |
+| ------------------------- | ------------ |
+| `--project-name <NAME>`\* | Project name |
+| `--project-id <ID>`       | Project ID   |
+
+> \*= will be prompted if not provided

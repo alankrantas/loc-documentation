@@ -1,0 +1,94 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - SDK
+    - Error Handling
+    - Csharp
+---
+
+# Logic Error - C Sharp
+
+If an unhandled error had been thrown in the task, an error object would be passed to the logic and _all_ subsequential ones. The object is an instance of `Exception` in C#.
+
+| Logic Type       | Available               |
+| ---------------- | ----------------------- |
+| Generic logic    | ✅ (`HandleError` only) |
+| Aggregator logic | ✅ (`HandleError` only) |
+
+## Import and Usage
+
+The `handleError` function in a logic receives a `error` argument by default:
+
+```csharp showLineNumbers
+public static class Logic
+{
+
+    public static async Task Run(Context ctx)
+    {
+
+    }
+
+    // highlight-next-line
+    public static async Task HandleError(Context ctx, Exception error)
+    {
+        // error may contain railway error
+    }
+}
+```
+
+## Class Reference
+
+### Type
+
+-   `RailwayError` (extended from [`Exception`](#exception)) if the error originated from logic
+-   Other exceptions for errors originated from LOC runtime or SDK, etc.
+
+### Properties
+
+-   `RailwayError`
+
+| Property        | Type                                       | Description                               |
+| --------------- | ------------------------------------------ | ----------------------------------------- |
+| `Name`          | `string`                                   | Error name                                |
+| `Message`       | `string`                                   | Error message                             |
+| `StackTrace`    | `string`                                   | Error stack trace message                 |
+| `LogicIdentity` | [`VersionedIdentity?`](#versionedidentity) | Logic permanent ID where error originated |
+
+#### `Exception`
+
+> Refer to: [`Exception`](https://learn.microsoft.com/en-us/dotnet/api/system.exception?view=net-7.0)
+
+### Sub Class Reference
+
+#### `VersionedIdentity`
+
+| Property            | Type                                                                            | Description              |
+| ------------------- | ------------------------------------------------------------------------------- | ------------------------ |
+| `PermanentIdentity` | [`Guid`](https://learn.microsoft.com/en-us/dotnet/api/system.guid?view=net-7.0) | Permanent identity (PID) |
+| `Revision`          | `int`                                                                           | Revision number          |
+
+## Examples
+
+### Read Exception
+
+```csharp title="HandleError()" showLineNumbers
+// if error is a railway error
+if (error is RailwayError railwayError)
+{
+    string errorPid = railwayError.LogicIdentity.PermanentIdentity.ToString();
+    string errorFullMessage = railwayError.ToString();
+}
+
+// for all exception types
+string errorMessage = error.Message;
+string errorStack = error.StackTrace;
+```
+
+### Throw Exception
+
+```csharp showLineNumbers
+throw new Exception("oh no, not again.");
+```
+
+> The error will be packaged as `RailwayError` by LOC runtime.

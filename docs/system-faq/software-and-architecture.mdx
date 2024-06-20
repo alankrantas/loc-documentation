@@ -1,0 +1,79 @@
+---
+sidebar_position: 3
+tags:
+    - LOC
+---
+
+# Software and Architecture
+
+What software are used in LOC and how is the system structured?
+
+## Architecture Overview
+
+<div className="center-padded-sm">
+    <img
+        src={require("/img/system/loc-architecture.png").default}
+        alt="loc-architecture"
+    />
+</div>
+
+This is a _simplified_ architecture, but it shows how developers can deploy data processes serverlessly which in turn invoked by day-to-day users. The data processes use agents to operate external data as well as emit data events as data lineages.
+
+:::info LOC Logic Runtime
+The LOC runtime is responsible to execute logic defined in a data process and has its own dedicated resources.
+
+Since LOC `v1.0`, LOC runtime supports running logic in different languages with swappable _external runtimes_.
+:::
+
+## Software Technologies
+
+The majority of LOC are proprietary software built by FST Network's developer team, mostly using [Rust](https://www.rust-lang.org/), [TypeScript](https://www.typescriptlang.org/) and [React](https://reactjs.org/). All LOC components (except CLI) will run as custom resource (CR) pods in a [Kubernetes](https://kubernetes.io/) cluster.
+
+However, we do recognize and relies on proven third party software and tools, most of them are open-sourced. Some notable ones include:
+
+-   [Istio](https://istio.io/) (gateway and service mesh)
+-   [KrakenD](https://www.krakend.io/) (gateway for API routes)
+-   [Apache Pulsar](https://pulsar.apache.org/) (trigger broker)
+-   [PostgreSQL](https://www.postgresql.org/) (internal storage)
+-   [Redis](https://redis.io/) (internal storage)
+-   [Amazon S3](https://aws.amazon.com/s3/), [Minio](https://min.io/) or S3-compatible databases (data process code and payload storage)
+-   [Elasticsearch](https://www.elastic.co/) (event store/data lineage)
+-   [Kibana](https://www.elastic.co/kibana/) (user interface for Elasticsearch)
+-   [Prometheus](https://prometheus.io/) (performance/resource monitoring)
+-   [Vault](https://www.vaultproject.io/) (secrets management and protection)
+-   [Harbor](https://goharbor.io/) (local image registry)
+-   [Verdaccio](https://verdaccio.org/) (local NPM registry)
+
+LOC SDKs are developed and published by FST Network, which are free to download locally.
+
+## Supported Logic Languages
+
+A LOC logic can be written in one of the following programming languages:
+
+-   JavaScript
+-   TypeScript
+-   C# (C Sharp)
+
+## Supported Data Sources
+
+LOC data processes can be triggered by the following ways:
+
+-   HTTP requests
+-   Message queue messages
+-   Scheduled jobs
+
+LOC agents supports the following operating options (with more planned in each category):
+
+-   HTTP endpoints
+-   Databases:
+    -   MySQL
+    -   PostgreSQL
+    -   Microsoft SQL Server
+    -   Oracle Database
+-   File storages:
+    -   FTP
+    -   S3
+    -   SMB
+-   SMTP email servers
+
+With more can be request by clients and partners.

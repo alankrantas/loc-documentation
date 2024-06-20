@@ -1,0 +1,91 @@
+---
+sidebar_position: 3
+tags:
+    - LOC
+    - Data Process
+    - Logic
+    - Agent
+    - Agent Configuration
+    - Logic Variable
+---
+
+# Add Configuration to Data Process
+
+## Add an Agent Configuration Reference
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="studio1" label="LOC Studio" default>
+
+1. While [creating a new data process](/main/feature/data-process/create#create-a-data-process), click **Add Configuration** <img src={require("./img/Plus.png").default} width="20px" alt="Plus" className="img-bg" /> icon behind a logic, or
+
+2. While [editing a data process](/main/feature/data-process/manage#edit-a-data-process), click **Add Configuration** <img src={require("./img/Logic-add-config.png").default} width="20px" alt="Logic-add-config" className="img-bg" /> or hover the cursor to <span style={{fontSize:'24px'}}><b>&nbsp;⋮&nbsp;</b></span> and select the same option.
+
+3. Select **Agent Configuration** tab and click **Add a Row** in the logic's agent configuration window.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Logic-agent-config.png").default}
+        alt="Logic-agent-config"
+    />
+</div>
+
+4. Select a existing configuration and enter a reference name, then click **Ok**.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Logic-agent-config-new.png").default}
+        alt="Logic-agent-config-new"
+    />
+</div>
+
+:::info Configuration Reference Name
+The agents acquire connection client **using the reference name**, _not_ the original configuration name.
+
+The same configuration can be added to a logic with _multiple_ reference names.
+:::
+
+5. Click **Add** to add configuration(s) to the logic.
+
+6. While inspecting a created data process, an AC icon <img src={require("./img/AgentConfig.png").default} width="32px" alt="AgentConfig" /> represents a configuration of the logic:
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Data-process-agent-config.png").default}
+        alt="Data-process-agent-config"
+    />
+</div>
+
+:::warning
+A disabled AC icon <img src={require("./img/AgentConfigDisabled.png").default} width="32px" alt="AgentConfigDisabled" /> indicates the linked configuration has been deleted thus no longer valid.
+:::
+
+  </TabItem>
+</Tabs>
+
+## Add a Logic Variable
+
+<Tabs>
+  <TabItem value="studio1" label="LOC Studio" default>
+
+1. Open a logic's agent configuration window as the previous section.
+
+2. Select **Variable** tab and click **Add Variable**. Enter the name and value of the variable.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Logic-variable.png").default}
+        alt="Logic-variable"
+    />
+</div>
+
+:::info Logic Variable Agent
+The logic variable values can be read as strings using the logic variable agent.
+:::
+
+3. Click **Add** to add configuration(s) to the logic.
+
+  </TabItem>
+</Tabs>

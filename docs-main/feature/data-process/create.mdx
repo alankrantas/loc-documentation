@@ -1,0 +1,134 @@
+---
+sidebar_position: 3
+tags:
+    - LOC
+    - Data Process
+---
+
+# Create Data Process
+
+To create a data process or a data pipeline definition with (or without) logic.
+
+## Create a Data Process
+
+You can create a data process without any logic. Logic can be added later by [editing the data process](/main/feature/data-process/manage).
+
+However, for a data process to be executable, it must have **at least one generic logic** and **one aggregator logic**.
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="studio1" label="LOC Studio" default>
+
+1. In LOC Studio, go to **Data Process** ➞ **Explorer**.
+
+<div className="center-padded-sm">
+    <img src={require("./img/Nav-explorer.png").default} alt="Nav-explorer" />
+</div>
+
+2. Select a scenario and click **Create Data Process** on the top right, or right-click a scenario and select the same option.
+
+<div className="gridEqual">
+    <div className="right-padded-sm">
+        <img
+            src={require("./img/Menu-data-process.png").default}
+            alt="Menu-data-process"
+        />
+    </div>
+    <div className="center">
+        <small>or</small>
+    </div>
+    <div className="padded-sm">
+        <img
+            src={require("./img/Create-data-process.png").default}
+            alt="Create-data-process"
+        />
+    </div>
+</div>
+
+3. Fill in the fields in the data process creation window.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Data-process-creation.png").default}
+        alt="Data-process-creation"
+    />
+</div>
+
+<details>
+  <summary>New Data Process Fields</summary>
+
+| Field             | Required? | Description                                                             |
+| ----------------- | --------- | ----------------------------------------------------------------------- |
+| Data Process Name | Yes       | Data process name (up to 128 characters)                                |
+| Description       | No        | Data process description                                                |
+| Execution Timeout | Yes       | Timeout limit for LOC to wait for a task result (default `180` seconds) |
+| Data Process Tag  | No        | Data process tags for searching and filtering                           |
+| Linked Logics     | No        | Linked generic and aggregator logic                                     |
+
+</details>
+
+4. Proceed to [add logic to the data process](#add-logic-to-a-data-process), or click **Create** on the bottom of the creation window to create the data process with logic right away.
+
+  </TabItem>
+</Tabs>
+
+## Add Logic to a Data Process
+
+Any [built logic](/main/feature/logic/build) can be linked into a data process. A data process should have at least one generic logic and only one aggregator logic.
+
+<Tabs>
+  <TabItem value="studio2" label="LOC Studio" default>
+
+1. In the data process creation window, click **Add Generic Logic** or **Add Aggregator Logic** on the lower half to enter the logic inspector.
+
+2. In the logic inspector, select a logic.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Logic-inspector.png").default}
+        alt="Logic-inspector"
+    />
+</div>
+
+3. Select a revision of the logic and confirm the source code by clicking **Logic Source Code** near the bottom.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Logic-inspector-revision.png").default}
+        alt="Logic-inspector-revision"
+    />
+    <br />
+    <img
+        src={require("./img/Logic-inspector-source.png").default}
+        width="70%"
+        alt="Logic-inspector-source"
+    />
+</div>
+
+4. Add the logic by clicking **Add**. You can also change the revisions of a logic or unlink it.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Data-process-logic.png").default}
+        width="80%"
+        alt="Data-process-logic"
+    />
+</div>
+
+For adding agent configuration to a logic in the data process, see Agent Configuration.
+
+5. After done, click **Create** on the bottom of the data process creation window.
+
+6. The data process is now "deployed" and ready to go. Here's an example of what would a properly created data process look like:
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Data-process-content.png").default}
+        alt="Data-process-content"
+    />
+</div>
+
+  </TabItem>
+</Tabs>

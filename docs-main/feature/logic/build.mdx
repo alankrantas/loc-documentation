@@ -1,0 +1,91 @@
+---
+sidebar_position: 4
+tags:
+    - LOC
+    - Logic
+---
+
+# Build Logic
+
+To build (compile) a logic asset from an entry file in the logic source. A built logic can be [added into data processes](/main/feature/data-process/create#add-logic-to-a-data-process).
+
+## Build a Logic From an Entry File
+
+Create a logic or "overwrite" one with a new revision.
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="studio1" label="LOC Studio" default>
+
+1. Select an existing [entry file](/main/feature/logic/source) in the logic source, and click **Build** <img src={require("./img/Build.png").default} width="32px" alt="Build" /> on the top right. This will start compiling the source code into a cloud logic.
+
+2. Studio will prompt you to browse and select an existing logic to overwrite (which will create a new revision), or to create a new logic right away.
+
+:::info
+Logic names are case-sensitive in the searching input.
+:::
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Menu-build.png").default}
+        width="70%"
+        alt="Menu-build"
+    />
+</div>
+
+3. Click **Build** to proceed building the logic. (Depending on the logic language, the compile time varies.)
+
+4. Wait for the LOC compiler to report building success.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Build-success.png").default}
+        width="60%"
+        alt="Build-success"
+    />
+</div>
+
+5. If you see the following message instead, review the source code for possible syntax errors. (You can read the build error log in [Build History](#browse-build-history).)
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Build-error.png").default}
+        width="60%"
+        alt="Build-error"
+    />
+</div>
+
+  </TabItem>
+</Tabs>
+
+:::warning Update Data Process Linking Revision
+If the logic is already linked to a data process, [the data process has to be edited](/main/feature/data-process/manage) to link the correct logic version.
+:::
+
+## Browse Build History
+
+<Tabs>
+  <TabItem value="studio2" label="LOC Studio" default>
+
+1. In LOC Studio, go to **Logic** ➞ **Build History**.
+
+<div className="center-padded-sm">
+    <img src={require("./img/Nav-history.png").default} alt="Nav-history" />
+</div>
+
+2. From here you can browse logic with their revision, entry files and build status:
+
+<div className="center-padded-sm">
+    <img src={require("./img/Build-history.png").default} alt="Build-history" />
+</div>
+
+3. If a logic failed to build, hover the cursor onto **Build Fail** to read the build error logs:
+
+<div className="center-padded-sm">
+    <img src={require("./img/Build-fail.png").default} alt="Build-fail" />
+</div>
+
+  </TabItem>
+</Tabs>

@@ -1,0 +1,233 @@
+---
+sidebar_position: 99
+tags:
+    - LOC
+    - Release-Note
+---
+
+# Release Note
+
+LOC `v0.7` has brought new features and improvements since `v0.6.0`, including breaking changes on SDK.
+
+## Release Versions
+
+| Component | Current Version |
+| --------- | --------------- |
+| Core      | `v0.7.1`        |
+| Studio    | ` v1.2.1`       |
+| CLI       | `v0.7.0`        |
+| SDK       | `v0.7.0-2`      |
+
+## Major New Features
+
+### Summary
+
+| New Feature                        | Summary                                                                                                                                                                                                                                                                                                    |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Agent Configuration**            | Setup and load secrets (confidential user information) for HTTP, database, file storage and mail agents. See the added docs in [Tutorial](/legacy/0.7/tutorials/http-agent-configuration), [Studio](/legacy/0.7/studio-guide/agent-configuration) and [CLI](/legacy/0.7/cli-handbook/agent-configuration). |
+| **Execution History**              | Browse and inspect execution logs, including task logs, trigger payload and results in [Studio](/legacy/0.7/studio-guide/data-discovery#execution).                                                                                                                                                        |
+| **License Mechanism**              | Display and update a LOC environment's license status, agreements and restrictions in [Studio](/legacy/0.7/studio-guide/administration#license) or [CLI](/legacy/0.7/cli-handbook/cli-commands/general-profile-login#license).                                                                             |
+| **SDK and CLI _Breaking changes_** | See [demonstration of breaking changes](#breaking-changes-demonstration) for details.                                                                                                                                                                                                                      |
+
+### Detailed List
+
+-   Core/Studio/CLI: adds support for **Agent Configuration** for setup secrets used by HTTP, database, file storage and mail agents.
+-   Core/Studio/CLI: adds support for [**Logic Variable Agent**](/legacy/0.7/sdk-reference/logic-var) and logic variables (environment variable).
+-   Studio: adds **Execution History** panel in Data Discovery which shows payload, result and logging of executions and tasks.
+-   Studio: adds **License** panel which can be used to view and update LOC distribution license.
+-   Studio: add default SDK import code in logic. All logic functions also have to be exported (with keyword `export`).
+-   CLI: adds commands for listing and uploading LOC distribution license.
+-   CLI: adds command for deleting deployed data processes quickly with the project name.
+-   CLI: new data process templates now contain default error handling codes.
+-   SDK: agents are now moved out of data context (`ctx`) and have to be explicitly imported from SDK, in both JavaScript and TypeScript projects.
+-   SDK: logic payload in logic can now be lazy-loaded with `ctx.payload()`.
+-   SDK: local storage agent's `timeout` parameter now have default value of `300` seconds and the upper limit of `86400` seconds (1 day).
+-   Core/SDK: event store agent's `search` and `searchWithPattern` (search sequences of events) now have simplified condition syntax.
+
+## Improvements
+
+-   Core/CLI: _Trigger_ of scheduler is renamed to **Schedule** and SMTP agent is renamed to **Mail** agent.
+-   Core: improves local simple runtime error logging.
+-   CLI: repackage environment variables to logic variable agent.
+
+---
+
+## Breaking Changes Demonstration
+
+There are a number of breaking changes in SDK API, most notably the way to import agents and load payloads, as well as different event store agent search/pattern search APIs. You'll need to modify your data processes for them to work on LOC `v0.7.0`.
+
+### Import and Invoke Agents
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="change1-1" label="New (v0.7.0)" default>
+
+```typescript
+// import logging agent from SDK
+// highlight-next-line
+import { LoggingAgent } from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx) {
+    // highlight-next-line
+    LoggingAgent.info("Hello World!");
+}
+```
+
+Functions have to be exported in both Studio `v1.2.1` and CLI `v0.7.0`.
+
+  </TabItem>
+  <TabItem value="change1-2" label="Old (v0.6.0)">
+
+```typescript
+async function run(ctx) {
+    // agent is loaded under data context object
+    // highlight-next-line
+    ctx.agents.logging.info("Hello World!");
+}
+```
+
+Functions in Studio `V1.1.0` does not need to be exported.
+
+  </TabItem>
+</Tabs>
+
+:::note
+From `v0.7.0` the `run` and `handleError` functions in Studio have to be exported too (with `export` keyword).
+:::
+
+### Payload Lazy Loading
+
+<Tabs>
+  <TabItem value="change2-1" label="New (v0.7.0)" default>
+
+```typescript
+export async function run(ctx) {
+    const payload = await ctx.payload(); // only loads when you call this
+}
+```
+
+  </TabItem>
+  <TabItem value="change2-2" label="Old (v0.6.0)">
+
+```typescript
+async function run(ctx) {
+    const payload = ctx.payload; // loaded by default in every logic
+}
+```
+
+  </TabItem>
+</Tabs>
+
+### Simplified Event Search Condition API
+
+<Tabs>
+  <TabItem value="change3-1" label="New (v0.7.0)" default>
+
+```typescript
+const requests = {
+    // highlight-start
+    queries: [
+        {
+            field: "label_name",
+            type: "match",
+            value: "event name to be matched",
+        },
+    ],
+    // highlight-end
+    excludes: [],
+    filters: [],
+    sorts: [],
+    aggregation: [],
+    from: 0,
+    size: 1000,
+};
+
+const query = await EventAgent.search(requests);
+```
+
+See the examples in [Event Store Agent](/legacy/0.7/sdk-reference/eventstore) for details.
+
+  </TabItem>
+  <TabItem value="change3-2" label="Old (v0.6.0)">
+
+```typescript
+const requests = {
+    // highlight-start
+    queries: [
+        Match: {
+          field: "label_name",
+          value: "event name to be matched"
+        }
+    ],
+    // highlight-end
+    excludes: [],
+    filters: [],
+    from: 0,
+    size: 1000,
+    sorts: [],
+};
+
+const query = await ctx.agents.eventStore.search(requests);
+```
+
+  </TabItem>
+</Tabs>
+
+### Logic Variable
+
+<Tabs>
+  <TabItem value="change4-1" label="New (v0.7.0)" default>
+
+```typescript
+const data = LogicVariable.get("data");
+```
+
+The variables can be set in Studio (while editing each logic) or in CLI (`config.yaml` of each project).
+
+  </TabItem>
+  <TabItem value="change4-2" label="Old (v0.6.0)">
+
+```typescript
+const data = process.env.data;
+```
+
+The variables can only be set via CLI profiles.
+
+  </TabItem>
+</Tabs>
+
+### CLI Single Data Process Execution
+
+<Tabs>
+  <TabItem value="change5-1" label="New (v0.7.0)" default>
+
+```bash
+./loc dp run-init
+./loc dp run -f <run-task.yaml>
+```
+
+The data process permanent IDs must be specified in `run-task.yaml`.
+
+  </TabItem>
+  <TabItem value="change5-2" label="Old (v0.6.0)">
+
+```bash
+./loc dp run --example <payload.yaml>
+./loc dp run <permanent ID> -f <payload.yaml>
+```
+
+  </TabItem>
+</Tabs>
+
+---
+
+### What's New in LOC-Doc?
+
+-   Adds docs for Core/CLI/SDK `v0.7.x` and Studio `v1.2.x`.
+-   Various improvements and fixes (including v0.6.0 docs).
+-   Adds [System FAQs](/docs/category/system-faqs).
+-   [Studio Guide](/legacy/0.7/category/studio-guide) is expanded with more content.
+-   Category **Agent Reference** is now renamed to [**SDK Reference**](/legacy/0.7/category/sdk-reference) (including v0.6.0 docs).
+-   Adds **SDK TypeDoc**, an auto-generated docs based on SDK `v0.7.0`.

@@ -1,0 +1,236 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - CLI
+    - Dataprocess
+---
+
+# Project, Data Process and Logic
+
+Project, data process and logic CLI commands.
+
+## Project
+
+### Create New Template
+
+```bash
+loc new [-ts] <project name>
+```
+
+-   `-ts`: for TypeScript project
+
+### Deploy a Project
+
+```bash
+loc deploy [-ts] <project dir name> [-ar]
+```
+
+-   `-ts`: for TypeScript project
+-   `-ar`: deploy api-route-config.yaml in the project, automatically match the data process permanent ID and delete the existing API route.
+
+Any new tags in `config.yaml` will be added into LOC. A new file `.deploy-info.json` will be generated in the project dir once the data process is successfully deployed, which records history of logic and data process PIDs related to this project.
+
+### Remove Deployed Projects
+
+```bash
+loc delete <project dir name>
+```
+
+This command will refer to `.deploy-info.json` and try to remove _all_ deployed assets in this file (data processes, logic, API route) from LOC.
+
+:::tip
+This is a short cut to quickly "undeploy" old data processes from CLI, perfect for the developing stage - but use it with caution after your data process is "in production".
+:::
+
+## Data Process
+
+> `loc dataprocess|dp`
+
+### List All Data Processes
+
+```bash
+loc dp list [-A] [-s]
+```
+
+List all data processes in LOC with their permanent IDs. The data processes will be sorted by name (case insensitive) unless a different sort option is provided.
+
+-   `-A`: list all versions
+-   `-s`: sort option: `name` (default), `pid` or `timestamp`
+
+#### Example
+
+```bash
+loc dp list
+loc dp list -A
+loc dp list -s timestamp
+```
+
+### Search Data Processes
+
+```bash
+loc dp search [-t <tag name>|--tag-id <permanent id>|--pid <permanent id>] [-s]
+```
+
+The search condition, if not specified, will be a data process name.
+
+Or one of the following option can be specified: a tag name, a tag permanent ID or a data process permanent ID.
+
+The data processes will be sorted by name (case insensitive) unless a different sort option is provided.
+
+-   `-t`: search with tag name
+-   `--tag-id`: search with tag permanent ID
+-   `--pid`: search with data process permanent ID
+-   `-s`: sort option: `name` (default), `pid` or `timestamp`
+
+#### Example
+
+```bash
+loc dp search <data process name>
+loc dp search -t <tag>
+loc dp search -t <tag> -s timestamp
+loc dp search --tag-id <tag id>
+loc dp search --pid <permanent id>
+```
+
+### Inspect a Data Process
+
+```bash
+loc dp get <permanent id> -v
+```
+
+View details of a data process (including logic, tag and unit permanent IDs).
+
+### Delete a Data Process
+
+```bash
+loc dp delete <permanent id>
+```
+
+### Single Data Process Execution
+
+```bash
+loc dp run <permanent ID> -f <payload.yaml> [--revision <number>] [--example <payload.yaml>]
+```
+
+-   `-f`: payload file (JSON or YAML)
+-   `--revision`: specify data process revision (default: latest revision)
+-   `--example`: (can be used without other parameters) generate an example payload file (JSON or YAML)
+
+### Local Simple Runtime Execution
+
+```bash
+loc dp run-local [-ts] <project dir> -f <payload.yaml> [--docker|--export] [--example <payload.yaml>]
+```
+
+Use with [Local Simple Runtime](/legacy/0.6/cli-handbook/local-runtime).
+
+-   `-ts`: for TypeScript projects
+-   `-f`: payload file (JSON or YAML)
+-   `--docker`: use docker mode
+-   `--export`: only export preset task and data process config, in `/<project name>/build/preset-task.yaml` (no data process will run)
+-   `--example`: (can be used without other parameters) generate an example payload file (JSON or YAML)
+
+## Logic
+
+> `loc logic|l`
+
+### List All Logic
+
+```bash
+loc l list [-g] [-a] [-A] [-s]
+```
+
+-   `-g`: show generic logic
+-   `-a`: show aggregator logic (default)
+-   `-A`: list all revisions
+-   `-s`: sort option: `name` (default), `pid` or `timestamp`
+
+`loc l -g -a` will return both generic and aggregator logic. If no flag is provided, only aggregator logic will be returned.
+
+The logic will be sorted by name (case insensitive) unless a different sort option is provided.
+
+### Search Logic
+
+```bash
+loc l search [-g|-a -t <tag name>|--tag-id <permanent id>|--pid <permanent id>] [-s]
+```
+
+The search condition, if not specified, will be logic names.
+
+Or one of the following option can be specified: tag names, tag PIDs or a logic permanent IDs.
+
+-   `-t`: search with tag name(s)
+-   `--tag-id`: search with tag permanent ID(s)
+-   `--pid`: search with logic permanent ID(s)
+-   `-s`: sort option: `name` (default), `pid` or `timestamp`
+
+#### Example
+
+```bash
+loc l search -g <logic name 1>,<logic name 2>...
+loc l search -g -t <tag name 1>,<tag name 2>...
+loc l search -g -t <tag name 1>,<tag name 2>... -s timestamp
+loc l search -g --tag-id <tag id 1>,<tag id 2>...
+loc l search -a --pid <permanent id 1>,<permanent id 2>...
+```
+
+### Inspect a Logic
+
+```bash
+loc l get -g|-a <permanent id>
+```
+
+One of the following flag has to be provided:
+
+-   `-g`: the logic is generic logic
+-   `-a`: the logic is aggregator logic
+
+#### Example
+
+```bash
+loc l get -g <permanent id>
+loc l get -a <permanent id>
+```
+
+### Compile a Logic
+
+:::info
+For developing and testing purpose only
+:::
+
+```bash
+loc l build [-ts] <input file> -o <output file> [--minify]
+```
+
+Compile a local JavaScript or TypeScript source file.
+
+-   `-ts`: for TypeScript source file
+-   `--minify`: minify code
+-   `-o`: output file path/name
+
+### Delete a Logic
+
+:::warning
+Not recommended to use
+:::
+
+```bash
+loc l delete <permanent id>
+```
+
+### Purge All Unused Logic
+
+:::warning
+Not recommanded to use
+:::
+
+```bash
+loc l prune g|a [--dry-run]
+```
+
+Delete all unused generic or aggregator logic in LOC (will ask for confirmation).
+
+-   `g`: generic logic
+-   `a`: aggregator logic
+-   `--dry-run`: do not do anything; only returns logic that will be purged without this flag

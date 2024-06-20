@@ -1,0 +1,23 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  namespace: {{ $.Release.Namespace }}
+  name: {{ include "loc-documentation.fullname" . }}
+  labels:
+    {{- include "loc-documentation.labels" . | nindent 4 }}
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      tls:
+        minProtocolVersion: {{ .Values.ingress.tls.minProtocolVersion }}
+        mode: SIMPLE
+        credentialName: {{ include "loc-documentation.certificateName" . }}
+      hosts:
+        - {{ .Values.ingress.host }}
+{{- end -}}

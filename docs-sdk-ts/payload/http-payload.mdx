@@ -1,0 +1,226 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - SDK
+    - Trigger
+    - Payload
+    - JavaScript
+    - TypeScript
+---
+
+# HTTP Payload - JS/TS
+
+The logic [payload](/sdk-ts/payload/intro) type when a task is invoked by an API Route trigger.
+
+## Class Reference
+
+### Type
+
+-   `{ http: HttpPayload }` (one of the [Payload](/sdk-ts/payload/intro#class-reference) type)
+
+## Sub Class Reference
+
+### `HttpPayload`
+
+> Importable from `@fstnetwork/loc-logic-sdk`
+
+| Property                    | Type                                                  | Description                       |
+| --------------------------- | ----------------------------------------------------- | --------------------------------- |
+| `apiGatewayIdentityContext` | [`IdentityContextFor_Uuid`](#identitycontextfor_uuid) | API gateway permanent ID and name |
+| `apiIdentityContext`        | `IdentityContextFor_Uuid`                             | API route permanent ID and name   |
+| `requestId`                 | `string`                                              | Request ID                        |
+| `request`                   | [`HttpRequest`](#httprequest)                         | Request content                   |
+| `source?`                   | [`Peer`](#peer) &#124; `null`                         | Request source                    |
+| `destination?`              | `Peer` &#124; `null`                                  | Request destination               |
+
+#### `IdentityContextFor_Uuid`
+
+| Property | Type     | Description            |
+| -------- | -------- | ---------------------- |
+| `id`     | `string` | API gateway/route ID   |
+| `name`   | `string` | API gateway/route name |
+
+#### `Peer`
+
+| Property  | Type      | Description |
+| --------- | --------- | ----------- |
+| `address` | `Address` | See below   |
+
+Type `Address` is
+
+```typescript
+{
+    socketAddr: {
+        address: string;
+        protocol: "tcp" | "udp";
+    }
+} | {
+    pipe: {
+        mode: number;
+        path: string;
+    }
+}
+```
+
+#### `HttpRequest`
+
+Data and metadata of the HTTP request.
+
+| Property  | Type                                                                                        | Description                                 | Example                                                                      |
+| --------- | ------------------------------------------------------------------------------------------- | ------------------------------------------- | ---------------------------------------------------------------------------- |
+| `host`    | `string`                                                                                    | Request host name                           |                                                                              |
+| `path`    | `string`                                                                                    | API route                                   | `/api/path`                                                                  |
+| `scheme`  | `string`                                                                                    | HTTP scheme                                 | `http`, `https`                                                              |
+| `method`  | `string`                                                                                    | HTTP method                                 | `GET`, `POST`, etc.                                                          |
+| `version` | `HTTP/0.9"` &#124; `"HTTP/1.0"` &#124; `"HTTP/1.1"` &#124; `"HTTP/2.0"` &#124; `"HTTP/3.0"` | HTTP version                                |                                                                              |
+| `headers` | `{ [k: string]: unknown; }`                                                                 | Request headers                             | `{ "Content-Type": "application/json" }`                                     |
+| `query`   | `string`                                                                                    | querystring                                 | `param1=value1` (no question mark; empty string if no querystring available) |
+| `data`    | `number[]`                                                                                  | Request body (empty array if not available) |                                                                              |
+
+:::info
+`HttpRequest.data` would be an `Uint8Array` array anc can be convert to string using Web API [`TextDecoder`](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder).
+:::
+
+## Examples
+
+### Parse Querystring
+
+Assuming the querystring is
+
+```
+`?name=Arthur-Dent&age=42`
+```
+
+The parameters can be parsed using Web API `URLSearchParams`:
+
+<Tabs>
+  <TabItem value="js3" label="JavaScript" default>
+
+```javascript showLineNumbers
+const payload = await ctx.payload();
+
+const searchParams = new URLSearchParams(payload.http.request.query);
+
+// get values (null if not exist)
+const name = searchParams.get("name");
+const age = searchParams.get("age");
+```
+
+  </TabItem>
+  <TabItem value="ts3" label="TypeScript">
+
+```typescript title="Import class(s)" showLineNumbers
+import {
+    // ...
+    HttpPayload,
+} from "@fstnetwork/loc-logic-sdk";
+```
+
+```typescript showLineNumbers
+const payload: { http: HttpPayload } = await ctx.payload();
+
+const query = payload.http.request.query;
+
+const searchParams = new URLSearchParams(payload.http.request.query);
+
+// get values (null if not exist)
+const name = searchParams.get("name") as string;
+const age = searchParams.get("age") as number;
+```
+
+  </TabItem>
+</Tabs>
+
+### Parse HTTP Payload body to JSON
+
+Assuming the HTTP request includes a body with the following JSON string:
+
+```json
+{
+    "name": "Arthur Dent",
+    "age": 42,
+    "job": {
+        "title": "Sandwich-maker",
+        "salary": 0
+    },
+    "quotes": [
+        "Is there any tea on this spaceship?",
+        "This must be Thursday. I never could get the hang of Thursdays.",
+        "Would it save you a lot of time if I just gave up and went mad now?"
+    ]
+}
+```
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+
+```javascript showLineNumbers
+const payload = await ctx.payload();
+
+const data = payload.http?.request.data;
+
+let parsed;
+if (data) {
+    parsed = JSON.parse(new TextDecoder().decode(new Uint8Array(data)));
+}
+
+// get values (unknown if not exist)
+const name = parsed?.name;
+const age = parsed?.age;
+const title = parsed?.job?.title;
+
+const quotes = parsed?.quotes;
+const firstQuote = quotes ? quotes[0] : null;
+for (const quote of quotes) {
+    // ...
+}
+```
+
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+
+```typescript title="Import class(s) and define interface(s)" showLineNumbers
+import {
+    // ...
+    HttpPayload,
+} from "@fstnetwork/loc-logic-sdk";
+
+interface Parsed {
+    name: string;
+    age: number;
+    job: {
+        title: string;
+        salary: number;
+    };
+    quotes: string[];
+}
+```
+
+```typescript showLineNumbers
+const payload: { http: HttpPayload } = await ctx.payload();
+
+const data = payload.http?.request.data;
+
+let parsed: Parsed = null;
+if (data) {
+    parsed = JSON.parse(new TextDecoder().decode(new Uint8Array(data)));
+}
+
+// get values (unknown if not exist)
+const name = parsed?.name;
+const age = parsed?.age;
+const title = parsed?.job?.title;
+
+const quotes = parsed?.quotes;
+const firstQuote = quotes ? quotes[0] : null;
+for (const quote of quotes) {
+    // ...
+}
+```
+
+  </TabItem>
+</Tabs>

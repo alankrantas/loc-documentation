@@ -1,0 +1,9 @@
+{
+    "label": "LOC: Tutorials",
+    "position": 4,
+    "link": {
+        "type": "generated-index",
+        "description": "List of hands-on tutorials for LOC.",
+        "keywords": ["LOC", "Trigger"]
+    }
+}

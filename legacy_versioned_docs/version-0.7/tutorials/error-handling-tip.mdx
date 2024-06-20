@@ -1,0 +1,261 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - Tutorial
+    - Dataprocess
+    - Studio
+    - CLI
+---
+
+# Tips on Error Handling
+
+Some tips about handling errors in logic.
+
+:::note
+The tutorials is written for JavaScript and [LOC Studio](/legacy/0.7/category/studio-guide).
+:::
+
+## How Logic Handle Errors
+
+In [Logic and Session](/legacy/0.7/tutorials/logic-and-session) we've mentioned that each logic has a `handleError` function for error handling. This is how it works:
+
+-   LOC execute the `run` function of a logic. If `run` runs successfully, execute the `run` of next logic.
+-   If `run` throws an error, `handleError` in the same logic will be called.
+-   All `handleError` of the rest of logic (including aggregator) will be called. The original error will be passed down all the way to aggregator.
+
+| Logic      | Executed function                       |
+| ---------- | --------------------------------------- |
+| Generic #1 | `run` ✅                                |
+| Generic #2 | `run` ❌ error thrown! -> `handleError` |
+| Generic #3 | `handleError`                           |
+| ...        | `handleError`                           |
+| Aggregator | `handleError`                           |
+
+In other words, if one logic fails, _the rest of the logic will fail_. This is to prevent a data pipeline causing more damage even after something went wrong. The data process task will still finish normally, but also considered to be failed.
+
+## Return Error with Result Agent
+
+In many examples we use the [logger agent](/legacy/0.7/sdk-reference/logging) to log error messages. However, these logs can only be read by directly connecting to LOC-s Kubernetes environment or use the [Local Simple Runtime](/legacy/0.7/cli-handbook/local-runtime). How can we know what went wrong?
+
+The first thing you can do is return the error - if there are any - using [result agent](/legacy/0.7/sdk-reference/result):
+
+```javascript title="Aggregator logic" showLineNumbers
+import { ..., ResultAgent } from '@fstnetwork/loc-logic-sdk';
+
+export async function run(ctx) {
+    // ...
+}
+
+export async function handleError(ctx, error) {
+    ResultAgent.finalize({
+        error: true,
+        errorMessage: error.message,  // error passed down from other logic
+        stack: error.stack,  // error stack (where did the error happened)
+        taskId: ctx.task.taskId,
+        // any other session data you'd like to send
+    });
+}
+```
+
+Since in most cases the aggregator logic always runs, you can see what did go wrong from the result.
+
+## Use Try...Catch...Finally to Handle Errors
+
+There may be situations that some errors are expected and can be recovered, or you want to pinpoint the exact source where an error has occurred. In these cases you can use JavaScript's `try...catch...finally`:
+
+```javascript showLineNumbers
+try {
+    // normal code (that might throw errors)
+} catch (error) {
+    // handles error
+    // for example, log it with logging agent:
+    LoggingAgent.error(
+        `an error ${error.name} has occurred: ${error.message}, stack: ${error.stack}`,
+    );
+} finally {
+    // optional; do things whether or not errors have occurred
+}
+```
+
+For example, querying a database might encounter errors due to database failures:
+
+```javascript showLineNumbers
+let dbClient = null;
+
+try {
+    dbClient = await DatabaseAgent.acquire("my-db-configuration");
+
+    const resp = await dbClient?.query(
+        "SELECT * FROM table1 WHERE col_1 = ? AND col_2 = ?;",
+        ["value1", "value2"],
+    );
+
+    // other database operations
+} catch (error) {
+    // report error
+    LoggingAgent.error(
+        `an error ${error.name} has occurred: ${error.message}, stack: ${error.stack}`,
+    );
+} finally {
+    await dbClient?.release(); // release DB client wether or not there are errors
+}
+```
+
+## Pass Caught Error to Aggregator Using Session
+
+You can also pass the error caught by `catch (e)` to aggregator logic using the session agent. In fact, each of the logic can pass their own session data as potential errors.
+
+The following example has a session data called `err`, which will collect errors along the way if there's any:
+
+```javascript title="Generic logic #1" showLineNumbers
+try {
+    // normal code (that might throw errors)
+} catch (error) {
+    // generate an error message
+    const errorResult = {
+        error: true,
+        errorMessage: error.message,
+        stack: error.stack,
+    };
+
+    // log error
+    LoggingAgent.error(errorResult);
+
+    // write the updated err back to session
+    await SessionStorageAgent.putJson("errorResult", errorResult);
+}
+```
+
+```javascript title="Aggregator logic" showLineNumbers
+// read all possible errors
+const err = await SessionStorageAgent.get("errorResult");
+
+ResultAgent.finalize({
+    error: true,
+    errorResult: errorResult, // include errorResult to finalised result
+    taskId: ctx.task.taskId,
+    // ...
+});
+```
+
+## Manually Throw an Error to Halt Data Process
+
+In some cases there's nothing wrong with the code, but you may need to stop the data process using invalid or incorrect data to do something it illegal in the business process.
+
+If so, you can deliberately throw an error (including from inside of `catch(e)`) to force LOC fall back to the `handleError` mechanism:
+
+```javascript showLineNumbers
+throw new Error("Oh no, not again."); // will invoke handleError
+```
+
+---
+
+## Error Handling in CLI Templates
+
+From CLI `v0.7.0`, the data process templates will contain error handling code by default. For example, the following code can be found in the freshly-generated JavaScript template:
+
+```javascript title="Generic logic (for example, 1.js)" showLineNumbers
+import { LoggingAgent, SessionStorageAgent } from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx) {
+    // insert code here
+
+    SessionStorageAgent.putJson("status", {
+        status: "ok",
+    });
+}
+
+export async function handleError(ctx, error) {
+    // insert code here
+
+    const errorResult = await SessionStorageAgent.get("errorResult");
+
+    if (!errorResult) {
+        LoggingAgent.error(error.message);
+        await SessionStorageAgent.putJson("errorResult", {
+            error: true,
+            errorMessage: error.message,
+            traceback: {
+                logicName: ctx.task.currentLogic?.name,
+                logicPermanentIdentity:
+                    ctx.task.currentLogic?.permanentIdentity,
+                stack: error.stack,
+            },
+        });
+    }
+}
+```
+
+```javascript title="Aggregator logic (aggregator.js)" showLineNumbers
+import { ResultAgent, SessionStorageAgent } from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx) {
+    // insert code here
+
+    const result = await SessionStorageAgent.get("status");
+    ResultAgent.finalize({
+        ...result,
+    });
+}
+
+export async function handleError(ctx, error) {
+    // insert code here
+
+    const errorResult = await SessionStorageAgent.get("errorResult");
+
+    if (!errorResult) {
+        ResultAgent.finalize({
+            status: 500,
+            error: true,
+            errorMessage: error.message,
+            stack: error.stack,
+        });
+    } else {
+        ResultAgent.finalize({
+            status: 400,
+            ...errorResult,
+        });
+    }
+}
+```
+
+You are not required to keep the code, but they will make your life easier shall you keep tham at the end of each logic (and you generally do not need to modify them).
+
+So what do these code do?
+
+1. Each `run` in generic logic writes `status` into session (which has one field `status: "ok"`), to indicate the logic is successfully executed.
+2. Each `handleError` (executed when something went wrong) in generic logic reads `errorResult` fron session;
+    1. If `errorResult` is `null`, it means this is the first error occurred and should be recorded. A new `errorResult` will be written into session with the error as well as execution details.
+    2. If `errorResult` is not null, there is already some other error exist. `handleError` will do nothing to modify the `handleError` session data.
+3. Finally, the aggregator finalised a result:
+    1. `run` returns the `status` session data, which would be updated by the last generic logic.
+    2. `handleError` returns the error, either `errorResult` (marked as `500` or _internal error_) or the error parameter from itself (marked as `400` or _client-side error_).
+
+:::note
+The `...` is the [destructuring assignment syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment) in JavaScript, which unpacks attributes or members of an object into the parent object. So
+
+```javascript
+ResultAgent.finalize({
+    status: 400,
+    ...errorResult,
+});
+```
+
+Is basically as same as
+
+```javascript
+ResultAgent.finalize({
+    status: 400,
+    // unpacks errorResult:
+    error: true,
+    errorMessage: error.message,
+    traceback: {
+        logicName: ctx.task.currentLogic?.name,
+        logicPermanentIdentity: ctx.task.currentLogic?.permanentIdentity,
+        stack: error.stack,
+    },
+});
+```
+
+:::

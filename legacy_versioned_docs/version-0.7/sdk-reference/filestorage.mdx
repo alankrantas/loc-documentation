@@ -1,0 +1,157 @@
+---
+sidebar_position: 12
+tags:
+    - LOC
+    - Agent
+    - JavaScript
+    - TypeScript
+---
+
+# File Storage Agent
+
+```typescript
+import { FileStorageAgent } from "@fstnetwork/loc-logic-sdk";
+```
+
+Accessing and writing files. Supports the following storages:
+
+-   FTP (File Transfer Protocol)
+-   Amazon S3
+-   SMB (Server Message Block)
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+#### Availability
+
+-   ✓ Generic logic
+-   ✗ Aggregator logic
+
+:::info
+This agent requires **agent configuration**. See [tutorial](/legacy/0.7/tutorials/http-agent-configuration) or [CLI Handbook](/legacy/0.7/cli-handbook/agent-configuration) for details.
+:::
+
+## Acquire File Client
+
+```typescript
+async FileStorageAgent.acquire(configurationName: string): Promise<FileStorageAgentClient>
+```
+
+Returns a `FileStorageAgentClient` object based on provided agent configuration name, which connects to a pre-defined file storage with confidential information (if needed).
+
+The configuration name is the `reference` field set in Studio or `name` field set in CLI config files.
+
+Throws an error if the configuration cannot be found.
+
+#### Example
+
+```typescript showLineNumbers
+const fileClient = await FileStorageAgent.acquire("my-file-configuration");
+```
+
+## File Storage Client
+
+### Read from File Storage
+
+```typescript
+async fileClient.simpleGet(path: string): Promise<Uint8Array>
+```
+
+Read a remote file.
+
+| Parameter | Type     | Description               |
+| --------- | -------- | ------------------------- |
+| `path`    | `string` | File path (no `/` prefix) |
+
+#### Example
+
+```typescript showLineNumbers
+const path = "dir/test.txt";
+
+const fileClient = await FileStorageAgent.acquire("my-file-configuration");
+
+// get file
+const file = await fileClient?.simpleGet(path);
+
+// decode file to string
+const data = new TextDecoder().decode(file);
+```
+
+### Write to File Storage
+
+```typescript
+async fileClient.simplePut(path: string, data: Uint8Array | string, options?: FileStorage.PutOptions): Promise<number>
+```
+
+Write a file to remote storage.
+
+| Parameter | Type                                                          | Description               |
+| --------- | ------------------------------------------------------------- | ------------------------- |
+| `path`    | `string`                                                      | File path (no `/` prefix) |
+| `data`    | `Uint8Array` &#124; `string`                                  | File content              |
+| `options` | `FileStorage.PutOptions`, which is `{ ensureDir?: boolean; }` | (Optional) For SMB        |
+
+#### Example
+
+```typescript showLineNumbers
+// data
+const path = "dir/test.txt";
+
+const data = `Hello World!
+This is line two`;
+
+// write to file storage
+await fileClient?.simplePut(path, data);
+```
+
+#### Example using `options`
+
+```typescript showLineNumbers
+await fileClient.simplePut(path, data, { ensureDir: true });
+```
+
+### Delete File
+
+```typescript
+async fileClient.delete(path: string): Promise<void>
+```
+
+Delete a file from file storage.
+
+### Create Directory
+
+```typescript
+async fileClient.createDirAll(path: string): Promise<void>
+```
+
+Create a directory at a remote path.
+
+### List Directories and Files
+
+```typescript
+async fileClient.list(path: string): Promise<Array<FileStorage.FileType>>
+```
+
+List directories and files at a remote path.
+
+Returns an array of type `FileStorage.FileType`. A `FileType` object has two fields:
+
+| Fields | Type                                                  | Description |
+| ------ | ----------------------------------------------------- | ----------- |
+| `name` | `string`                                              | Item name   |
+| `type` | `"file"` &#124; `"directory"` &#124; `"symbolicLink"` | Item type   |
+
+The type indicates that an item is a file, a directory or a symbolic link (in SMB).
+
+#### Example
+
+```typescript showLineNumbers
+const fileList = await fileClient?.list(path);
+
+// iterate through all items in the list
+fileList.forEach((item) => {
+    const name = item.name; // get name
+    const type = item.type; // get type
+    // ...
+});
+```

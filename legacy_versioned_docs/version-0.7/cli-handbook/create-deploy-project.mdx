@@ -1,0 +1,386 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - CLI
+    - Dataprocess
+---
+
+# Create and Deploy Data Process
+
+CLI allows you to create data process projects locally and deploy them with console commands.
+
+:::tip
+If you are using a code editor like VS Code, you can open the folder of CLI workspace (where the CLI binary is at).
+:::
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+## New Template Project
+
+Create a new data process (named **myproject** in this example) using either JavaScript or TypeScript template:
+
+<Tabs>
+  <TabItem value="js0" label="JavaScript template" default>
+
+```bash
+./loc new myproject
+```
+
+  </TabItem>
+  <TabItem value="ts0" label="TypeScript template">
+
+```bash
+./loc new -ts myproject
+```
+
+  </TabItem>
+</Tabs>
+
+A sub directory named **myproject** would be create under the CLI workspace:
+
+```
+🔍  Check Folder Name: myproject...
+
+🎉  Generating Data Process Template folder...
+
+🔨  Building fresh packages...
+✨  Successfully created Data Process Template in myproject.
+```
+
+:::tip
+If you haven't install SDK, see [Install SDK](/legacy/0.7/cli-handbook/setup). You can also install SDK and other dependencies under any data process' own directory.
+:::
+
+## Project Structure
+
+The generated template project would look like this:
+
+<Tabs>
+  <TabItem value="js1" label="JavaScript template" default>
+
+```plaintext"
+/[local workspace]
+    /myproject
+        /generic-logic
+            1.js
+            2.js
+        aggregator.js
+        api-route-config.yaml
+        config.yaml
+        package.yaml
+```
+
+  </TabItem>
+  <TabItem value="ts1" label="TypeScript template">
+
+```plaintext"
+/[local workspace]
+    /myproject
+        /generic-logic
+            1.ts
+            2.ts
+        aggregator.ts
+        api-route-config.yaml
+        config.yaml
+        package.yaml
+        tsconfig.json
+```
+
+  </TabItem>
+</Tabs>
+
+The main difference is that TypeScript projects use `.ts` for logic and has `tsconfig.json`.
+
+:::tip
+If you need a quick "Hello World" example, please refer to [Quick Start](/legacy/0.7/quickstart#typescript-versions-of-example-code).
+
+CLI itself does not offer support for source or version control but you can use [Git](https://git-scm.com/downloads) to commit your projects. See [Source Control with Git](/legacy/0.7/cli-handbook/source-control) for some information.
+:::
+
+## Configuring Data Process
+
+### Config File
+
+You can edit some important information of the data process in `config.yaml`:
+
+<Tabs>
+  <TabItem value="js2" label="JavaScript project config" default>
+
+```yaml title="config.yaml (JavaScript)" showLineNumbers
+version: 0.1.0
+name: <project name>>
+description: description
+tagNames:
+    - default-tag-from-loc-cli
+timeoutSeconds: 180
+genericLogics:
+    - name: generic-1
+      file: 1.js
+      tagNames:
+          - default-tag-from-loc-cli
+    - name: generic-2
+      file: 2.js
+      tagNames:
+          - default-tag-from-loc-cli
+aggregatorLogic:
+    name: aggregator
+    file: aggregator-logic.js
+agentConfiguration:
+    database: []
+    http: []
+    fileStorage: []
+    mail: []
+logicVariables:
+    DATA_PROCESS_VERSION: v0.1.0
+```
+
+  </TabItem>
+  <TabItem value="ts2" label="TypeScript project config">
+
+```yaml title="config.yaml (TypeScript)" showLineNumbers
+version: 0.1.0
+name: <project name>>
+description: description
+tagNames:
+    - default-tag-from-loc-cli
+timeoutSeconds: 180
+genericLogics:
+    - name: generic-1
+      file: 1.ts
+      tagNames:
+          - default-tag-from-loc-cli
+    - name: generic-2
+      file: 2.ts
+      tagNames:
+          - default-tag-from-loc-cli
+aggregatorLogic:
+    name: aggregator
+    file: aggregator-logic.ts
+agentConfiguration:
+    database: []
+    http: []
+    fileStorage: []
+    mail: []
+logicVariables:
+    DATA_PROCESS_VERSION: v0.1.0
+```
+
+  </TabItem>
+</Tabs>
+
+### Logic
+
+A data process must have **one** aggregator logic and **at least one** generic logic. You can create new `.js` or `.ts` file (depending on your project) and add them to `config.yaml`.
+
+The generic logic will be executed by the order specified in the config file.
+
+### Tags
+
+Data process and logic can have multiple tags:
+
+```yaml showLineNumbers
+tagNames:
+    - tag-1-data-process
+    - tag-2-data-process
+# ...
+genericLogics:
+    - tagNames:
+          - tag-1-generic-logic-1
+          - tag-2-generic-logic-1
+```
+
+Aggregator logic can have tags as well:
+
+```yaml showLineNumbers
+# ...
+aggregatorLogic:
+    tagNames:
+        - tag-1-aggregator
+        - tag-2-aggregator
+        # ...
+```
+
+See [Tags commands](/legacy/0.7/cli-handbook/cli-commands/tag-unit#tag) for additional operations after deployment.
+
+### Agent Configuration
+
+You can add agent configurations (secrets) by names:
+
+```yaml showLineNumbers
+agentConfiguration:
+    # ...
+    database: ["db-config-1", "db-config-2", ...]
+    http: ["http-config-1", "http-config-2", ...]
+    # ...
+```
+
+See [Deploy Agent Configuration](/legacy/0.7/cli-handbook/agent-configuration) for how to deploy them.
+
+:::info
+If you are using [local simple runtime](/legacy/0.7/cli-handbook/local-runtime), see [Setting Up Agent Configurations](/legacy/0.7/cli-handbook/local-runtime#setting-up-agent-configurations).
+:::
+
+:::tip
+Unlike in Studio you have to use a reference name for agent configurations, here you'll have use their original name in the config files!
+
+CLI will look for deployed configuations and load them at runtime. See [Deploy Agent Configuration](/legacy/0.7/cli-handbook/agent-configuration) for how to deploy configurations.
+:::
+
+### Logic Variables
+
+You can set environment variables under `logicVariables`:
+
+```yaml showLineNumbers
+# ...
+logicVariables:
+    answer-to-life-universe-everything: "42"
+```
+
+:::info
+The value of a local variable must be a string.
+:::
+
+Then it can be read in the logic using [logic variable agent](/legacy/0.7/sdk-reference/logic-var):
+
+```typescript showLineNumbers
+const answer = LogicVariable.get("answer-to-life-universe-everything");
+```
+
+## Deploy Data Process
+
+After implementing all the code you need in logic (see tutorials for details), you can deploy the data process to LOC.
+
+First make sure you have logged in:
+
+```bash
+./loc login
+```
+
+Deploy a JavaScript project:
+
+<Tabs>
+  <TabItem value="js1" label="JavaScript project" default>
+
+```bash
+./loc deploy myproject
+```
+
+  </TabItem>
+  <TabItem value="ts1" label="TypeScript project">
+
+```bash
+./loc deploy -ts myproject
+```
+
+  </TabItem>
+</Tabs>
+
+:::note
+Deploy the same project again will create a _new_ data process with a different PID.
+
+If any error is thrown during the compile process, the data process will not be deployed.
+
+Data processes deployed from CLI will be synchronised in Studio, which can be also undeployed or deleted, but since the code are already compiled you will not be able to inspect or modify the logic code in Studio.
+:::
+
+See [Project and Data Process commands](/legacy/0.7/cli-handbook/cli-commands/project-dp-logic) for additional operations.
+
+## Delete Deployed Data Process
+
+After any data process (including the same data process with different revisions) is deployed to LOC, you can quickly delete them with one command:
+
+```bash
+./loc delete myproject
+```
+
+CLI will look for the name "myproject" in a local file `.deploy-info.json` (generated when you deploy data processes) and delete all data processes with this name.
+
+## Sharing Code Between Data Processes
+
+### Create Utility Libraries
+
+If you are developing multiple data processes in CLI and they depends on the same third party packages or your own helper functions, you can export them via a `.js` or `.ts` file in another directory.
+
+For example, we often have to use `TextDecoder` to decode Uint8Array array to string. We can instead create a `utils.js` (if you are using JavaScript projects) with the following content:
+
+```javascript title="/[CLI workspace]/utils/common.js" showLineNumbers
+// shared helper function
+const UTF8ArrToStr = (aBytes) => {
+    const utf8decoder = new TextDecoder();
+    return utf8decoder.decode(new Uint8Array(aBytes));
+};
+
+// export functions
+// highlight-next-line
+export { UTF8ArrToStr };
+```
+
+Then import it into a project's logic:
+
+```javascript title="/[CLI workspace]/<your_project>/generic-logic/<your_logic_filename>/1.js" showLineNumbers
+...
+// import UTF8ArrToStr
+// highlight-next-line
+import { UTF8ArrToStr } from "../../utils/common";
+
+export async function run(ctx) {
+  const payload = await ctx.payload();
+  const data = payload.http.request.data;
+
+  // highlight-next-line
+  const parsed = JSON.parse(UTF8ArrToStr(data));
+
+  const name = parsed?.name;  // assuming there is a name field
+
+  // ...
+}
+```
+
+CLI will automatically includes `/utils/common.js` during the complie process.
+
+If you want to share a third party NPM package, simply install them with `npm i` or `yarn add` in the CLI workspace and wrap them inside your exported functions.
+
+### Sharing TypeScript Types
+
+For TypeScript developers, you can also share type definitions between logic using a `.ts` module, which is convinent to apply types on JSON objects:
+
+```typescript title="/[CLI workspace]/utils/common.ts" showLineNumbers
+// shared helper function with types
+const UTF8ArrToStr = (aBytes: number[]): string => {
+    const utf8decoder = new TextDecoder();
+    return utf8decoder.decode(new Uint8Array(aBytes));
+};
+
+// shared type
+type UserName = {
+    name: string;
+};
+
+// export functions
+// highlight-next-line
+export { UTF8ArrToStr, UserName };
+```
+
+Then import it into a project's logic:
+
+```typescript title="/[CLI workspace]/<your_project>/generic-logic/<your_logic_filename>.ts" showLineNumbers
+import { ..., HttpPayload } from "@fstnetwork/loc-logic-sdk";
+...
+// import UTF8ArrToStr
+// highlight-next-line
+import { UTF8ArrToStr, UserName } from "../../utils/common";
+
+export async function run(ctx) {
+  const payload = await ctx.payload() as { "http": HttpPayload };
+  const data = payload.http.request.data;
+
+  // highlight-next-line
+  const parsed: UserName = JSON.parse(UTF8ArrToStr(data));
+
+  const name = parsed.name;  // inferred as string
+
+  // ...
+}
+```

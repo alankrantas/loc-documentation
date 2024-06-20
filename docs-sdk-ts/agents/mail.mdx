@@ -1,0 +1,185 @@
+---
+sidebar_position: 10
+tags:
+    - LOC
+    - SDK
+    - Agent
+    - Agent Configuration
+    - Mail
+    - JavaScript
+    - TypeScript
+---
+
+# Mail Agent - JS/TS
+
+Send email to a email server.
+
+| Logic Type       | Available |
+| ---------------- | --------- |
+| Generic logic    | ✅        |
+| Aggregator logic | ❌        |
+
+## Mail Agent Configuration
+
+> See: [Agent Configuration](/main/category/agent-configuration)
+
+A **Mail Agent Configuration** defines an external email server that will be allowed to be accessed from LOC runtime.
+
+The Mali Agent requires a configuration reference name so that it can access the email server. The reference name can be added to a logic while creating or editing a data process.
+
+## Import and Usage
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+
+```javascript showLineNumbers
+import {
+    // highlight-start
+    Mail,
+    MailAgent,
+    // highlight-end
+} from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx) {
+    const mailClient = await MailAgent.acquire("mail-config-ref");
+    await mailClient?.send(
+        new Mail.Mail()
+            .setSender("sender@example.com")
+            .setSubject("Mail subject")
+            .setReceivers("receiver@example.com")
+            .setBody("Mail body"),
+    );
+}
+
+export async function handleError(ctx, error) {
+    // ...
+}
+```
+
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+
+```typescript showLineNumbers
+import {
+    GenericContext,
+    // highlight-start
+    Mail,
+    MailAgent
+    // highlight-end
+    RailwayError,
+} from '@fstnetwork/loc-logic-sdk';
+
+export async function run(ctx: GenericContext) {
+    const mailClient = await MailAgent.acquire("mail-config-ref");
+    await mailClient?.send(
+        new Mail.Mail()
+            .setSender("sender@example.com")
+            .setSubject("Mail subject")
+            .setReceivers("receiver@example.com")
+            .setBody("Mail body"));
+    }
+
+export async function handleError(ctx: GenericContext, error: RailwayError) {
+    // ... same
+}
+```
+
+  </TabItem>
+</Tabs>
+
+## Class Reference
+
+### Type
+
+-   `MailAgent`
+
+### Method: Acquire Mail Client
+
+```typescript
+async acquire(configurationName: string): Promise<MailAgentClient>
+```
+
+| Parameter           | Description                             |
+| ------------------- | --------------------------------------- |
+| `configurationName` | Mail Agent Configuration reference name |
+
+Acquire a [Mail Client](#mail-client) using a configuration reference name. Throws an error if the configuration cannot be found.
+
+## Mail Client
+
+### Type
+
+-   `MailAgentClient`
+
+> Importable from `@fstnetwork/loc-logic-sdk`
+
+### Method: Send Mail
+
+```typescript
+async mailClient.send(mail: Mail.Mail): Promise<any>
+```
+
+| Parameter | Type                                        | Description  |
+| --------- | ------------------------------------------- | ------------ |
+| `mail`    | [`Mail.Mail`](/sdk-ts/agents/mail#mailmail) | Email object |
+
+Send a email.
+
+#### `Mail.Mail`
+
+> `Mail` is importable from `@fstnetwork/loc-logic-sdk`
+
+Describes an email. It has the following methods:
+
+```typescript
+// required
+setSubject(subject: string)  // set the subject
+setBody(body: string)  // set the body
+setSender(mail: string, name = '')  // set sender address
+setReceivers(mail: string, name = '')  // add an receiver address
+
+// optional
+setReplyTo(mail: string, name = '')  // set reply address
+setCC(mail: string, name = '')  // add a carbon copy address
+setBCC(mail: string, name = '')  // add a blind carbon copy address
+```
+
+All methods return the Mail Client itself so they can be chained.
+
+:::info
+If one of the following fields in the mail is empty, an error will be thrown:
+
+-   sender
+-   receivers (at least one)
+-   subject
+-   body
+
+An email can have multiple receivers and reply/CC/BCC addresses. Name will be blank if not provided.
+:::
+
+## Examples
+
+```typescript showLineNumbers
+const mailClient = await MailAgent.acquire("mail-config-ref");
+
+// mail body
+const mail_body = `Nothing travels faster 
+than the speed of light, 
+with the possible exception of bad news, 
+which obeys its own special laws.`;
+
+await mailClient?.send(
+    new Mail.Mail()
+        .setSubject("Mail subject")
+        .setBody(mail_body)
+        .setSender("sender@example.com", "sender name")
+        .setReceivers("receiver1@example.com", "receiver 1 name")
+        .setReceivers("receiver2@example.com", "receiver 2 name")
+        .setReplyTo("reply@example.com", "reply name")
+        .setCC("cc@example.com", "cc name")
+        .setBCC("bcc@example.com", "bcc name"),
+);
+```

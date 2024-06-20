@@ -1,0 +1,65 @@
+---
+sidebar_position: 3
+tags:
+    - LOC
+    - SDK
+    - Trigger
+    - Payload
+    - JavaScript
+    - TypeScript
+---
+
+# Message Queue Payload - C Sharp
+
+The logic [payload](/sdk-csharp/payload/intro) type when a task is invoked by a Message Queue (MQ) trigger.
+
+## Class Reference
+
+### Type
+
+-   `MessagePayload` (type of [`Payload.Message`](/sdk-csharp/payload/intro#class-reference))
+
+### Properties
+
+| Property                | Type                                  | Description                   |
+| ----------------------- | ------------------------------------- | ----------------------------- |
+| `ClientIdentityContext` | [`IdentityContext`](#identitycontext) | MQ client ID and name         |
+| `Subscriber`            | [`Subscriber`](#subscriber)           | MQ subscriber                 |
+| `Data`                  | `byte[]`                              | MQ data (empty array if none) |
+
+#### `IdentityContext`
+
+> Refer to: [IdentityContext](/sdk-csharp/payload/http-payload#identitycontext)
+
+#### `Subscriber`
+
+| Property | Type                                  | Description  |
+| -------- | ------------------------------------- | ------------ |
+| `Kafka`  | [`KafkaSubscriber`](#kafkasubscriber) | Apache Kafka |
+
+#### `KafkaSubscriber`
+
+| Property    | Type           | Description                       |
+| ----------- | -------------- | --------------------------------- |
+| `Brokers`   | `List<string>` | Broker names in the Kafka cluster |
+| `GroupId`   | `string`       | MQ group ID                       |
+| `topic`     | `Topic`        | MQ topic                          |
+| `Partition` | `int`          | MQ partition                      |
+| `Offset`    | `long`         | MQ offset                         |
+
+## Examples
+
+```csharp title="Import namespace(s)" showLineNumbers
+using System.Text;
+using System.Text.Json.Nodes;
+```
+
+```csharp showLineNumbers
+var payload = await ctx.GetPayload();
+
+byte[]? data = payload.MessagePayload?.Data;
+```
+
+> See the example of [Payload](/sdk-csharp/payload/intro#get-data-from-payload) for checking the payload type.
+>
+> See the example of [HTTP Payload](/sdk-csharp/payload/http-payload#examples) for parsing `data` to a JSON object.

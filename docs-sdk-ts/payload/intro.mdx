@@ -1,0 +1,146 @@
+---
+sidebar_position: 1
+tags:
+    - LOC
+    - SDK
+    - Trigger
+    - Payload
+    - JavaScript
+    - TypeScript
+---
+
+# Payload Introduction - JS/TS
+
+A **payload** in logic is a object containing metadata and incoming data from a LOC trigger (for example, an API route).
+
+| Logic Type       | Available |
+| ---------------- | --------- |
+| Generic logic    | ✅        |
+| Aggregator logic | ✅        |
+
+All tasks in the same execution receive the same trigger metadata and payload.
+
+## Import and Usage
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+
+```javascript showLineNumbers
+export async function run(ctx) {
+    const payload = await ctx.payload();
+}
+
+export async function handleError(ctx, error) {
+    // ... same
+}
+```
+
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+
+```typescript showLineNumbers
+export async function run(ctx: GenericContext) {
+    const payload = await ctx.payload();
+}
+
+export async function handleError(ctx: GenericContext, error: RailwayError) {
+    // ... same
+}
+```
+
+  </TabItem>
+</Tabs>
+
+## Class Reference
+
+### Type
+
+| Trigger Type  | Payload Type                       | Reference                                                |
+| ------------- | ---------------------------------- | -------------------------------------------------------- |
+| API Route     | `{ http: HttpPayload }`            | [`HttpPayload`](/sdk-ts/payload/http-payload)            |
+| Message Queue | `{ messageQueue: MessagePayload }` | [`MessageQueuePayload`](/sdk-ts/payload/message-payload) |
+| Schedule      | `{ event: {} }`                    | Schedule payload (empty object)                          |
+| Event         | `{ event: EventPayload }`          | Event payload (not yet implemented)                      |
+
+See the refered sub types for details.
+
+## Examples
+
+### Payload Type Assertion
+
+To explicitly mark the payload type for editors supporting IntelliSense using [JSDoc](https://jsdoc.app/) or TypeScript:
+
+<Tabs>
+  <TabItem value="js-doc" label="JavaScript (JSDoc)">
+
+```javascript showLineNumbers
+// highlight-next-line
+/** @param {import('@fstnetwork/loc-logic-sdk').GenericContext} ctx */
+export async function run(ctx) {
+    // highlight-next-line
+    /** @type { { http: HttpPayload } } */
+    const payload = await ctx.payload();
+}
+
+/**
+ * @param {import('@fstnetwork/loc-logic-sdk').GenericContext} ctx
+ * @param {import('@fstnetwork/loc-logic-sdk').RailwayError} error
+ */
+export async function handleError(ctx, error) {}
+```
+
+  </TabItem>
+  <TabItem value="ts" label="TypeScript" default>
+
+```typescript showLineNumbers
+import {
+    // highlight-next-line
+    HttpPayload,
+    GenericContext,
+    RailwayError,
+} from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx: GenericContext) {
+    // highlight-next-line
+    const payload = (await ctx.payload()) as { http: HttpPayload };
+    // or
+    // const payload: { http: HttpPayload } = await ctx.payload();
+}
+
+export async function handleError(ctx: GenericContext, error: RailwayError) {}
+```
+
+  </TabItem>
+</Tabs>
+
+:::warning
+Type assertions **cannot** prevent the payload getting set to a different type during execution and may thus cause runtime error.
+:::
+
+### Type Guard on Payload
+
+If a logic may receive different types of payload, the safe way is to use a "type guard" to [narrow](https://www.typescriptlang.org/docs/handbook/2/narrowing.html) it by checking the object key:
+
+```typescript showLineNumbers
+const payload = await ctx.payload();
+
+let data = [];
+// highlight-next-line
+if ("http" in payload) {
+    // narrowing payload to { http: HttpPayload }
+    data = payload.http.request.data;
+
+    // highlight-next-line
+} else if ("messageQueue" in payload) {
+    // narrowing payload to { messageQueue: MessagePayload }
+    data = payload.messageQueue.data;
+
+    // highlight-next-line
+} else {
+    // throw an error if the type is none of above
+    throw new Error("this logic only accepts http/mq payload");
+}
+```

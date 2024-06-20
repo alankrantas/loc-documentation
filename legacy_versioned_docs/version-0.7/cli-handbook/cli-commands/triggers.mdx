@@ -1,0 +1,184 @@
+---
+sidebar_position: 3
+tags:
+    - LOC
+    - CLI
+    - Trigger
+---
+
+# API Route, MQ and Scheduler
+
+CLI commands for managing triggers - API route, MQ and scheduler.
+
+## API Route
+
+> `loc apiroute|ar`
+
+API routes can be set with `api-route-config.yaml` in the project, which defines the URL path that would be link to one or more data processes.
+
+### Deploy an API Route
+
+```bash
+loc ar deploy -f <api-route-config>.yaml
+```
+
+The `pid` field in the YAML file must be set to a deployed data process's ID.
+
+-   `-f`: API route file (required, JSON or YAML)
+
+:::tip
+You can deploy an API route automatically along with a data process. See [Deploy a Project](/legacy/0.7/cli-handbook/cli-commands/project-dp-logic#deploy-a-project).
+:::
+
+### List All API Routes
+
+```bash
+loc ar list
+```
+
+### Inspect an API Route
+
+```bash
+loc ar get <id> -v
+```
+
+### Delete an API Route
+
+```bash
+loc ar delete <id>
+```
+
+## Message Queue
+
+> `loc messagequeue|mq`
+
+MQ sources can be set with **MQ client** YAML file, which defines the MQ client type, host and port. Both **MQ publisher** and **MQ subscriber** connect a MQ client with one or more data processes.
+
+### Generate MQ Client YAML File
+
+```bash
+loc mq client init [output]
+```
+
+-   `output`: output file path and name (JSON or YAML; default: `message-queue-client.yaml`)
+
+### Generate MQ Subscriber YAML File
+
+```bash
+loc mq sub init [output]
+```
+
+-   `output`: output file path and name (JSON or YAML; default: `subscriber.yaml`)
+
+`clientId` in the file must be a deployed MQ client's ID.
+
+### Generate MQ Publisher YAML File
+
+```bash
+loc mq pub init [output]
+```
+
+-   `output`: output file path and name (JSON or YAML; default: `publisher.yaml`)
+
+`clientId` in the file must be a deployed MQ client's ID.
+
+### Common MQ Commands
+
+#### Deploy a MQ Asset
+
+```bash
+loc mq client|pub|sub deploy -f <mq-file>.yaml
+```
+
+If one MQ asset with the same name exists, it will be updated.
+
+-   `-f`: MQ client/publisher/subscriber file (required; JSON or YAML)
+
+#### List All MQ Assets
+
+```bash
+loc mq client|pub|sub list
+```
+
+#### Inspect a MQ Assets
+
+```bash
+loc mq client|pub|sub get <id> -v
+```
+
+#### Delete a MQ Assets
+
+```bash
+loc mq client|pub|sub delete <id>
+```
+
+## Scheduler
+
+> `loc scheduler|s`
+
+> Schedule: `loc s schedule|s`
+
+> Schedule Job: `loc s scheduledjob|sj`
+
+A scheduler can be set with a **scheduled job** YAML file, which use a **schedule** on one or more data processes.
+
+### Generate Schedule Templates
+
+```bash
+loc s s init [-c|-t|-w] [output]
+```
+
+It can be specified as one of the following schedule type:
+
+-   `-c`: a **Cron Job** type schedule (default if no flag provided)
+-   `-t`: a **TimeUnit** type schedule
+-   `-w`: a **Windowed TimeUnit** type schedule (TimeUnit plus `startTimeOfDay` and `endTimeOfDay`)
+-   `output`: output file path and name (JSON or YAML; default: `schedule.yaml`)
+
+For a Cron job type schedule, the Cron expression has to have at least six fields.
+
+### Generate Scheduled Job Templates
+
+```bash
+loc s sj init
+```
+
+-   `output`: output file path and name (JSON or YAML; default: `scheduled-job.yaml`)
+
+`scheduleId` in the file must be a deployed trigger/schedule's ID and `pid` set to a deployed data process' PID.
+
+### Common Scheduler Commands
+
+#### Deploy a Schedule/Scheduler Job
+
+```bash
+loc s s|sj deploy -f <scheduler-file>.yaml
+```
+
+-   `-f`: schedule or scheduled job file (required, JSON or YAML)
+
+:::note
+If a schedule with the same name already exists, the `description`, `endTime` and `startTime` fields will be updated - but not the trigger/schedule type or time interval.
+
+In other words, you need to _manually_ deploy a new schedule if you want to change the triggering schedule.
+:::
+
+#### List All Schedule/Scheduler Jobs
+
+```bash
+loc s s|sj list
+```
+
+#### Inspect a Schedule/Scheduler Job
+
+```bash
+loc s s|sj get <id> -v
+```
+
+#### Delete a Schedule/Scheduler Job
+
+```bash
+loc s s|sj delete <id>
+```
+
+Be noted that if a schedule is in use by a scheduled job, the scheduled job will be deleted as well.

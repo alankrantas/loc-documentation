@@ -1,0 +1,28 @@
+---
+title: Home
+---
+
+import ThemedImage from "@theme/ThemedImage";
+import useBaseUrl from "@docusaurus/useBaseUrl";
+
+import ThemedLink from "../components/themed-link";
+import styles from "../css/index.module.css";
+
+<div className="center-padded-sm">
+    <ThemedImage
+        alt="fst-network"
+        sources={{
+            light: useBaseUrl("/img/logo/LOC-logo.svg"),
+            dark: useBaseUrl("/img/logo/LOC-logo-w.svg"),
+        }}
+    />
+</div>
+
+<div className="center-padded-sm">
+    <ThemedLink
+        link="/docs"
+        text="Enter LOC-Doc ✨"
+        lightStyle={styles.btn}
+        darkStyle={styles.darkbtn}
+    />
+</div>

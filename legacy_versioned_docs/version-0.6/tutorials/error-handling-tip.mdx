@@ -1,0 +1,122 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - Tutorial
+    - Dataprocess
+    - Studio
+    - CLI
+---
+
+# Tips on Error Handling
+
+Some tips about handling errors in logic.
+
+> This tutorial uses JavaScript and assume you are using [LOC Studio](/legacy/0.6/category/studio-guide).
+
+## How Logic Handle Errors
+
+In [Logic and Session](/legacy/0.6/tutorials/logic-and-session) we've mentioned that each logic has a `handleError` function for error handling. This is how it works:
+
+-   LOC execute the `run` function of a logic. If `run` runs successfully, execute the `run` of next logic.
+-   If `run` throws an error, `handleError` in the same logic will be called.
+-   All `handleError` of the rest of logic (including aggregator) will be called. The original error will be passed down all the way to aggregator.
+
+| Logic      | Executed function                       |
+| ---------- | --------------------------------------- |
+| Generic #1 | `run` ✅                                |
+| Generic #2 | `run` ❌ error thrown! -> `handleError` |
+| Generic #3 | `handleError`                           |
+| ...        | `handleError`                           |
+| Aggregator | `handleError`                           |
+
+In other words, if one logic fails, _the rest of the logic will fail_. This is to prevent a data pipeline causing more damage even after something went wrong. The data process task will still finish normally, but also considered to be failed.
+
+## Return Error with Result Agent
+
+In many examples we use the [logger agent](/legacy/0.6/sdk-reference/logging) to log error messages. However, these logs are not visible in normal data process operations.
+
+So one of the good practices is to return the error - if there are any - using [result agent](/legacy/0.6/sdk-reference/result):
+
+```javascript showLineNumbers
+// in aggregator logic
+async function handleError(ctx, error) {
+    ctx.agents.result.finalize({
+        status: "error",
+        taskId: ctx.task.taskId,
+        error: error.message,
+        // any other session data you'd like to send
+    });
+}
+```
+
+You can even have logic report status or errors using session storage agent, then have the aggregator return them at once (see next section).
+
+:::tip
+Due to the nature of how LOC run logic, sometimes it's not easy to find out where exactly did the error happened. In these cases we recommend you to use `try...catch` to isolate the issue (see next sections).
+:::
+
+## Use Try...Catch...Finally to Handle Errors
+
+There may be situations that you want the rest of logic to carry on despite errors have occurred, or to recover from _expected_ errors. In this case you can use `try...catch...finally`:
+
+```javascript showLineNumbers
+try {
+    // normal code
+} catch (e) {
+    // handles error
+    ctx.agents.logging.error(`an error ${e.name} has occurred: ${e.message}`);
+} finally {
+    // optional; do things whether or not errors have occurred
+}
+```
+
+## Pass Error to Aggregator Logic Using Session
+
+If you cannot access logs or use [Local Simple Runtime](/legacy/0.6/cli-handbook/local-runtime), one trick you can try is to wrap up possible sections with `try...catch` and have them pass error to the aggregator, then output everything via the trigger.
+
+```javascript showLineNumbers
+// in one of the generic logic
+try {
+    // ...
+} catch (e) {
+    // generate error message
+    const logic1_err = {
+        logicName: "Generic Logic #1",
+        errorName: e.name,
+        errorMsg: e.message,
+        // other info you want to add
+    };
+
+    // log error
+    ctx.agents.logging.error(logic1_err);
+
+    // pass info to aggregator
+    await ctx.agents.sessionStorage.putJson("logic1_err", logic1_err);
+}
+```
+
+```javascript showLineNumbers
+// aggregator logic
+const err = await ctx.agents.sessionStorage.get("logic1_err"); // read the error
+// ...
+
+ctx.agents.result.finalize({
+    status: "error",
+    taskId: ctx.task.taskId,
+    logic1_err: logic1_err, // pass error to user
+    // ...
+});
+```
+
+The user will be able to see what kind of errors had occurred in which logic.
+
+## Manually Throw an Error to Stop Data Process
+
+In some cases there's nothing wrong with the code, but you may need to stop the data process using invalid or incorrect data to do something it shouldn't.
+
+If so, you can deliberately throw an error to force LOC fall back to the `handleError` mechanism:
+
+```javascript showLineNumbers
+throw new Error("Oh no, not again."); // invoke handleError on purpose
+```

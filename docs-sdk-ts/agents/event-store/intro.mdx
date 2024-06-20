@@ -1,0 +1,151 @@
+---
+sidebar_position: 1
+tags:
+    - LOC
+    - SDK
+    - Agent
+    - Event
+    - JavaScript
+    - TypeScript
+---
+
+# Event Introduction - JS/TS
+
+Read and write the **event store**.
+
+| Logic Type       | Available |
+| ---------------- | --------- |
+| Generic logic    | ✅        |
+| Aggregator logic | ❌        |
+
+A LOC **event** is a timestamped log or metadata representing a _data flow_, which can be read and write in LOC's event store (implemented with [Elasticsearch](https://www.elastic.co/elasticsearch)).
+
+```mermaid
+flowchart LR;
+    n1((Source))-->|Event label|n2((Target));
+```
+
+The source and target **digital identity** (DID) are customised _nodes_ defined by users. Multiple events with shared source/target nodes form a **data lineage**:
+
+```mermaid
+flowchart LR;
+    subgraph "Data lineage"
+    direction LR
+    n1((Node 1))-->|Label 1|n2;
+    n2((Node 2))-->|Label 2|n3;
+    n3((Node 3))-->|Label 3|n4;
+    n4((Node 4));
+    end
+```
+
+## Import and Usage
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+
+```javascript showLineNumbers
+import {
+    // highlight-next-line
+    EventAgent,
+} from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx) {
+    await EventAgent.emit([
+        {
+            labelName: "event",
+            sourceDID: "source",
+            targetDID: "target",
+            meta: "",
+            type: "default",
+        },
+    ]);
+}
+
+export async function handleError(ctx, error) {
+    // ... same
+}
+```
+
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+
+```typescript showLineNumbers
+import {
+    // highlight-start
+    Event,
+    EventAgent,
+    // highlight-end
+    GenericContext,
+    RailwayError,
+} from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx: GenericContext) {
+    await EventAgent.emit([
+        {
+            labelName: "event",
+            sourceDID: "source",
+            targetDID: "target",
+            meta: "",
+            type: "default",
+        },
+    ] as Event.Event[]);
+}
+
+export async function handleError(ctx: GenericContext, error: RailwayError) {
+    // ... same
+}
+```
+
+  </TabItem>
+</Tabs>
+
+## Events Fields For Query
+
+An event in the event store has the following field names that can be added in query, exclude, filter and sort conditions:
+
+| Field Name                        | Description                                                           |
+| --------------------------------- | --------------------------------------------------------------------- |
+| `label_id`                        | label ID                                                              |
+| `label_name`                      | Label name (`labelName` in `emit()`)                                  |
+| `source_digital_identity`         | Source DID (`sourceDID` in `emit()`)                                  |
+| `target_digital_identity`         | Target DID (`targetDID` in `emit()`)                                  |
+| `type`                            | Type (`type` in `emit()`)                                             |
+| `timestamp`                       | Event emitted time (unix timestamp)                                   |
+| `sequence`                        | Event sequence number (the emit order in an array, starting from `0`) |
+| `execution_id`                    | Execution ID                                                          |
+| `task_id`                         | Task ID                                                               |
+| `data_process_permanent_identity` | Data process permanent ID                                             |
+| `data_process_name`               | Data process name                                                     |
+| `data_process_revision`           | Data process revision number                                          |
+| `logic_name`                      | Logic name                                                            |
+| `logic_permanent_identity`        | Logic permanent ID                                                    |
+| `logic_revision`                  | Logic revision number                                                 |
+
+:::info
+The sequence number represents the order of an event emitted in the array. If you emit 10 events at once, they will have sequence number from 1 to 10.
+:::
+
+## Class Reference
+
+### Type
+
+-   `EventAgent`
+
+### Method: Emit Events
+
+> Refer to: [Emit Events](/sdk-ts/agents/event-store/emit-event)
+
+### Method: Search Events
+
+> Refer to: [Search Events](/sdk-ts/agents/event-store/search-event)
+
+### Method: Search Event Sequences
+
+> Refer to: [Search Event Sequences](/sdk-ts/agents/event-store/search-sequence)
+
+## Examples
+
+See each method pages for their examples.

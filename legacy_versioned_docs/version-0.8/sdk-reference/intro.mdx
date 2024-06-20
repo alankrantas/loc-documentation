@@ -1,0 +1,99 @@
+---
+sidebar_position: 1
+tags:
+    - LOC
+    - Logic
+    - Agent
+    - JavaScript
+    - TypeScript
+---
+
+# Introduction
+
+[LOC SDK](https://www.npmjs.com/package/@fstnetwork/loc-logic-sdk) is a downloadable NPM package that defines the interfaces of data context as well as agents - a series of features provided by LOC's logic runtime that can read and/or write internal and external storages.
+
+The [data context](/legacy/0.8/sdk-reference/context-and-task) contains the following features:
+
+-   [Task](/legacy/0.8/sdk-reference/context-and-task#task)
+-   [Payload](/legacy/0.8/sdk-reference/payload)
+
+The following agents can be imported:
+
+-   [Session Storage](/legacy/0.8/sdk-reference/session)
+-   [Local Storage](/legacy/0.8/sdk-reference/local)
+-   [Event Store](/legacy/0.8/sdk-reference/eventstore)
+-   [Result](/legacy/0.8/sdk-reference/result)
+-   [Logging](/legacy/0.8/sdk-reference/logging)
+-   [Local Variable](/legacy/0.8/sdk-reference/logic-var)
+-   [HTTP](/legacy/0.8/sdk-reference/http)
+-   [Database](/legacy/0.8/sdk-reference/database)
+-   [File Storage](/legacy/0.8/sdk-reference/filestorage)
+-   [Mail](/legacy/0.8/sdk-reference/mail)
+
+:::info
+This section is currently based on SDK `v0.8.0` (which is used for LOC Core `v0.8.0` and Studio `v1.3.0`).
+
+Supported logic code languages/version:
+
+-   JavaScript `ES6/ES2015` and above
+-   TypeScript `3.7.0` and above
+
+You do not need to install SDK in Studio. For installing SDK in CLI workspaces, see [Install SDK and Dependencies](/legacy/0.8/cli-handbook/setup#install-sdk-and-dependencies).
+
+Some of the agents require **agent configuration**. See [tutorial](/legacy/0.8/tutorials/http-agent-configuration) for details.
+:::
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+## How to Import Agents
+
+From `v0.7.0` all logic have to _explicitly_ import agents and related classes from LOC SDK using **ECMAScript 6** imports. Below is a short demostration:
+
+:::tip
+If you are using [LOC Studio](/legacy/0.8/category/studio-guide), the imports will be automatically added in the code blocks.
+:::
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+
+```javascript title="Logic" showLineNumbers
+// highlight-start
+import {
+    LoggingAgent,
+    SessionStorageAgent,
+    EventAgent,
+} from "@fstnetwork/loc-logic-sdk";
+// highlight-end
+
+export async function run(ctx) {
+    // ...
+}
+```
+
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+
+```typescript title="Logic" showLineNumbers
+// highlight-start
+import {
+    GenericContext,
+    RailwayError,
+    LoggingAgent,
+    SessionStorageAgent,
+    EventAgent,
+    Event,
+} from "@fstnetwork/loc-logic-sdk";
+// highlight-end
+
+export async function run(ctx: GenericContext) {
+    // ...
+}
+```
+
+  </TabItem>
+</Tabs>
+
+## Agent Configuration
+
+Four of the agents - **HTTP**, **database**, **file storage** and **mail** - requires **agent configuration** to connect external data sources. You can set them either via [Studio](/legacy/0.8/studio-guide/agent-configuration).

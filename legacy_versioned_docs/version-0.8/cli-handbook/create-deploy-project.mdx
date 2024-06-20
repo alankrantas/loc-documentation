@@ -1,0 +1,529 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - CLI
+    - Dataprocess
+    - Logic
+---
+
+# Create and Deploy Data Process
+
+:::info
+See [Introduction and Setup](/legacy/0.8/cli-handbook/setup) first if you haven't gone through the steps above.
+
+Also refer to [LOC Features Overview](/legacy/0.8/tutorials/loc-feat-overview) to learn more about LOC features, especially the hierarchy of projects, scenarios, data processes and logic.
+:::
+
+In this article we'll see how to create and deploy a data process (as well as the project, scenario and associated logic) using LOC CLI.
+
+See [CLI Command Reference](/legacy/0.8/category/cli-command-reference) to knnow more about CLI commands.
+
+## Workspace Structure Overview
+
+From CLI `v0.8.0`, the new CLI workspace would look like this:
+
+```
+/[local workspace]
+    /.loc
+        /projects
+            projects.yaml      <-- metadata of all projects, scenarios and data processes
+        logic-manifest.yaml    <-- metadata of logic
+    /generic-logic-source      <-- directory of generic logic source code
+        logic-1.js
+        logic-2.js
+        logic-3.ts
+        logic-4.ts
+        ...
+    /aggregator-logic-source   <-- directory of aggregator logic source code
+        aggregator-1.js
+        aggregator-2.ts
+        ...
+    .locignore                 <-- files to be ignored during deploy
+    loc                        <-- CLI binary
+    package.json               <-- local NPM package information
+```
+
+Unlike in `v0.7.0` and previous versions, logic (source logic files) are now created and stored separately - and to be linked into data processes afterwards - while data processes are stored as metadata under projects and scenarios.
+
+## Deploy Logic
+
+### Create a Logic
+
+Here we'll use the [Quick Start](/legacy/0.8/quickstart) tutorial as example. First create the "payload-json-parser" generic logic (CLI will prompt you for fields and options):
+
+```
+> ./loc logic create
+
+✔ Logic Name · payload-json-parser
+✔ Logic Type · Generic
+✔ Programming Language · JavaScript
+All Logic source files will be placed under "generic-logic-source" where you can create your own sub-directory. For example: giving "mylogic/convertJSON.js" will create a new sub-directory under "generic-logic-source"
+✔ Entrypoint File Path · payload-json-parser.js
+✔ Description for Logic · Payload JSON parser
+Successfully create Generic Logic source file at "generic-logic-source/payload-json-parser.js"
+```
+
+Create the other two logic in the same way (be minded that one of them is an aggregator logic.)
+
+Now in `./loc/logic-manifest.yaml` should have three new logic metadata entry:
+
+```yaml title="./loc/logic-manifest.yaml"
+version: v0
+logics:
+    - permanentIdentity: null
+      name: payload-json-parser
+      description: ""
+      type: Generic
+      spec:
+          JavaScript:
+              entrypointFilePath: generic-logic-source/payload-json-parser.js
+    - permanentIdentity: null
+      name: greeting
+      description: ""
+      type: Generic
+      spec:
+          JavaScript:
+              entrypointFilePath: generic-logic-source/greeting.js
+    - permanentIdentity: null
+      name: result-aggregator
+      description: ""
+      type: Aggregator
+      spec:
+          JavaScript:
+              entrypointFilePath: aggregator-logic-source/result-aggregator.js
+```
+
+:::warning
+Do not manually edit any files under the `.loc` sub-directory!
+:::
+
+Which points the new logic to the new source files. The logic do not have permanent IDs yet, which are assigned by LOC and are required for linking logic into a data process, so we need to deploy them.
+
+### Deploy Logic to LOC
+
+Now build and upload the logic we've just created:
+
+```bash
+> ./loc logic build
+
+Select a Logic to build.
+
+?  LOGIC TYPE   PROGRAMMING LANGUAGE   NAME                  PERMANENT IDENTITY   ENTRYPOINT FILE PATH                             DESCRIPTION
+  ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+❯  Generic      JavaScript             payload-json-parser   <null>               generic-logic-source/payload-json-parser.js
+   Generic      JavaScript             greeting              <null>               generic-logic-source/greeting.js
+
+   Aggregator   JavaScript             result-aggregator     <null>               aggregator-logic-source/result-aggregator.js
+```
+
+Select the generic logic to build. After a very short while you should see the following message:
+
+```
+Build 1 logic successfully!
+
+ LOGIC TYPE   NAME                  PERMANENT IDENTITY                     REVISION   DESCRIPTION
+══════════════════════════════════════════════════════════════════════════════════════════
+ Generic      payload-json-parser   021410fe-8bdb-46c4-9a0b-343cd248c072   1          Payload JSON parser
+```
+
+Run the command _again_ to build/upload the aggregator logic as well.
+
+Check `./loc/logic-manifest.yaml` and you should see both logic are assigned with an unique ID:
+
+```yaml title="./loc/logic-manifest.yaml"
+version: v0
+logics:
+# highlight-next-line
+- permanentIdentity: 021410fe-8bdb-46c4-9a0b-343cd248c072
+  name: payload-json-parser
+  ...
+```
+
+:::tip
+You can also build and upload all logic at once:
+
+```bash
+./loc logic build --all
+```
+
+If a logic is already deployed, run `loc logic build` will not upload a new revision of it.
+:::
+
+## Create Project, Scenario and Data Process
+
+In order to link logic into a data process, we'll need to create the following assets.
+
+### New Project
+
+```
+> ./loc project create
+
+✔ Name of Project · my-loc-project
+✔ Description of Project · My LOC Project
+```
+
+### New Scenario
+
+```
+> ./loc scenario create
+
+Select Project of Scenario
+
+✔  PROJECT NAME     DESCRIPTION      CREATED TIME
+  ═══════════════════════════════════════════════════════════
+   my-loc-project   My LOC Project   2023-01-31 06:56:11.020483800 UTC
+
+✔ Name of Scenario · my-loc-scenario
+✔ Description of Scenario · My LOC Scenario
+
+Successfully create Scenario my-loc-scenario
+```
+
+### New Data Process
+
+```
+> ./loc dp create
+
+Select Project
+
+✔  PROJECT NAME     DESCRIPTION
+  ═════════════════════════════════
+   my-loc-project   My LOC Project
+
+Select Scenario
+
+✔  SCENARIO NAME     DESCRIPTION
+  ═══════════════════════════════════
+   my-loc-scenario   My LOC Scenario
+
+✔ Data Process Name · hello-world
+✔ Data Process Description · Hello World
+
+Successfully create Data Process hello-world
+```
+
+### Checkout Project and Scenario
+
+For the convenience of creating a data process under a given project and scenario, we can "checkout" them as below:
+
+```bash
+> ./loc checkout my-loc-project my-loc-scenario
+
+Switch current project/scenario to my-loc-project/my-loc-scenario.
+```
+
+:::note
+The checkout action does not affect any local nor remote assets. This is merely creating a shortcut so you don't have to repeatly select a project and a scenario.
+:::
+
+:::tip
+To cancel current checkout, run
+
+```bash
+./loc checkout --reset
+```
+
+:::
+
+### Link Deployed Logic into Data Process
+
+In order to link logic to the data process, we need to edit it:
+
+```
+> ./loc dp edit
+
+Select Data Process
+
+✔  PERMANENT IDENTITY   DATA PROCESS NAME   REVISION   LINKED LOGICS   PROJECT
+  ═══════════════════════════════════════════════════════════════════════
+   <null>               hello-world         1          0               my-loc-project
+
+✔ New Data Process name · hello-world
+✔ New Data Process description · Hello World
+
+ Generic Logic (`e` to edit, or press enter to skip)
+No Logic found.
+
+ Aggregator Logic
+No Logic found.
+```
+
+:::note
+If you did not checkout a project and a scenario with `loc checkout`, CLI will prompt you to select them.
+:::
+
+You'll have the options to modify the name and description of the data process. The last section shows there are currently no logic in this data process.
+
+Now press `e` to enter the logic edit menu:
+
+```
+? Choose your next move ›
+
+❯ Add Generic Logic
+  Edit Generic Logic
+  Unlink Generic Logics
+  Add/Edit Aggregator Logic
+  Unlink Aggregator Logic
+  Save
+  Exit
+```
+
+We select our deployed generic logic into the first slot:
+
+```
+[1/4] Add Generic Logic - Choose Position
+
+Move cursor to where you want to insert Generic Logic, press enter to continue
+By default, Logic will be inserted right below chosen one except first logic slot
+?  PERMANENT IDENTITY   LOGIC NAME   REVISION   ORDER
+  ═════════════════════════════════════════════
+❯  <first logic slot>
+
+[2/4] Add Generic Logic - Pick Generic Logic
+
+Move cursor to select which Generic Logic you want to add
+?  PERMANENT IDENTITY                     LOGIC NAME            REVISION   ORDER
+  ════════════════════════════════════════════════════════════════════
+   ...
+❯  021410fe-8bdb-46c4-9a0b-343cd248c072   payload-json-parser   1
+
+[3/4] Add Generic Logic - Pick Generic Logic Revision
+
+Move cursor to select which Generic Logic revision you want to use
+═══════════════════════════════════════════════════
+ PERMANENT IDENTITY | 021410fe-8bdb-46c4-9a0b-343cd248c072 |
+═══════════════════════════════════════════════════
+?  REVISION   LOGIC NAME            DESCRIPTION
+  ═══════════════════════════════════════════════
+❯  1          payload-json-parser   Payload JSON parser
+```
+
+:::info
+If there are existing generic, select `<first logic slot>` will add the new logic in front of it. Select the existing logic will add the new logic behind it.
+
+If the logic has multiple revisions existing on LOC server, CLI will also prompt you to select one revision.
+:::
+
+After adding the generic logic, you can add the aggregator logic in the exact same way:
+
+```
+? Choose your next move ›
+  Add Generic Logic
+  Edit Generic Logic
+  Unlink Generic Logics
+❯ Add/Edit Aggregator Logic
+```
+
+Finally select `save`:
+
+```
+? Choose your next move ›
+  Add Generic Logic
+  Edit Generic Logic
+  Unlink Generic Logics
+  Add/Edit Aggregator Logic
+  Unlink Aggregator Logic
+❯ Save
+  Exit
+
+✔ Choose your next move · Save
+
+Successfully update Data Process: hello-world
+```
+
+### Inspect the Edited Data Process
+
+You can open `.loc/projects/projects.yaml` under the workspace to inspect how projects, scenarios and data processes metadata are saved:
+
+```yaml title=".loc/projects/projects.yaml"
+projects:
+    - name: my-loc-project
+      description: My LOC Project
+      creation_timestamp: 2023-01-31T06:56:11.020483800Z
+      unit_id: 00000000-0000-0000-0000-000000000000
+scenarios:
+    - name: my-loc-scenario
+      description: My LOC Scenario
+      creation_timestamp: 2023-01-31T06:57:20.800465100Z
+      project_ref:
+          ref_tag: name
+          ref: my-loc-project
+dataProcesses:
+    - revision: 1
+      name: hello-world
+      description: Hello World
+      genericLogics: # <-- linked generic logic
+          # highlight-next-line
+          - permanentIdentity: 021410fe-8bdb-46c4-9a0b-343cd248c072
+            revision: 1
+            logicVariables: {}
+            agentConfiguration:
+                database:
+                    agents: []
+                fileStorage:
+                    agents: []
+                http:
+                    agents: []
+                mail:
+                    agents: []
+      aggregatorLogic: # <-- linked aggregator logic
+          # highlight-next-line
+          permanentIdentity: 6bd8cea2-fe88-422d-98d9-c9b2cded94c8
+          revision: 1
+          logicVariables: {}
+      enabled: true
+      timeout: null
+      explorerPath: ""
+      creation_timestamp: 2023-01-31T06:58:17.510392300Z
+      tag_ids: []
+      scenario_ref:
+          ref_tag: name
+          ref: my-loc-scenario
+```
+
+You can see that this is a manifest of the interlinking assets, including metadata for each data processes - logic variables, agent configurations and tasks, etc.
+
+:::warning
+CLI `v0.8.0`, during the current porting process from TypeScript to Rust, does not yet support managing the following features/assets from local workspace:
+
+-   Tags and units
+-   Triggers (API route, message queue and scheduler)
+-   Agent configuration
+-   License
+
+The API route, agent configuration, tags and license features are available in LOC Studio.
+:::
+
+## Deploy Project, Scenario and Data Process
+
+To upload the data process, we need to deploy the _whole_ project. This will upload and update the project with its scenarios/data processes onto LOC:
+
+```
+> ./loc project deploy
+
+✔  PROJECT NAME     DESCRIPTION
+  ════════════════════════════
+   my-loc-project   My LOC Project
+
+Deploy Project: my-loc-project...
+Deploy Scenarios...
+Deploy Data Processes...
+Successfully deploy Project!
+```
+
+:::note
+CLI will still prompt you to select a project even if you have checkout one with `loc checkout`.
+:::
+
+If you take a look at `.loc/projects/projects.yaml` again, you'll see all of the assets now have an assigned unique ID:
+
+```yaml title=".loc/projects/projects.yaml"
+projects:
+# highlight-next-line
+- id: 29b6d7b7-ab61-4a4e-9cfc-1cb5a3712d3e
+  server:
+    name: my-loc-project
+    ...
+scenarios:
+# highlight-next-line
+- id: 94b30046-16fe-4a5d-abd9-b9f4a792bb2f
+  server:
+    name: my-loc-scenario
+    ...
+dataProcesses:
+# highlight-next-line
+- permanent_identity: c4b94030-2d11-4daa-a575-878e2483c074
+  server:
+    revision: 1
+    name: hello-world
+    ...
+```
+
+We have successfully deploy a project with one scenario and one data process with three linked logic.
+
+:::tip
+See [Source and Version Control](/legacy/0.8/cli-handbook/source-control) to learn more about project synchronisation in CLI.
+:::
+
+---
+
+## Create Shared Libraries and Types
+
+You can create shared (utility) custom libraries as JavaScript or TypeScript scripts for multiple logic. They will be compiled together when the logic are built and uploaded.
+
+For example, we often have to use `TextDecoder` to decode Uint8Array array to string. We can hence create a `/utils/utils.js` with the following content:
+
+```javascript title="/[local workspace]/utils/common.js" showLineNumbers
+// shared helper function
+const UTF8ArrToStr = (aBytes) => {
+    const utf8decoder = new TextDecoder();
+    return utf8decoder.decode(new Uint8Array(aBytes));
+};
+
+// export functions
+// highlight-next-line
+export { UTF8ArrToStr };
+```
+
+Then import it into a project's logic:
+
+```javascript title="/[local workspace]/generic-logic-source/<your_logic_filename>.js" showLineNumbers
+...
+// import UTF8ArrToStr
+// highlight-next-line
+import { UTF8ArrToStr } from "../utils/common";
+
+export async function run(ctx) {
+  const payload = await ctx.payload();
+  const data = payload.http.request.data;
+
+  // calling the utility function
+  // highlight-next-line
+  const parsed = JSON.parse(UTF8ArrToStr(data));
+
+  const name = parsed?.name;  // assuming there is a name field
+
+  // ...
+}
+```
+
+---
+
+For TypeScript developers, you can also share type definitions using a `.ts` module, which is very useful to enforce type check across TypeScript logic:
+
+```typescript title="/[CLI workspace]/utils/common.ts" showLineNumbers
+// now it's called common.ts
+...
+
+// shared custom type, which defines a JSON object's shape
+type UserName = {
+    name: string;
+}
+
+// export type
+// highlight-next-line
+export { ..., UserName };
+```
+
+Then import it into a `.ts` logic:
+
+```typescript title="/[CLI workspace]/generic-logic-source/<your_logic_filename>.ts" showLineNumbers
+import { ..., HttpPayload } from "@fstnetwork/loc-logic-sdk";
+...
+// import UTF8ArrToStr
+// highlight-next-line
+import { ..., UserName } from "../utils/common";
+
+export async function run(ctx) {
+  ...
+
+  // calling the utility function and use custom type
+  // highlight-next-line
+  const parsed: UserName = JSON.parse(UTF8ArrToStr(data));
+
+  const name = parsed.name;  // now name will be inferred as string in IDE
+
+  // ...
+}
+```

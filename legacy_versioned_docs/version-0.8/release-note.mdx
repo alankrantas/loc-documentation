@@ -1,0 +1,137 @@
+---
+sidebar_position: 99
+tags:
+    - LOC
+    - Release-Note
+---
+
+# Release Note
+
+LOC `v0.8` , as part of the ongoing effort focusing on better Studio/CLI synchronisation and logic modularisation, thus has brought some new major changes.
+
+## Release Versions
+
+| Component | Current Version |
+| --------- | --------------- |
+| Core      | `v0.8.0`        |
+| Studio    | ` v1.3.0`       |
+| CLI       | `v0.8.0`        |
+| SDK       | `v0.8.0-1`      |
+
+## Major New Features
+
+### Summary
+
+| New Feature                             | Summary                                                                             |
+| --------------------------------------- | ----------------------------------------------------------------------------------- |
+| **Improved Studio/CLI Synchronisation** | Projects, scenarios and data processes deployed from Studio and CLI are now synced. |
+| **Logic Modularisation**                | Logic are now built and now deployed as reusable modules for data processes.        |
+| **Refactored CLI Workspace**            | See [Refactored CLI Workspace Structure](#refactored-cli-workspace-structure).      |
+
+### Detailed List
+
+-   Studio/CLI: logic are now built and deployed independently and to be added into data processes. This allows logic to be more reusable and in turn save development time.
+-   Studio: the `run()` and `handleError()` functions in a logic created in Studio (_"cloud logic"_) is now stored together, just like the logic created in CLI workspace (_"source logic"_).
+-   Studio: saves logic draft for cloud logic.
+-   Studio: various improved or redesigned user interface, including the new logic and data process management features.
+-   Studio: API route now uses projects (created for scenarios and data processes) as user's API route parent directory.
+-   CLI: the project/scenario/data process structure is now fully synchronised in CLI workspaces.
+-   CLI: the CLI executable binary is undergoing migrating from TypeScript to Rust with refactored commands and improved interactivity. The binary size is also cut down to only around 10~20 MB instead of 160+ MB.
+-   CLI: [refactored CLI workspace directory structure](#refactored-cli-workspace-structure) to adopt the same project/scenario/data process hierarchy in Studio.
+-   SDK: [HTTP Agent](/legacy/0.8/sdk-reference/http) (with related Tutorial) examples are now switched to `fetch` API.
+
+### Refactored CLI Workspace Structure
+
+> This is a breaking change for CLI even though logic code are mostly unaffected as in the previous release.
+
+The workspace structure in CLI `v0.8.0` is refactored to reflect the changes of synchronisation and modularisation:
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="change1-1" label="New (v0.8.0)" default>
+
+Workspace structure is synced to Studio; the metadata of logic and projects/scenarios/data processes are now separated:
+
+```
+/[CLI workspace directory]
+    /.loc
+        /projects
+            projects.yaml     <-- metadata of projects, scenarios and data processes
+        logic-manifest.yaml   <-- metadata of logic
+    /generic-logic-source
+        logic-1.js
+        logic-2.js
+        logic-3.ts
+        logic-4.ts
+        ...
+    /aggregator-logic-source
+        aggregator-1.js
+        aggregator-2.ts
+        ...
+    .locignore
+    loc
+    package.json
+```
+
+  </TabItem>
+  <TabItem value="change1-2" label="Old (v0.7.0)">
+
+Workspace is _data process-based_; each "project" (a Node.js project, not the Studio project) contains its own logic and config files:
+
+```
+/[CLI workspace directory]
+    /data-process-1
+        /generic-logic
+            logic-1.js
+            logic-2.js
+            ...
+        aggregator.js
+        api-route-config.yaml
+        config.yaml
+        package.yaml
+    /data-process-2
+        /generic-logic
+            logic-3.ts
+            logic-4.ts
+            ...
+        aggregator.ts
+        api-route-config.yaml
+        config.yaml
+        package.yaml
+        tsconfig.json
+    ...
+    loc
+```
+
+  </TabItem>
+</Tabs>
+
+:::warning
+Since CLI `v0.8.0` binary is in the process of porting from TypeScript to Rust, it does not support the following features which was available in `v0.7.0`:
+
+-   Tags and units
+-   Triggers (API route, message queue and scheduler)
+-   Agent configuration
+-   Single data process execution
+-   Local simple runtime
+-   License
+
+Related docs and references are also removed. We expect to add them back in the following releases.
+:::
+
+---
+
+### What's New in LOC-Doc?
+
+-   Adds docs for Core/CLI/SDK `v0.8.x` and Studio `v1.3.x`.
+-   Re-written [Quick Start](/legacy/0.8/quickstart) with [API route/execution history](/legacy/0.8/tutorials/create-api-route) moved to Tutorial.
+-   Adds [LOC Features Overview](/legacy/0.8/tutorials/loc-feat-overview) in Tutorials
+-   Tutorial logic examples are more modularised and hence more reusable. Some of the logic examples can also be found in [Logic Module Library](/legacy/0.8/category/logic-module-library).
+-   Switch to using [Hoppscotch](https://hoppscotch.io/) as HTTP clients in the docs.
+-   Studio Guide page adjustments to reflect updated Studio interfaces.
+-   Logic and other major resources are split to separate pages.
+-   SDK TypeDoc docs (auto-generated from SDK) is removed (including `v0.7.0`) due to changes in SDK rendering incompatibility to TypeDoc.
+-   Various improvements and fixes.
+-   [Logic Code Generator](/logic-code-generator) - an experimental template tool for developing logic.

@@ -1,0 +1,120 @@
+---
+sidebar_position: 10
+tags:
+    - LOC
+    - Agent
+    - JavaScript
+    - TypeScript
+---
+
+# File Storage Agent
+
+Accessing and writing remote files. Supports the following protocols/storage:
+
+-   HTTP
+-   FTP (File Transfer Protocol)
+-   Amazon S3
+-   SMB (Server Message Block)
+
+:::note
+Some actions may not be supported depending on the nature of your file storage.
+
+Accessing static file via HTTP is similar to using HTTP GET request. The HTTP support in file storage agent will be deprecated in the next release.
+
+The file storage agent does not directly support SMB protocol. Please contact your LOC operation adminstrator for setting up SMB connection.
+:::
+
+#### Availability
+
+-   ✓ Generic logic
+-   ✗ Aggregator logic
+
+## Read from File Storage
+
+```typescript
+async fileStorage?.simpleGet(url: URL | string): Promise<Uint8Array>
+```
+
+Read a remote file.
+
+| Parameter | Type                  | Description |
+| --------- | --------------------- | ----------- |
+| `url`     | `URL` &#124; `string` | File URL    |
+
+`url` can be a string or an [URL API](https://developer.mozilla.org/en-US/docs/Web/API/URL_API) object.
+
+The actual URL must begins with `http://`, `https://`, `ftp://`, `s3://` or `smb://` and contains user name/password if necessary.
+
+#### Example: reading a FTP text file
+
+```typescript showLineNumbers
+// FTP url
+const url = "ftp://user:pass@host:port/path/filename";
+
+// get file
+const file = await ctx.agents.fileStorage?.simpleGet(url);
+
+// decode file to string
+const data = new TextDecoder().decode(file);
+```
+
+### Write to File Storage
+
+```typescript
+async fileStorage?.simplePut(url: URL | string, data: Uint8Array | string, options?: FileStorage.PutOptions): Promise<number>
+```
+
+Write a file to remote storage.
+
+| Parameter | Type                                                          | Description        |
+| --------- | ------------------------------------------------------------- | ------------------ |
+| `url`     | `URL` &#124; `string`                                         | File URL           |
+| `data`    | `Uint8Array` &#124; `string`                                  | File content       |
+| `options` | `FileStorage.PutOptions`, which is `{ ensureDir?: boolean; }` | (Optional) For SMB |
+
+#### Example: write a text file to FTP
+
+```typescript showLineNumbers
+// FTP url
+const url = "ftp://user:pass@host:port/path/filename";
+
+// data
+const data = `Hello World!
+This is line two`;
+
+// write to file storage
+await ctx.agents.fileStorage?.simplePut(url, data);
+```
+
+### Delete File
+
+```typescript
+async fileStorage?.delete(url: URL | string)
+```
+
+Delete a file from file storage.
+
+### Create Directory
+
+```typescript
+async fileStorage?.createDirAll(url: URL | string)
+```
+
+Create a directory at a remote path.
+
+### List Directories and Files
+
+```typescript
+async fileStorage?.list(url: URL | string): Promise<Array<FileStorage.FileType>>
+```
+
+List directories and files at a remote path.
+
+Returns an array of type `FileStorage.FileType`. A `FileType` has two fields:
+
+| Fields | Type                                                  | Description |
+| ------ | ----------------------------------------------------- | ----------- |
+| `type` | `"file"` &#124; `"directory"` &#124; `"symbolicLink"` | Item type   |
+| `name` | `string`                                              | Item name   |
+
+The type indicates that an item is a file, a directory or a symbolic link (in SMB).

@@ -1,0 +1,160 @@
+---
+sidebar_position: 4
+tags:
+    - LOC
+    - SDK
+    - Agent
+    - Event
+    - JavaScript
+    - TypeScript
+---
+
+# Method: Search Event Sequences - JS/TS
+
+```typescript
+async searchWithPattern(request: Pattern): Promise<PatternResult>
+```
+
+| Parameter | Description                                                   |
+| --------- | ------------------------------------------------------------- |
+| `request` | Event sequence search parameters (type [`Pattern`](#pattern)) |
+
+A method of the [Event Agent](/sdk-ts/agents/event-store/intro).
+
+Search event sequences that match a pattern, that all events are emitted with the right order and each matches given conditions.
+
+Returns type [`PatternResult`](#patternresult), which contains matched event sequences.
+
+## Parameter Type
+
+### `Pattern`
+
+> Importable from `@fstnetwork/loc-logic-sdk`
+
+Event sequence search parameters.
+
+| Property    | Type                                                         | Description                                                                                                                                 |
+| ----------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sequences` | [`Sequence[]`](#sequence)                                    | A set of event query conditions                                                                                                             |
+| `filter?`   | [`Filter[]`](/sdk-ts/agents/event-store/search-event#filter) | Filter conditions (see [Search Events](/sdk-ts/agents/event-store/search-event#filter))                                                     |
+| `maxSpan?`  | `string`                                                     | Search timestamp span ([syntax reference](https://www.elastic.co/guide/en/elasticsearch/reference/current/api-conventions.html#time-units)) |
+
+:::warning
+`sequences` must contain at least _2_ set of conditions in order to search event sequences. An error will be thrown if only one set is provided.
+:::
+
+### Sub Parameter Type
+
+#### `Sequence`
+
+| Property        | Type                                      | Description                    |
+| --------------- | ----------------------------------------- | ------------------------------ |
+| `conditions?`   | [`Condition[]`](#condition) &#124; `null` | Query condition for each event |
+| `sharedFields?` | `string[]` &#124; `null`                  | Event shared field values      |
+| `type?`         | `string` &#124; `null`                    | Event type or group            |
+
+#### `Condition`
+
+| Property | Type        | Description                                                                  |
+| -------- | ----------- | ---------------------------------------------------------------------------- |
+| `field`  | `string`    | [Event field name](/sdk-ts/agents/event-store/intro#events-fields-for-query) |
+| `op`     | [`Op`](#op) | Operator                                                                     |
+| `value`  | `string`    | Value to be matched                                                          |
+
+#### `Op`
+
+Operators for event query condition in the sequence:
+
+```typescript
+type Op = "eq" | "ne" | "gt" | "lt" | "gte" | "lte";
+```
+
+| Operator | Description              |
+| -------- | ------------------------ |
+| `"eq"`   | Equal to                 |
+| `"ne"`   | Not equal to             |
+| `"gt"`   | Greater than             |
+| `"lt"`   | Less than                |
+| `"gte"`  | Greater than or equal to |
+| `"lte"`  | Less than or equal to    |
+
+## Return Type
+
+### `PatternResult`
+
+> Importable from `@fstnetwork/loc-logic-sdk`
+
+Search result of matched event sequences.
+
+| Member      | Type                                    | Description                     |
+| ----------- | --------------------------------------- | ------------------------------- |
+| `sequences` | [`SequencesResult[]`](#sequencesresult) | Queried sequences               |
+| `count`     | `number`                                | Number of events to be queried  |
+| `total`     | `number`                                | Actual queried number of events |
+| `took`      | `number`                                | Query time (milllisecond)       |
+
+### Sun Return Type
+
+#### `SequencesResult`
+
+Events in a queried sequence.
+
+| Member     | Type                                                       | Description                  |
+| ---------- | ---------------------------------------------------------- | ---------------------------- |
+| `events`   | [`Event[]`](/sdk-ts/agents/event-store/search-event#event) | Queried events in a sequence |
+| `joinKeys` | `string[]`                                                 |                              |
+
+## Examples
+
+```typescript showLineNumbers
+const query = await EventAgent.searchWithPattern({
+    // highlight-start
+    sequences: [
+        // first set of confitions
+        {
+            conditions: [
+                {
+                    field: "label_name",
+                    op: "eq",
+                    value: "some label name",
+                },
+            ],
+            sharedFields: [],
+            type: "any",
+        },
+        // second set of conditions
+        {
+            conditions: [
+                {
+                    field: "source_digital_identity",
+                    op: "eq",
+                    value: "some source DID",
+                },
+                {
+                    field: "target_digital_identity",
+                    op: "ne",
+                    value: "some target DID",
+                },
+            ],
+            sharedFields: [],
+            type: "any",
+        },
+        // more conditions...
+    ],
+    // highlight-end
+    filter: null,
+    maxSpan: null,
+});
+
+const sequences = query?.sequences;
+
+// iterate through sequences and events
+sequences.forEach((sequence) => {
+    sequence.events?.forEach((event) => {
+        const label_name = event.label.name;
+        const meta = event.meta;
+        const logicPid = event.logicIdentityContext.permanentIdentity;
+        // ...
+    });
+});
+```

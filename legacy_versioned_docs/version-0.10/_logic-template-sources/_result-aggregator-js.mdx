@@ -1,0 +1,37 @@
+```javascript title="result-aggregator.js" showLineNumbers
+import {
+    ResultAgent,
+    LoggingAgent,
+    SessionStorageAgent,
+} from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx) {
+    // read result from session
+    const result = await SessionStorageAgent.get("result");
+
+    // logging
+    LoggingAgent.info({ result: result });
+
+    // finalise result
+    ResultAgent.finalize({
+        status: "ok",
+        taskKey: ctx.task.taskKey,
+        data: result,
+    });
+}
+
+export async function handleError(ctx, error) {
+    const err = {
+        error: true,
+        errorMessage: error.message,
+        stack: error.stack,
+        taskKey: ctx.task.taskKey,
+    };
+
+    // error logging
+    LoggingAgent.error(err);
+
+    // finalise result
+    ResultAgent.finalize(err).httpStatusCode(500);
+}
+```

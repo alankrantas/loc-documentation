@@ -1,0 +1,42 @@
+---
+sidebar_position: 6
+tags:
+    - LOC
+    - Agent
+    - JavaScript
+    - TypeScript
+---
+
+# Result Agent
+
+Finalise a JSON object as the result data. If the trigger is synchronized API route or message queue, it will be returned to the trigger.
+
+#### Availability
+
+-   ✗ Generic logic
+-   ✓ Aggregator logic
+
+## Finalise Result
+
+```typescript
+result.finalize(value: object)
+```
+
+`value` has to be a JSON object.
+
+#### Example
+
+```typescript showLineNumbers
+ctx.agents.result.finalize({
+    status: "ok",
+    taskId: ctx.task.taskId,
+    data: {
+        name: "Arthur Dent",
+        age: 42,
+    },
+});
+```
+
+:::tip
+The result agent can be used in both `run` and `handleError` (for returning errors).
+:::

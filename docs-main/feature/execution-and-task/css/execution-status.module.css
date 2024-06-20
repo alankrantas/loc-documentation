@@ -1,0 +1,19 @@
+.success {
+    color: #13bf99;
+}
+
+.warn {
+    color: #fbaa3f;
+}
+
+.error {
+    color: #ff435a;
+}
+
+.progress {
+    color: #2d9cdb;
+}
+
+.none {
+    color: #000 45%;
+}

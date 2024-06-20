@@ -1,0 +1,199 @@
+---
+sidebar_position: 7
+tags:
+    - LOC
+    - Agent
+    - JavaScript
+    - TypeScript
+---
+
+# Result Agent
+
+```typescript
+import { ResultAgent } from "@fstnetwork/loc-logic-sdk";
+```
+
+Finalise a JSON object as the [task result](/legacy/0.10/tutorials/loc-feat-overview#triggers-tasks-and-executions) data. If the trigger is synchronized API route or message queue, it will be returned to the trigger, otherwise stored in LOC to be retrieved later.
+
+Task results woulbe be embedded in an execution result from a trigger unless the trigger's [encapsulation](/legacy/0.10/studio-guide/triggers) is turned off. Be noted that [manual trigger](/legacy/0.10/quickstart#manually-trigger-the-data-process) also only returns task results.
+
+#### Availability
+
+-   ✗ Generic logic
+-   ✓ Aggregator logic
+
+## Finalise Result
+
+```typescript
+ResultAgent.finalize(value: object)
+```
+
+`value` has to be a JSON object (a JavaScript object without methods).
+
+:::tip
+The result agent can be used in both `run` and `handleError` functions and does not need `await`.
+
+See [Tips on Error Handling](/legacy/0.10/tutorials/error-handling-tip) for how to utilise result agent for error handling.
+:::
+
+#### Example
+
+```typescript showLineNumbers
+ResultAgent.finalize({
+    status: "ok",
+    taskId: ctx.task.taskKey,
+    data: {
+        name: "Arthur Dent",
+        age: 42,
+    },
+});
+```
+
+Be noted that `status: "ok"` _is not the HTTP response code_, but an user-defined field that indicates the task has been executed without issues.
+
+The finalised data (task result) will be
+
+```json
+{
+    "status": "ok",
+    "taskId": {
+        "executionId": "...",
+        "id": "..."
+    },
+    "data": {
+        "name": "Arthur Dent",
+        "age": 42
+    }
+}
+```
+
+<details>
+    <summary>Seperate multiple task results in the same execution</summary>
+
+If you are planning to execute multiple data processes from the same trigger, be adviced not to use shared task result field names (for example, `status` and `data`), for the result of one data process _would be overwritten_ by another.
+
+You can wrap results with different topmost keys:
+
+```typescript title="aggregator 1" showLineNumbers
+ResultAgent.finalize({
+    result_data_process_a: {
+        status: "ok",
+        taskId: ctx.task.taskKey,
+        data: {
+            name: "Arthur Dent",
+            age: 42,
+        },
+    },
+});
+```
+
+```typescript title="aggregator 2" showLineNumbers
+ResultAgent.finalize({
+    result_data_process_b: {
+        status: "ok",
+        taskId: ctx.task.taskKey,
+        data: {
+            name: "Ford Perfect",
+            age: 200,
+        },
+    },
+});
+```
+
+The returned task results in the execution result would thus be
+
+```json
+{
+    "result_data_process_a": {
+        "status": "ok",
+        "taskId": {
+            "executionId": "...",
+            "id": "..."
+        },
+        "data": {
+            "name": "Arthur Dent",
+            "age": 42
+        }
+    },
+    "result_data_process_b": {
+        "status": "ok",
+        "taskId": {
+            "executionId": "...",
+            "id": "..."
+        },
+        "data": {
+            "name": "Ford Perfect",
+            "age": 200
+        }
+    }
+}
+```
+
+</details>
+
+## Specify HTTP Status Code
+
+It is possible to set the HTTP status code for the task result. If the data process is invoked by an [API route](/legacy/0.10/studio-guide/triggers#create-an-api-route) trigger, the HTTP code will be applied in the HTTP response.
+
+```typescript
+ResultAgent.httpStatusCode(statusCode: number)
+```
+
+If `httpStatusCode()` is not called, by default the task result's HTTP code will be `200` (or `202` if the execution has timed out, `405` if HTTP method is incorrect for the API route, and `400` if API route does not exist).
+
+:::tip
+Combining with setting an [API route](/legacy/0.10/studio-guide/triggers#create-an-api-route)'s encapsulation to false (do not include execution metadata), you can create a true RESTful response for the data process.
+:::
+
+#### Example
+
+```typescript showLineNumbers
+ResultAgent.finalize({
+    status: "ok",
+    taskId: ctx.task.taskKey,
+    data: {
+        name: "Arthur Dent",
+        age: 42,
+    },
+});
+
+// highlight-next-line
+ResultAgent.httpStatusCode(200);
+```
+
+Since both `finalize()` and `httpStatusCode()` returns the `ResultAgent` itself, you can chain them like this:
+
+```typescript showLineNumbers
+ResultAgent.finalize({
+    // task result
+    // highlight-next-line
+}).httpStatusCode(200);
+```
+
+or
+
+```typescript showLineNumbers
+// highlight-next-line
+ResultAgent.httpStatusCode(200).finalize({
+    // task result
+});
+```
+
+:::info
+
+#### HTTP Status Code Priority
+
+If a task contains multiple data processes, the HTTP code with the highest priority (the largest number) will be chosen for the final execution response (with all task results aggregated):
+
+| HTTP Code | Priority |
+| --------- | -------- |
+| `5xx`     | Highest  |
+| `4xx`     |          |
+| `3xx`     |          |
+| `2xx`     | Lowest   |
+
+For example, if data process A returns `200` and data process B returns `400`, the execution result would choose `400`.
+
+If one returns `503` and another returns `500`, then `503` would be chosen.
+
+:::

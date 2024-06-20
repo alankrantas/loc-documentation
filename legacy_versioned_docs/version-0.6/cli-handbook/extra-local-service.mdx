@@ -1,0 +1,360 @@
+---
+sidebar_position: 8
+tags:
+    - LOC
+    - CLI
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+# Add Extra Local Data Services
+
+It is possible to add extra local data storage services in the [Local Simple Runtime](/legacy/0.6/cli-handbook/local-runtime). A containerized test environment is great for testing and can be deleted at any time. These services can also be accessed directly via `127.0.0.1` instead of `host.docker.internal`.
+
+Here we'll give you some examples: a database service (`MySQL`, `PostgreSQL` or `MS SQL Server`) and a FTP server (`Pure-FTPd`).
+
+:::info
+If you already have installed similar services, they may cause port conflict and render both service unusable.
+:::
+
+## Database Service
+
+<Tabs>
+  <TabItem value="mysql" label="MySQL" default>
+
+Add the following service definition to `/local-runtime/docker-compose.yaml`, which adds a [MySQL](https://www.mysql.com/) server:
+
+```yaml title="/local-runtime/docker-compose.yaml" showLineNumbers
+version:
+    "3.9"
+    # ...
+
+services:
+    # ...
+
+    mysql:
+        image: mysql
+        restart: "always"
+        container_name: mysql
+        environment:
+            - MYSQL_ROOT_USER=root
+            - MYSQL_ROOT_PASSWORD=1234
+        volumes:
+            - ./sql/mysql-setup.sql:/docker-entrypoint-initdb.d/mysql-setup.sql
+        ports:
+            - "3306:3306"
+        networks:
+            - saffron
+```
+
+The database user is `root` and password is `1234`.
+
+It also needs an initialize script to create data when the container starts up.
+
+Create a file at `/local-runtime/sql/mysql-setup.sql` and write your scrpit, for example:
+
+```sql title="/local-runtime/sql/mysql-setup.sql" showLineNumbers
+CREATE DATABASE mydb;
+
+USE mydb;
+
+CREATE TABLE policy (AcuNo  VARCHAR(20) NOT NULL, Amount INT);
+
+INSERT INTO policy (AcuNo, Amount) VALUES ('Acu-048', 4239);
+INSERT INTO policy (AcuNo, Amount) VALUES ('Acu-049', 2022);
+INSERT INTO policy (AcuNo, Amount) VALUES ('Acu-050', 9527);
+```
+
+> This script create a database `mydb` and write 3 records into table `policy`.
+
+Use Docker Compose to start up the db service. When the DB is up, you can connect it with database agent like this:
+
+```typescript showLineNumbers
+const MySqlParameters = new Database.MySqlParameters({
+    host: "127.0.0.1",
+    port: 3306,
+    database: "mydb",
+    username: "root",
+    password: "1234",
+});
+
+// ...
+```
+
+:::tip
+You can access the MySQL client in the container (will prompt for user and password):
+
+```bash
+docker exec -it mysql mysql -u root -p
+```
+
+And then you can directly query the database, for example:
+
+```
+mysql> USE mydb;
+mysql> SELECT * FROM policy;
+
++---------+--------+
+| AcuNo   | Amount |
++---------+--------+
+| Acu-048 |   4239 |
+| Acu-049 |   2022 |
+| Acu-050 |   9527 |
++---------+--------+
+3 rows in set (0.00 sec)
+```
+
+:::
+
+  </TabItem>
+  <TabItem value="posgres" label="PostgreSQL">
+
+Add the following service definition to `/local-runtime/docker-compose.yaml`, which adds a [PostgreSQL](https://www.mysql.com/) server:
+
+```yaml title="/local-runtime/docker-compose.yaml" showLineNumbers
+version:
+    "3.9"
+    # ...
+
+services:
+    # ...
+
+    postgres:
+        image: postgres
+        restart: "always"
+        container_name: postgres
+        environment:
+            - POSTGRES_PASSWORD=1234
+        volumes:
+            - ./sql/postgres-setup.sql:/docker-entrypoint-initdb.d/setup.sql
+        ports:
+            - "5432:5432"
+        networks:
+            - saffro
+```
+
+The database user is `postgres` and password is `1234`.
+
+It also needs an initialize script to create data when the container starts up.
+
+Create a file at ``/local-runtime/sql/postgres-setup.sql` and write your scrpit, for example:
+
+```sql title="/local-runtime/sql/postgres-setup.sql" showLineNumbers
+CREATE DATABASE mydb;
+
+\c mydb
+
+CREATE TABLE policy (acuno VARCHAR(20) NOT NULL, amount INT);
+
+INSERT INTO policy (acuno, amount) VALUES ('Acu-048', 4239);
+INSERT INTO policy (acuno, amount) VALUES ('Acu-049', 2022);
+INSERT INTO policy (acuno, amount) VALUES ('Acu-050', 9527);
+```
+
+> This script create a database `mydb` and write 3 records into table `policy`.
+
+Use Docker Compose to start up the db service. When the DB is up, you can connect it with database agent like this:
+
+```typescript showLineNumbers
+const PostgresParameters = new Database.PostgresParameters({
+    host: "127.0.0.1",
+    port: 5432,
+    database: "mydb",
+    username: "postgres",
+    password: "1234",
+});
+
+// ...
+```
+
+:::tip
+You can access the PostgreSQL client in the container (will prompt for password):
+
+```bash
+docker exec -it postgres psql -U postgres
+```
+
+:::
+
+  </TabItem>
+  <TabItem value="mssql" label="MS SQL Server">
+
+It's a bit more complicated to add a [MS SQL Server](https://www.microsoft.com/sql-server/sql-server-2019) server to the local runtime.
+
+First add the following service definition to `/local-runtime/docker-compose.yaml`:
+
+```yaml title="/local-runtime/docker-compose.yaml" showLineNumbers
+version:
+    "3.9"
+    # ...
+
+services:
+    # ...
+
+    mssql:
+        build:
+            context: .
+            dockerfile: ./mssql/mssql-Dockerfile
+        restart: "always"
+        container_name: mssql
+        ports:
+            - "1433:1433"
+        networks:
+            - saffron
+```
+
+The database user is `sa` and password is `MsSql1234`.
+
+The definition requires a Dockerfile to create a container, so add `/local-runtime/mssql/mssql-Dockerfile`:
+
+```bash title="/local-runtime/mssql/mssql-Dockerfile" showLineNumbers
+# using SQL Server 2019
+FROM mcr.microsoft.com/mssql/server:2019-latest
+
+USER root
+
+RUN mkdir -p /usr/config
+WORKDIR /usr/config
+
+ENV ACCEPT_EULA Y
+ENV MSSQL_PID Express  # running as Express version
+ENV SA_PASSWORD MsSql1234  # root user password
+
+COPY ./mssql/mssql-entrypoint.sh /usr/config/entrypoint.sh
+COPY ./mssql/mssql-init.sh /usr/config/init.sh
+COPY ./sql/mssql-setup.sql /usr/config/setup.sql
+
+EXPOSE 1433
+
+RUN chmod +x /usr/config/entrypoint.sh
+RUN chmod +x /usr/config/init.sh
+
+CMD ./entrypoint.sh
+```
+
+It also needs some initialize script to create data when the container starts up.
+
+Create a file at `/local-runtime/sql/mssql-setup.sql` and write your scrpit, for example:
+
+```sql title="/local-runtime/sql/mssql-setup.sql" showLineNumbers
+CREATE DATABASE mydb;
+GO
+
+USE mydb;
+GO
+
+CREATE TABLE policy (AcuNo  VARCHAR(20) NOT NULL, Amount INT);
+GO
+
+INSERT INTO policy (AcuNo, Amount) VALUES ('Acu-048', 4239);
+INSERT INTO policy (AcuNo, Amount) VALUES ('Acu-049', 2022);
+INSERT INTO policy (AcuNo, Amount) VALUES ('Acu-050', 9527);
+GO
+```
+
+> This script create a database `mydb` and write 3 records into table `policy`. `GO` is required to confirm one or multiple SQL commands in MS SQL Server.
+
+Add `/local-runtime/mssql/mssql-entrypoint.sh`:
+
+```bash title="/local-runtime/sql/mssql-entrypoint.sh" showLineNumbers
+/usr/config/init.sh & /opt/mssql/bin/sqlservr
+```
+
+Add `/local-runtime/mssql/mssql-init.sh`:
+
+```bash title="/local-runtime/mssql/mssql-init.sh" showLineNumbers
+sleep 20s
+
+/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P MsSql1234 -d master -i setup.sql
+```
+
+Use Docker Compose to start up the db service. When the DB is up, you can connect it with database agent like this:
+
+```typescript showLineNumbers
+const PostgresParameters = new Database.PostgresParameters({
+    host: "127.0.0.1",
+    port: 1433,
+    database: "mydb",
+    username: "sa",
+    password: "MsSql1234",
+});
+
+// ...
+```
+
+:::tip
+You can access the PostgreSQL client in the container (will prompt for password):
+
+```bash
+docker exec -it mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P MsSql1234
+```
+
+:::
+
+  </TabItem>
+</Tabs>
+
+## FTP Server
+
+Add the following service definition to `/local-runtime/docker-compose.yaml`, which adds a [Pure-FTPd](https://www.pureftpd.org/project/pure-ftpd/) server:
+
+```yaml title="/local-runtime/docker-compose.yaml" showLineNumbers
+version:
+    "3.9"
+    # ...
+
+services:
+    # ...
+
+    ftpd_server:
+        image: stilliard/pure-ftpd
+        restart: "always"
+        container_name: pure-ftpd
+        environment:
+            PUBLICHOST: "127.0.0.1"
+            FTP_USER_NAME: admin
+            FTP_USER_PASS: "1234"
+            FTP_USER_HOME: /home/admin
+        volumes:
+            - "./ftp:/home/admin/"
+        ports:
+            - "21:21"
+            - "30000-30009:30000-30009"
+        networks:
+            - saffron
+```
+
+The service user name is `admin` and password is `"1234"`.
+
+Create a sub-directory `/ftp` under `/local-runtime`. Once the service is up, everything in `/local-runtime/ftp` can be accessed via the FTP server.
+
+Then you can read `/local-runtime/ftp/test.txt` like this:
+
+```typescript
+const url = "ftp://admin:1234@127.0.0.1:21/test.txt";
+
+const file = await ctx.agents.fileStorage.simpleGet(url);
+```
+
+---
+
+:::note
+With the additional services your local directories should look like this:
+
+```
+/CLI
+    ...
+    /local-runtime
+        /ftp
+            test.txt
+            ...
+        /sql
+            mysql-setup.sql
+            ...
+        kibana.yaml
+        payload-local.yaml
+        docker-compose.yaml
+```
+
+:::

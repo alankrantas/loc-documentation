@@ -1,0 +1,94 @@
+---
+sidebar_position: 5
+tags:
+    - LOC
+    - Data Process
+    - Trigger
+---
+
+# Manual Execution
+
+To manually execute a data process as a one-task execution using a mocked [triggers](/main/category/trigger). The [execution and task result](/main/feature/execution-and-task/view) will be logged just as tasks invoked by real triggers.
+
+## Execute with A Mocked API Route
+
+The mocked API route is a `GET` request with various dummy metadata. Only the request body can be set by uploading a payload file.
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="studio1" label="LOC Studio" default>
+
+1. Select a data process in the explorer (**Data Process** ➞ **Explorer**), move the cursor to **Execute Data Process** on the top right and select **Execute as API Route Task**, or right-click on a data process and select the same option.
+
+<div className="gridEqual">
+    <div className="center-padded-sm">
+        <img
+            src={require("./img/Menu-data-process-execute.png").default}
+            alt="Menu-data-process-execute"
+        />
+    </div>
+    <div className="center">
+        <small>or</small>
+    </div>
+    <div className="center-padded-sm">
+        <img
+            src={require("./img/Data-process-execute.png").default}
+            alt="Data-process-execute"
+        />
+        <br />
+        <img
+            src={require("./img/Data-process-execute-dropdown.png").default}
+            alt="Data-process-execute-dropdown"
+        />
+    </div>
+</div>
+
+2. (Optional) LOC will prompt you to upload a file as the API route payload (the mocked HTTP request payload). Skip if not needed.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Upload-payload.png").default}
+        width="60%"
+        alt="Upload-payload"
+    />
+</div>
+
+3. Click **Execute** to trigger the execution and wait for the task result.
+
+<div className="center-padded-sm">
+    <img src={require("./img/Loading.png").default} alt="Loading" />
+    <br />
+    <img
+        src={require("./img/Execution-result-manual.png").default}
+        alt="Execution-result-manual"
+    />
+</div>
+
+  </TabItem>
+</Tabs>
+
+## Execute with a Mocked Schedule
+
+Like real schedule triggers, the mocked version does not pass any metadata or payload to the task.
+
+<Tabs>
+  <TabItem value="studio2" label="LOC Studio" default>
+
+1. Select a data process in explorer, move the cursor to **Execute Data Process** on the top right and select **Execute as Schedule Task**, or right-click on a data process and select the same option.
+
+2. LOC will prompt you to proceed the execution.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Execution-warning.png").default}
+        width="60%"
+        alt="Execution-warning"
+    />
+</div>
+
+3. Click **Yes** to trigger the execution and wait for the task result.
+
+  </TabItem>
+</Tabs>

@@ -1,0 +1,117 @@
+---
+sidebar_position: 3
+tags:
+    - LOC
+    - SDK
+    - Task
+    - JavaScript
+    - TypeScript
+---
+
+# Task Metadata - JS/TS
+
+A **task** object contains task and execution metadata.
+
+| Logic Type       | Available |
+| ---------------- | --------- |
+| Generic logic    | ✅        |
+| Aggregator logic | ✅        |
+
+A task is a data process in execution. An execution is a collection of tasks invoked together by a trigger.
+
+## Import and Usage
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+
+```javascript showLineNumbers
+export async function run(ctx) {
+    // highlight-next-line
+    const task = ctx.task;
+}
+
+export async function handleError(ctx, error) {
+    // highlight-next-line
+    const task = ctx.task;
+}
+```
+
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+
+```typescript showLineNumbers
+import {
+    // highlight-next-line
+    GenericContext, // or AggregatorContext for aggregator logic
+    RailwayError,
+} from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx: GenericContext) {
+    const task = ctx.task;
+}
+
+export async function handleError(ctx: GenericContext, error: RailwayError) {
+    // ... same
+}
+```
+
+  </TabItem>
+</Tabs>
+
+## Class Reference
+
+### Type
+
+-   `Task`
+
+### Properties
+
+| Property         | Type                                                    | Description                                                                             |
+| ---------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `taskKey`        | [`TaskKey`](#taskkey)                                   | Task ID and execution ID                                                                |
+| `startTimestamp` | `Date`                                                  | Task start datetime                                                                     |
+| `dataProcess`    | [`VersionedIdentityContext`](#versionedidentitycontext) | Data process identity metadata                                                          |
+| `currentLogic?`  | `VersionedIdentityContext`                              | Current logic's identity metadata                                                       |
+| `executedLogics` | `Array<VersionedIdentityContext>`                       | An array of identity metadata of executed logic. Returns an empty array if none exists. |
+
+### Sub Class Reference
+
+#### `TaskKey`
+
+Collection of task and execution ID.
+
+| Property      | Type     | Description  |
+| ------------- | -------- | ------------ |
+| `taskId`      | `string` | Task ID      |
+| `executionId` | `string` | Execution ID |
+
+#### `VersionedIdentityContext`
+
+Describes the identity of a logic, data process or other assets in LOC.
+
+| Property            | Type     | Description              |
+| ------------------- | -------- | ------------------------ |
+| `name`              | `string` | Name                     |
+| `permanentIdentity` | `string` | Permanent identity (PID) |
+| `revision`          | `number` | Revision number          |
+
+## Examples
+
+```typescript showLineNumbers
+// get task ID
+const taskId = ctx.task.taskKey.taskId;
+
+// get execution ID
+const executionId = ctx.task.taskKey.executionId;
+
+// get current logic's PID
+const logicPid = ctx.task.currentLogic.permanentIdentity;
+
+// get the last executed logic's name before current logic (null if none)
+const lastLogicName = ctx.task.executedLogics
+    ? ctx.task.executedLogics[ctx.task.executedLogics.length - 1].name
+    : null;
+```

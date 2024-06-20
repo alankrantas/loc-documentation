@@ -1,0 +1,259 @@
+---
+sidebar_position: 7
+tags:
+    - LOC
+    - Tutorial
+    - Dataprocess
+    - Logic
+    - Studio
+    - Agentconfig
+---
+
+# Send HTTP Requests Using Agent Configuration
+
+## What is Agent Configuration?
+
+LOC provides [agents](/legacy/0.8/category/sdk-reference) for operating not only internal data sources, but also external ones like HTTP endpoints, databases, FTP servers and SMTP servers. These is what makes LOC truely useful for building data pipelines across your organization.
+
+However, these external sources often require authentication information (user account name and password, etc.), which may bring some issues:
+
+-   Hard-coding or pass unencrypted confidential data into logic would be a huge security risk.
+-   It would be a nightmare trying to maintain/update confidential data across numerous data processes.
+
+Since `v0.7.0`, LOC provides **Agent Configuration** for authorised users to create and maintain connection profiles for HTTP, database, file sorage and mail agents. Here we'll learn how to create a configuration for your HTTP agent.
+
+In order to use an agent configuration, you'll need to go through three steps:
+
+1. Create a new agent configuration.
+2. Add the configuration into a logic with a reference name.
+3. Have an agent setup its client using the reference name.
+
+## Logic and Data Process Walkthrough
+
+In this example we'll create a generic logic `http-echo-response` and a data process. The latter will be consisted with two other reusable logic.
+
+| Logic                | Name                                                                            | Purpose                                                                    |
+| -------------------- | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Generic logic #1     | `payload-json-parser` ([source](/legacy/0.8/logic-library/payload-json-parser)) | Read and parse JSON payload                                                |
+| **Generic logic #2** | `http-echo-response`                                                            | Invoke HTTP API with parsed payload and pass down the parsed response body |
+| Aggregator logic     | `result-aggregator` ([source](/legacy/0.8/logic-library/result-aggregator))     | Finalise task result                                                       |
+
+```javascript title="http-echo-response (generic logic #2)" showLineNumbers
+import {
+    LoggingAgent,
+    SessionStorageAgent,
+    HttpAgent,
+} from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx) {
+    // read parsed JSON from session
+    const parsed = await SessionStorageAgent.get("parsed");
+
+    // create a HTTP client using a agent configuration reference
+    // highlight-next-line
+    const httpClient = await HttpAgent.acquire("http-echo-api-config");
+
+    // log status
+    LoggingAgent.info("HTTP client required successfully");
+
+    // invoke HTTP API
+    const response = await httpClient?.fetch("/anything", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json; charset=UTF-8",
+            "X-Custom-Id": "Studio", // custom header
+        },
+        body: JSON.stringify(parsed),
+    });
+
+    // log status
+    LoggingAgent.info("HTTP request sent");
+
+    // if the response is HTTP 200 OK or 301 Move Permanently,
+    // read and parse the response body
+    let body = null;
+    if (response.ok || response.status === 301) body = await response.json();
+
+    // prepare result
+    const result = {
+        http_config_name: "http-echo-api-config",
+        http_status: response.status,
+        response_body: body,
+    };
+
+    // log result
+    LoggingAgent.info(result);
+
+    // store result in session
+    await SessionStorageAgent.putJson("result", result);
+}
+
+export async function handleError(ctx, error) {
+    // error logging
+    LoggingAgent.error({
+        error: true,
+        errorMessage: error.message,
+        stack: error.stack,
+        taskId: ctx.task.taskId,
+    });
+}
+```
+
+## Create a Configuration
+
+For this tutorial, we'll use the [HTTP agent](/legacy/0.8/sdk-reference/http) to invoke `https://httpbin.org/anything`. This is a public API that simply _returns anything_ you've sent to it, which is ideal for testing purposes.
+
+In Studio, go to **Administration** then click the panel [Agent Configuration](/legacy/0.8/studio-guide/agent-configuration). Right-click on the Unit to create a folder with a name:
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/agent-configuration.png").default}
+        alt="agent-configuration"
+    />
+</div>
+
+Right-click on the folder and select **Create Agent Configuration** to create a new one:
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/agent-configuration-1.png").default}
+        alt="agent-configuration-1"
+    />
+</div>
+
+In the configuration creation window, set the HTTP config as below:
+
+1. Name of the configuration
+
+2. Agent Configuration Type: `HTTP Agent`
+
+3. Host is `httpbin.org`, scheme is `HTTP`, port is `80`, prefix is empty.
+
+4. You can add anythin in the description or to add additional custom headers.
+
+:::tip
+Custom headers added in configuration window and logic code will both be included in the HTTP request.
+:::
+
+Finally click **Create**.
+
+## Add a Configuration to a Linked Logic
+
+A configuration has to be manually added to a logic (which has to be linked in a data process) to be accessible. The [HTTP Agent](/legacy/0.8/sdk-reference/http) would be able to load the configuration and returns a working HTTP client object.
+
+Now open the data process and modify it to create a revision:
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/agent-configuration-3.png").default}
+        alt="agent-configuration-3"
+    />
+</div>
+
+Move your mouse cursor to the upper=right corner of `http-echo-response` logic, either click **+** or move the cursor to **⋮** then select **+ Add Configuration**:
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/agent-configuration-4.png").default}
+        alt="agent-configuration-4"
+    />
+</div>
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/agent-configuration-5.png").default}
+        alt="agent-configuration-5"
+    />
+</div>
+
+:::info
+The **Variable** panel above is for setting up logic environment variables. See [Logic Variable Agent](/legacy/0.8/sdk-reference/logic-var) for how to access them in logic.
+:::
+
+Click **Add a row** on the right, then click on the **Agent Configuration Name** to find your configuration:
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/agent-configuration-6.png").default}
+        alt="agent-configuration-6"
+    />
+</div>
+
+Give the configuration a referenece name (in this case we also named it `http-echo-response`) then click **OK**:
+
+:::tip
+HTTP Agent loads configuration from its reference name, _not_ the configuration name.
+:::
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/agent-configuration-7.png").default}
+        alt="agent-configuration-7"
+    />
+</div>
+
+You should see a configuration has been added to the logic (with a **AC** icon as well as Agent Configuration table on the right):
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/agent-configuration-8.png").default}
+        alt="agent-configuration-8"
+    />
+</div>
+
+## Test the HTTP Agent
+
+Now you can try to invoke the data process with a JSON payload, either using [single data process execution](/legacy/0.8/quickstart#run-the-data-process---simple-data-process-execution) or via an [API route](/legacy/0.8/tutorials/create-api-route).
+
+For example, if you send this as your payload:
+
+```json
+{
+    "name": "Zaphod Beeblebrox",
+    "title": "Ex-Galactic President",
+    "number-of-heads": 2
+}
+```
+
+The task result returned shoudl be like this, which contains the full HTTP response body from the HTTP endpoint:
+
+```json
+{
+    "status":"ok",
+    "taskId":{
+        "id":"4bXSumE7Dwl65kSYej7rng",
+        "executionId":"Y-CRtV-0oJm0EHySDPysPw"
+    },
+    "response":{
+        "http_config_name":"http-echo-api-config",
+        "http_status":200,
+        "response_body":{
+            ...
+            "headers":{
+                "Accept":"*/*",
+                "Accept-Encoding":"gzip, br",
+                "Accept-Language":"*",
+                "Content-Length":"80",
+                "Content-Type":"application/json",
+                "Host":"httpbin.org",
+                ...
+                // highlight-next-line
+                "X-Custom-Id":"Studio",
+                ...
+            },
+            // highlight-start
+            "json":{
+                "name":"Zaphod Beeblebrox",
+                "number-of-heads":2,
+                "title":"Ex-Galactic President"
+            },
+            // highlight-end
+            "method":"POST",
+            "origin":"35.81.150.116",
+            "url":"http://httpbin.org/anything"
+        }
+    }
+}
+```
+
+This shows that the HTTP agent configuration is setup correctly and the HTTP agent works without issue.

@@ -1,0 +1,99 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - Data Process
+    - Project
+    - Scenario
+---
+
+# Manage Project and Scenario
+
+To create projects and scenarios. A data process belongs to a scenario, which in turn belongs to a project.
+
+An API route trigger also have to be in a project.
+
+## Create a Project and Scenario
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="studio1" label="LOC Studio" default>
+
+1. In LOC Studio, go to **Data Process** ➞ **Explorer**.
+
+<div className="gridEqual">
+    <div className="right-padded-sm">
+        <img
+            src={require("./img/Nav-explorer.png").default}
+            alt="Nav-explorer"
+        />
+    </div>
+    <div className="center">
+        <big>➥</big>
+    </div>
+    <div className="padded-sm">
+        <img
+            src={require("./img/Data-process-explorer.png").default}
+            alt="Data-process-explorer"
+        />
+    </div>
+</div>
+
+2. Click **Create Project** on the top right, or right-click the **Unit** and select the same option.
+
+<div className="gridEqual">
+    <div className="right-padded-sm">
+        <img
+            src={require("./img/Menu-project.png").default}
+            alt="Menu-project"
+        />
+    </div>
+    <div className="center">
+        <small>or</small>
+    </div>
+    <div className="padded-sm">
+        <img
+            src={require("./img/Create-project.png").default}
+            alt="Create-project"
+        />
+    </div>
+</div>
+
+3. Select a project and click **Create Scenario** on the top right, or right-click a project and select the same option.
+
+<div className="gridEqual">
+    <div className="right-padded-sm">
+        <img
+            src={require("./img/Menu-scenario.png").default}
+            alt="Menu-scenario"
+        />
+    </div>
+    <div className="center">
+        <small>or</small>
+    </div>
+    <div className="padded-sm">
+        <img
+            src={require("./img/Create-scenario.png").default}
+            alt="Create-scenario"
+        />
+    </div>
+</div>
+
+  </TabItem>
+</Tabs>
+
+## Edit or Delete a Project or Scenario
+
+<Tabs>
+  <TabItem value="studio2" label="LOC Studio" default>
+
+Select a project or scenario and click **Edit \<item\>** <img src={require("./img/Edit.png").default} width="32px" alt="Save" className="img-bg" /> or **Delete \<item\>** <img src={require("./img/Delete.png").default} width="32px" alt="Delete" className="img-bg" /> on the top right.
+
+  </TabItem>
+</Tabs>
+
+:::warning
+If a data process is linked to one or more triggers, deleting the project or scenario containing it will make the triggers inoperable.
+:::

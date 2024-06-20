@@ -1,0 +1,43 @@
+---
+sidebar_position: 9
+tags:
+    - LOC
+    - Agent
+    - JavaScript
+    - TypeScript
+---
+
+# Logic Variable Agent
+
+```typescript
+import { LogicVariable } from "@fstnetwork/loc-logic-sdk";
+```
+
+Read a local environment variable (not to be confused with local storage data or _secrets_ in agent configurations). These variable can be set via Studio or CLI, which are useful for configuring a data process' behavior without modifying the logic code.
+
+:::info
+Logic variables can be set in Studio by the [Add Configuration](/legacy/0.9/tutorials/http-agent-configuration#add-a-configuration-to-a-linked-logic) window while editing a linked logic of a data process.
+:::
+
+#### Availability
+
+-   ✓ Generic logic
+-   ✓ Aggregator logic
+
+## Read Local Variable
+
+```typescript
+LogicVariable.get(name: string): string | null
+```
+
+| Parameter | Description         |
+| --------- | ------------------- |
+| `name`    | Logic variable name |
+
+Returns a string or `null` if the variable name does not exist.
+
+#### Example
+
+```typescript showLineNumbers
+const answer = LogicVariable.get("answer-to-life-universe-everything");
+```

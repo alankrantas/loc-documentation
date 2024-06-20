@@ -1,0 +1,137 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - License
+---
+
+# View and Manage License
+
+To inspect the license and update it if necessary.
+
+## Inspect License
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="studio1" label="LOC Studio" default>
+
+1. In LOC Studio, go to **Administration** ➞ **License**.
+
+<div className="center-padded-sm">
+    <img src={require("./img/Nav-license.png").default} alt="Nav-license" />
+</div>
+
+2. The content and status of the license would be shown.
+
+<div className="center-padded-sm">
+    <img src={require("./img/License.png").default} alt="License" />
+</div>
+
+3. If the license is activated, you can inspect the license detail by clicking **License**.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/License-inspect.png").default}
+        alt="License-inspect"
+    />
+</div>
+
+The license detail can be inspected via the raw YAML-format content (without the license signature).
+
+<details>
+  <summary>License detail example</summary>
+
+```yaml
+version: "1"
+locVersion: 1.0.0
+subscription: Full
+issueTime: 2024-02-19T09:23:07Z
+effectiveTime: 2023-01-01T00:00:00Z
+expirationTime: 2028-02-14T00:00:00Z
+limits:
+    workspace:
+        maximum: 1
+    dataProcess:
+        maximum: 50000
+    agents:
+        database:
+            enable: true
+            maximumConnections: 23
+        http:
+            enable: true
+        mail:
+            enable: true
+        fileStorage:
+            enable: true
+            ftp:
+                enable: true
+            http:
+                enable: true
+            s3:
+                enable: true
+            smb:
+                enable: true
+    genericLogic:
+        maximum: 50000
+    aggregatorLogic:
+        maximum: 50000
+    runtime:
+        maximum: 1
+        cpu: "12"
+        memory: 64Gi
+    apiRouter:
+        enable: true
+        apiRoute:
+            maximum: 50000
+    mqPubSub:
+        enable: true
+    scheduler:
+        enable: true
+    languages:
+        allowed:
+            - CSharp
+            - JavaScript
+            - TypeScript
+```
+
+</details>
+
+  </TabItem>
+</Tabs>
+
+## Update License
+
+<Tabs>
+  <TabItem value="studio2" label="LOC Studio" default>
+
+1. Click **Update License** on the top right.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Update-license.png").default}
+        alt="Update-license"
+    />
+</div>
+
+2. Select a license file and preview the content, then click **Apply** to upload.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/License-preview.png").default}
+        alt="License-preview"
+    />
+</div>
+
+3. Wait for the activation to complete.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/License-activation-successful.png").default}
+        alt="License-activation-successful"
+    />
+</div>
+
+  </TabItem>
+</Tabs>

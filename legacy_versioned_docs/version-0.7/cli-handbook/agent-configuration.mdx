@@ -1,0 +1,207 @@
+---
+sidebar_position: 7
+tags:
+    - LOC
+    - CLI
+    - Dataprocess
+    - Agent
+    - Agentconfig
+---
+
+# Deploy Agent Configuration
+
+**Agent Configuration** is for creating and managing secrets for the following agents in [SDK](/legacy/0.7/category/sdk-reference):
+
+-   [HTTP agent](/legacy/0.7/sdk-reference/http)
+-   [Database agent](/legacy/0.7/sdk-reference/database)
+-   [File storage agent](/legacy/0.7/sdk-reference/filestorage)
+-   [Mail agent](/legacy/0.7/sdk-reference/mail)
+
+In CLI, the configurations are deployed using YAML or JSON files in a manner similar to triggers.
+
+See [Data Process Configuration](/legacy/0.7/cli-handbook/create-deploy-project#agent-configuration) for how to use them in projects, and [Agent Configuration commands](/legacy/0.7/cli-handbook/cli-commands/agent-config) for additional operations.
+
+:::warning
+Data processes deployed from CLI _can only_ access agent configurations deployed from CLI (configs added in Studio is not visible to CLI).
+:::
+
+## HTTP Agent Configuration
+
+Generate a HTTP agent configuration template:
+
+```bash
+./loc agent http init
+```
+
+CLI will prompt you the following choices:
+
+| Option               | Choices                     |
+| -------------------- | --------------------------- |
+| Authorization header | `Basic`, `Bearer` or `None` |
+| HTTP scheme          | `Http` or `Https`           |
+
+#### Example: Basic Authorization, HTTPs
+
+```yaml title="http-agent-configuration.yaml" showLineNumbers
+name: http-config
+description: http-config
+credential:
+    type: Basic
+    username: username
+    password: password
+headers:
+    x-custom-header: custom-value
+host: 0.0.0.0
+pathPrefix: ""
+port: 443
+scheme: Https
+```
+
+:::tip
+You do not need to convert `username` and `password` to Base64. LOC will do it for you.
+
+Headers cannot be empty. You should have _at least one_ custom header in the config file.
+
+`pathPrefix` is written as `"/<path>"` if there is one.
+:::
+
+Deploy a configuration from file:
+
+```bash
+./loc agent http deploy -f http-agent-configuration.yaml
+```
+
+If you are deploying projects with CLI, add the configuration name to your project's `config.yaml`:
+
+```yaml showLineNumbers
+agentConfiguration:
+    # ...
+    http: ["http-config", ...]
+    # ...
+```
+
+:::tip
+You can generate a config file with custom path and name, for example:
+
+```bash
+./loc agent http init my-config/my-http-config.yaml
+./loc agent http deploy -f my-config/my-http-config.yaml
+```
+
+:::
+
+## Database Agent Configuration
+
+Generate a database agent configuration template:
+
+```bash
+./loc agent db init
+```
+
+CLI will prompt you the following database choices:
+
+-   `MSSQL` (MS SQL Server)
+-   `MySQL`
+-   `Postgres` (PostgreSQL)
+-   `Oracle` (Oracle Database)
+
+#### Example: MySQL
+
+```yaml title="database-agent-configuration.yaml" showLineNumbers
+name: mysql-config
+description: mysql-config
+host: 0.0.0.0
+port: 3306
+database: database
+maxConnectionCount: 10
+username: username
+password: password
+type: MySQL
+```
+
+The port will be selected database's default port.
+
+Deploy a configuration from file:
+
+```bash
+./loc agent db deploy -f database-agent-configuration.yaml
+```
+
+## File Storage Configuration
+
+Generate a file storage agent configuration template:
+
+```bash
+./loc agent fs init
+```
+
+CLI will prompt you the following database choices:
+
+-   `S3` (Amazon S3 compatible)
+-   `SMB` (Server Message Block)
+-   `FTP` (File Transfer Protocol)
+-   `File` (Local File in LOC; can only be used when enabled in LOC, not recommended)
+
+#### Example: FTP
+
+```yaml title="file-storage-agent-configuration.yaml" showLineNumbers
+name: ftp-config
+description: ftp-config
+host: 0.0.0.0
+port: 21
+username: username
+password: password
+pathPrefix: ""
+type: FTP
+```
+
+:::tip
+`pathPrefix` is written as `"/<path>"` if there is one.
+
+For S3's configuration, the endpoint host is typically
+
+```
+s3.<region>.amazonaws.com
+```
+
+For example:
+
+```
+s3.us-west-2.amazonaws.com
+```
+
+:::
+
+Deploy a configuration from file:
+
+```bash
+./loc agent fs deploy -f file-storage-agent-configuration.yaml
+```
+
+## Mail Configuration
+
+Generate a mail agent configuration template:
+
+```bash
+./loc agent mail init
+```
+
+#### Example
+
+```yaml title="mail-agent-configuration.yaml" showLineNumbers
+name: mail-config
+description: mail-config
+host: 0.0.0.0
+username: username
+password: password
+port: 0
+protocol: SMTP
+```
+
+The host is a SMTP (Simple Mail Transfer Protocol) server with possible ports of `25`, `465`, `587` or `2525`.
+
+Deploy a configuration from file:
+
+```bash
+./loc agent mail deploy -f mail-agent-configuration.yaml
+```

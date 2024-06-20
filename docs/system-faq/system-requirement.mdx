@@ -1,0 +1,46 @@
+---
+sidebar_position: 4
+tags:
+    - LOC
+---
+
+# System Requirements
+
+Information in regard to LOC's system requirements.
+
+## Infrastructure
+
+The following table is the _recommended_ minimal requirement for running and operating a LOC instance:
+
+| Item           | Spec                                        |
+| -------------- | ------------------------------------------- |
+| **CPU**        | 32 cores (24 for LOC and 8 for LOC runtime) |
+| **RAM**        | 128 GB                                      |
+| **Disk Space** | 1 TB SSD                                    |
+| **OS**         | Ubuntu 20.04 (updated with latest patches)  |
+| **Kubernetes** | v1.22+                                      |
+
+The Kubernetes cluster should have at least 3 nodes for HA (High Availability). LOC's logic runtime will have its exclusive resources and can be expanded via license options.
+
+A dedicated S3-compatible (for example, Amazon S3 or MinIO) storage is needed to serve as the logic repository. A Harbor service can also be installed as the container image registry, as well as a Verdaccio as the local NPM registry.
+
+## Browser Compatibility for LOC Studio
+
+LOC Studio is a web-based user interface. Below is some of the common browsers and their minimum required version (for the latest version):
+
+| Browser                         | Minimum version         |
+| ------------------------------- | ----------------------- |
+| **Google Chrome**               | 102.0.5005.63+ (64-bit) |
+| **Mozilla Firefox**             | 101.0.1+ (64-bit)       |
+| **Microsoft Edge** (on Windows) | 02.0.1245.39+ (64-bit)  |
+| **Apple Safari** (on MacOS)     | 15.4+                   |
+
+## Supported Platforms of CLI
+
+LOC CLI currently supports the following platforms:
+
+-   **Windows** (x86-64)
+-   **macOS** (x86-64/aarch64)
+-   **Linux** (x86-64)
+
+The CLI binaries are not publicly available for download but will be provided upon licensing.

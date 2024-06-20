@@ -1,0 +1,95 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+---
+
+# Components of LOC
+
+As a platform, LOC is in fact consisted with several components.
+
+<table>
+    <tr>
+        <td width="120px">
+            <div className="center">
+                <img src="/img/loc/core.svg" />
+                <br />
+                <b>LOC Core</b>
+            </div>
+        </td>
+        <td>
+            <p>
+                An advanced data engine built with
+                [Rust](https://www.rust-lang.org/) that enables fast, serverless
+                data product deployment as well as event-driven triggers and
+                metadata for data lineages.
+            </p>
+        </td>
+    </tr>
+    <tr>
+        <td width="120px">
+            <div className="center">
+                <img src="/img/loc/studio.svg" />
+                <br />
+                <b>LOC Studio</b>
+            </div>
+        </td>
+        <td>
+            <p>
+                A sleek, interactive and intuitive
+                [React](https://react.dev/)-based web client which provides data
+                product management, built-in logic code editors, and data
+                catalogue for data events and execution results.
+            </p>
+        </td>
+    </tr>
+    <tr>
+        <td width="120px">
+            <div className="center">
+                <img src="/img/loc/cli.svg" />
+                <br />
+                <b>LOC CLI</b>
+            </div>
+        </td>
+        <td>
+            <p>
+                A local command line tool designed for developers to build and
+                upload logic/data processes, utilising the power of modern tools
+                like Visual Studio Code.
+            </p>
+        </td>
+    </tr>
+</table>
+
+**LOC SDK**, helper packages and runtime client designed for specific logic programming languages, is included in Studio and can be installed locally for CLI.
+
+```mermaid
+flowchart TD;
+    subgraph "Logic Operating Centre (LOC)"
+    n1(((LOC Core)));
+    n2((LOC Studio))-->n1;
+    n1-->n8;
+    n1-->n9;
+    n1-->n10;
+    subgraph Logic runtime
+    n8[Data Process];
+    n9[Data Process];
+    n10[Data Process];
+    end
+    end
+    subgraph Local workspace
+    n3([LOC CLI])
+    end
+    n3-->n1;
+    n4{{Users}}-.->n2;
+    n4-.->n3;
+    n8<-.->n5;
+    n8<-.->n6;
+    n9<-.->n6;
+    n10<-.->n7;
+    subgraph "External systems"
+    n5{HTTP endpoints};
+    n6[(Databases)];
+    n7[(File storages)];
+    end
+```

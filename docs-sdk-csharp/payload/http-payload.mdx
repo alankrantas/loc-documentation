@@ -1,0 +1,239 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - SDK
+    - Trigger
+    - Payload
+    - CSharp
+---
+
+# HTTP Payload - C Sharp
+
+The logic [payload](/sdk-csharp/payload/intro) type when a task is invoked by an API Route trigger.
+
+## Class Reference
+
+### Type
+
+-   `HttpPayload` (type of [`Payload.Http`](/sdk-csharp/payload/intro#class-reference))
+
+### Properties
+
+| Property                    | Type                                  | Description                       |
+| --------------------------- | ------------------------------------- | --------------------------------- |
+| `ApiGatewayIdentityContext` | [`IdentityContext`](#identitycontext) | API gateway permanent ID and name |
+| `ApiRouteIdentityContext`   | `IdentityContext`                     | API route permanent ID and name   |
+| `RequestId`                 | `string`                              | Request ID                        |
+| `Request`                   | [`HttpRequest`](#httprequest)         | Request content                   |
+| `Source`                    | [`Peer?`](#peer)                      | Request source                    |
+| `Destination`               | `Peer?`                               | Request destination               |
+
+#### `IdentityContext`
+
+| Property            | Type                                                                            | Description           |
+| ------------------- | ------------------------------------------------------------------------------- | --------------------- |
+| `PermanentIdentity` | [`Guid`](https://learn.microsoft.com/en-us/dotnet/api/system.guid?view=net-7.0) | Identity permanent ID |
+| `Name`              | `string`                                                                        | Identity name         |
+
+#### `Peer`
+
+| Property  | Type                  | Description  |
+| --------- | --------------------- | ------------ |
+| `Address` | [`Address`](#address) | Peer address |
+
+#### `Address`
+
+| Property   | Type     |
+| ---------- | -------- |
+| `Protocol` | `string` |
+| `Address`  | `byte[]` |
+| `Port`     | `uint`   |
+
+#### `HttpRequest`
+
+Data and metadata of the HTTP request.
+
+| Property  | Type                         | Description                                 | Example                                                                      |
+| --------- | ---------------------------- | ------------------------------------------- | ---------------------------------------------------------------------------- |
+| `Host`    | `string`                     | Request host name                           |                                                                              |
+| `Path`    | `string`                     | API route                                   | `/api/path`                                                                  |
+| `Scheme`  | `string`                     | HTTP scheme                                 | `http`, `https`                                                              |
+| `Method`  | `string`                     | HTTP method                                 | `GET`, `POST`, etc.                                                          |
+| `Version` | `string`                     | HTTP version                                | `HTTP/1.1`                                                                   |
+| `Headers` | `Dictionary<byte[], byte[]>` | Request headers                             |                                                                              |
+| `Query`   | `string`                     | Querystring                                 | `param1=value1` (no question mark; empty string if no querystring available) |
+| `Data`    | `byte[]`                     | Request body (empty array if not available) |                                                                              |
+
+## Examples
+
+### Parse Querystring
+
+Assuming the querystring is
+
+```
+`?name=Arthur Dent&age=42`
+```
+
+The parameters can be parsed as below:
+
+```csharp title="Import namespace(s)" showLineNumbers
+using System.Web;
+using System.Collections.Specialized;
+```
+
+```csharp showLineNumbers
+var payload = await ctx.GetPayload();
+
+string? queryString = payload.Http?.Request.Query;
+NameValueCollection? queryParams = null;
+
+if (!String.IsNullOrWhiteSpace(queryString)) {
+    queryParams = HttpUtility.ParseQueryString(queryString);
+}
+
+string? name = queryParams?["name"]; // null if not exist
+int age = Convert.ToInt32(queryParams?["age"]); // 0 if not exist
+```
+
+### Parse HTTP Payload body to JSON
+
+Assuming the HTTP request includes a body with the following JSON string:
+
+```json
+{
+    "name": "Arthur Dent",
+    "age": 42,
+    "job": {
+        "title": "Sandwich-maker",
+        "salary": 0
+    },
+    "quotes": [
+        "Is there any tea on this spaceship?",
+        "This must be Thursday. I never could get the hang of Thursdays.",
+        "Would it save you a lot of time if I just gave up and went mad now?"
+    ]
+}
+```
+
+We can parse the payload into a [`JsonNode`](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonnode?view=net-7.0) object, if the content of the payload may not be fixed (with its elements automatically parsed as [`JsonValue`](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonvalue?view=net-7.0), [`JsonObject`](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonobject?view=net-7.0) or [`JsonArray`](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonarray?view=net-7.0)):
+
+```csharp title="Import namespace(s)" showLineNumbers
+using System.Text;
+using System.Text.Json.Nodes;
+```
+
+```csharp showLineNumbers
+var payload = await ctx.GetPayload();
+
+byte[]? data = payload.Http?.Request.Data;
+JsonNode? parsed = null;
+
+if (data is not null && data.Length > 0)
+{
+    string jsonString = Encoding.UTF8.GetString(data);
+    parsed = JsonNode.Parse(jsonString);  // will fail if jsonString is not valid JSON
+}
+
+// get values (null if not exist)
+string? name = parsed?["name"]?.GetValue<string>();
+int? age = parsed?["age"]?.GetValue<int>();
+
+// ...
+```
+
+> See the example of [Payload](/sdk-csharp/payload/intro#get-data-from-payload) for checking the payload type.
+>
+> See the [example of session storage agent](/sdk-csharp/agents/session-storage#examples) for how to use classes extended from `JsonNode`.
+
+## Advanced Examples
+
+### Parse HTTP Payload Into User-Defined Classes
+
+Assuming the HTTP request includes a body as the previous example but _always be fixed_, we can define classes to match the data structure, which require a source generation context class for it to be deserialised properly:
+
+```csharp title="Import namespace(s) and declare classes" showLineNumbers
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+internal class Person
+{
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+
+    [JsonPropertyName("age")]
+    public int? Age { get; set; }
+
+    [JsonPropertyName("job")]
+    public Job? Job { get; set; }
+
+    [JsonPropertyName("quotes")]
+    public List<string>? Quotes { get; set; }
+
+    public Person(string name, int age, Job job, List<string> quotes)
+    {
+        Name = name;
+        Age = age;
+        Job = job;
+        Quotes = quotes;
+    }
+}
+
+internal class Job
+{
+    [JsonPropertyName("title")]
+    public string? Title { get; set; }
+
+    [JsonPropertyName("salary")]
+    public int? Salary { get; set; }
+
+    public Job(string title, int salary)
+    {
+        Title = title;
+        Salary = salary;
+    }
+}
+
+// source generation context for Person
+// highlight-start
+[JsonSourceGenerationOptions()]
+[JsonSerializable(typeof(Person))]
+internal partial class PersonSourceGenerationContext : JsonSerializerContext
+{
+}
+// highlight-end
+```
+
+:::info
+You can move user-defined classes into shared modules as `public` classes. See the [tutorial](/main/tutorial/shared-modules) for examples.
+:::
+
+Then you can parse the HTTP payload into a `Person` object using `JsonSerializer.Deserialize()`:
+
+```csharp showLineNumbers
+var payload = await ctx.GetPayload();
+
+byte[]? data = payload.Http?.Request.Data;
+Person? person = null;
+
+if (data is not null && data.Length > 0)
+{
+    string jsonString = Encoding.UTF8.GetString(data);
+    // highlight-start
+    person = JsonSerializer.Deserialize<Person>(
+        jsonString,
+        PersonSourceGenerationContext.Default.Person
+    );
+    // highlight-end
+}
+
+if (person is not null)
+{
+    // read values from properties
+    string name = person.name;
+    int age = person.age;
+    string title = person.job.title;
+    List<string> quotes = person.quotes;
+}
+```

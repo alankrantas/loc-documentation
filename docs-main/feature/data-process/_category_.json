@@ -1,0 +1,9 @@
+{
+    "label": "Data Process",
+    "position": 3,
+    "link": {
+        "type": "generated-index",
+        "description": "Data pipelines to be run as tasks.",
+        "keywords": ["LOC", "Data-Process"]
+    }
+}

@@ -1,0 +1,304 @@
+---
+sidebar_position: 1
+tags:
+    - LOC
+    - Tutorial
+    - Dataprocess
+    - Studio
+    - CLI
+---
+
+# Logic and Session
+
+Logic are the core elements of a data process. They contains the implementation of part of a data pipeline. And the **session storage** is the thing to link them up together.
+
+> This tutorial uses JavaScript and assume you are using [LOC Studio](/legacy/0.6/category/studio-guide).
+
+## Understand Logic Functions
+
+In each logic, there are _two_ JavaScript (or TypeScript) functions, which is referred as **If OK** and **If Error** respectively:
+
+```javascript
+// If OK
+async function run(ctx) {
+    // normal code
+}
+
+// If Error
+async function handleError(ctx, error) {
+    // error handling code
+}
+```
+
+:::tip
+Functions written in a [CLI project](/legacy/0.6/cli-handbook/create-deploy-project) must be **exported**:
+
+```javascript
+// highlight-next-line
+export async function run(ctx) {
+    // normal code
+}
+```
+
+:::
+
+When a data process get executed as a task, it will execute `run` in each generic logic one by one and finally the `run` in aggregator logic. (We will discuss error handling in another article.)
+
+## Pass Data With Session Storage
+
+Ideally, for the sake of maintainability, you should have each logic responsible for only one job, and pass the data to another logic (usually the aggregator). For this purpose we will need the [session storage agent](/legacy/0.6/sdk-reference/session).
+
+### Use Case: Simple Interest Calculator
+
+---
+
+Assuming you are a junior developer in a commercial bank and is tasked to write a _simple interest_ calculator service. A user would submit a principal amount, a yearly interest rate and a time period (months), and the service would return the final amount with interest.
+
+So you split this data pipeline to two generic logic and the aggregator logic:
+
+| Logic      | Purpose                    |
+| ---------- | -------------------------- |
+| Generic #1 | Read and parse payload     |
+| Generic #2 | Calculate simple interest  |
+| Aggregator | finalise and return amount |
+
+This is what happens in each logic:
+
+-   `Generic logic #1` reads the JSON payload from the API route, parse it to a JSON object then write it into session.
+-   `Generic logic #2` reads the JSON object from session, calculates the amount, and write the new data to session as well.
+-   `Aggregator` reads the data and prepare it as the finalised result (it will be returned to the API route).
+
+```mermaid
+flowchart TD;
+    n1[Generic #1]-->|session: payload|n2;
+    n2[Generic #2]-->|session: result|n3;
+    n3[Aggregator]-->n4([Finalised result]);
+```
+
+:::note
+Session data can actually pass down all the way to the aggregator, but you get the idea.
+:::
+
+Assuming the input JSON payload is
+
+```json
+{
+    "principle": 10000,
+    "interest": 0.06,
+    "months": 36
+}
+```
+
+> 10,000 at 6% yearly rate for 36 months
+
+And the data process should return
+
+```json
+{
+    "amount": 11800
+}
+```
+
+> `10,000 x (1 + (0.06 / 12) x 36) = 11,800`
+
+### Code Walkthrough
+
+Since every stage in the data process all use JSON objects, this is pretty straightforward (we assume that the input format is always correct):
+
+| Logic            | Name                | Purpose                     |
+| ---------------- | ------------------- | --------------------------- |
+| Generic logic #1 | `Input`             | Read and parse JSON payload |
+| Generic logic #2 | `Simple Calculator` | Calculate simple interest   |
+| Aggregator logic | (None)              | Finalise result             |
+
+```javascript title="Generic logic #1: Input" showLineNumbers
+async function run(ctx) {
+    // read and parse JSON payload
+    const payload = JSON.parse(
+        new TextDecoder().decode(new Uint8Array(ctx.payload.http.body)),
+    );
+
+    // write the JSON object to session
+    await ctx.agents.sessionStorage.putJson("payload", payload);
+}
+
+async function handleError(ctx, error) {
+    // error logging
+    ctx.agents.logging.error(error.message);
+}
+```
+
+```javascript title="Generic logic #2: Calculator" showLineNumbers
+async function run(ctx) {
+    // read parsed payload (JSON) from session
+    const payload = await ctx.agents.sessionStorage.get("payload");
+
+    // calculate simple interest amount
+    const amount =
+        payload.principle * (1 + (payload.interest / 12) * payload.months);
+
+    // write the result (in a JSON object) to session
+    await ctx.agents.sessionStorage.putJson("result", { amount: amount });
+}
+
+async function handleError(ctx, error) {
+    // error logging
+    ctx.agents.logging.error(error.message);
+}
+```
+
+```javascript title="Aggregator logic" showLineNumbers
+async function run(ctx) {
+    // read calculated data (JSON) from session
+    const result = await ctx.agents.sessionStorage.get("result");
+
+    // finalise result
+    ctx.agents.result.finalize({
+        status: "ok",
+        taskId: ctx.task.taskId,
+        result: result,
+    });
+}
+
+async function handleError(ctx, error) {
+    // finalise result withe error message
+    ctx.agents.result.finalize({
+        status: "error",
+        taskId: ctx.task.taskId,
+        error: error.message,
+    });
+}
+```
+
+If something went wrong in any of the logic, the aggregator will finalise a result with the error message instead.
+
+The data process should return something like this:
+
+```json
+{
+	"_status": 200,
+	"_metadata": {
+		...
+	},
+	"data": {
+		"status": "ok",
+		"taskId": {
+            "executionId": "...",
+            "id": "..."
+        },
+		"result": {
+			"amount": 18800
+		}
+	}
+}
+```
+
+## Logic Flow Control Using Session
+
+Session data can also be used as flags or switches for logic, so that we can run code in some logic and skip others when needed.
+
+### Use Case: Simple/Compound Interest Dual Calculator
+
+Using the last example, your manager now asks you to expand the service so that it can calculate _compound interest_ as well. The user will provide an additional field `type` in the payload to indicate which calculation they want:
+
+```json
+{
+    // highlight-next-line
+    "type": "compound",
+    "principle": 10000,
+    "interest": 0.06,
+    "months": 36
+}
+```
+
+If `type` is `"simple"`, the data process will calculate with simple interest. It it's `"compound"`, then use compound interest.
+
+So the JSON input above should get
+
+```json
+{
+    "amount": 11966.805248234146
+}
+```
+
+> `10,000 x (1 + (0.06 / 12)) ^ 36 ~= 11,966.81`
+
+---
+
+Of course, we can simply use `if...else` to add new calculations. But if the process is complicate or not really related, it is still a good idea to split them into seperated logic modules:
+
+| Logic      | Name                  | Purpose                     |
+| ---------- | --------------------- | --------------------------- |
+| Generic #1 | `Input`               | Read and parse payload      |
+| Generic #2 | `Simple Calculator`   | Calculate simple interest   |
+| Generic #3 | `Compound Calculator` | Calculate compound interest |
+| Aggregator | (None)                | finalise and return amount  |
+
+-   If `type` is `"simple"`, execute generic logic #2 and skip #3.
+-   If `type` is `"compound"`, execute generic logic #3 and skip #2.
+
+#### When `type` == `"compound"`:
+
+```mermaid
+flowchart TD;
+    n1[Generic #1]-->|type==simple?|n2[Generic #2];
+    n1[Generic #1]-->|type==compound?|n3;
+    n3[Generic #3]-->|compound result|n4;
+    n4[Aggregator]-->n5([Finalised result]);
+```
+
+### Code Walkthrough
+
+```javascript title="Generic logic #2: Simple Calculator" showLineNumbers
+async function run(ctx) {
+    // read parsed payload (JSON) from session
+    const payload = await ctx.agents.sessionStorage.get("payload");
+
+    // exit function if type != "simple"
+    // highlight-start
+    if (payload.type != "simple") return;
+    // highlight-end
+
+    // calculate simple interest amount
+    const amount =
+        payload.principle * (1 + (payload.interest / 12) * payload.months);
+
+    // write the result (in a JSON object) to session
+    await ctx.agents.sessionStorage.putJson("result", { amount: amount });
+}
+
+async function handleError(ctx, error) {
+    // error logging
+    ctx.agents.logging.error(error.message);
+}
+```
+
+```javascript title="Generic logic #3: Compound Calculator" showLineNumbers
+async function run(ctx) {
+    // read parsed payload (JSON) from session
+    const payload = await ctx.agents.sessionStorage.get("payload");
+
+    // exit function if type != "compound"
+    // highlight-start
+    if (payload.type != "compound") return;
+    // highlight-end
+
+    // calculate compound interest amount
+    const amount =
+        payload.principle * Math.pow(1 + payload.interest / 12, payload.months);
+
+    // write the result (in a JSON object) to session
+    await ctx.agents.sessionStorage.putJson("result", { amount: amount });
+}
+
+async function handleError(ctx, error) {
+    // error logging
+    ctx.agents.logging.error(error.message);
+}
+```
+
+In practice, you might want to add some extra error handling to prevent invalid input values and make sure the logic will run in predictable states.
+
+:::tip
+Actually, each logic can directly read payload from `ctx.payload.http.body` or similar constructs. But here we relies on the first logic to do JSON parsing. In practice, you'll probably need to do some JSON validating too.
+:::

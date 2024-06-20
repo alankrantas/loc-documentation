@@ -1,0 +1,92 @@
+---
+sidebar_position: 4
+tags:
+    - LOC
+    - SDK
+    - Agent
+    - JavaScript
+    - TypeScript
+---
+
+# Logic Variable Agent - JS/TS
+
+Read **logic variables** (environment variables of a logic in a data process).
+
+| Logic Type       | Available |
+| ---------------- | --------- |
+| Generic logic    | ✅        |
+| Aggregator logic | ✅        |
+
+Logic variables (`string` values) can be set while creating or editing a data process. The same logic can have different logic variables in different data processes.
+
+## Import and Usage
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+
+```javascript showLineNumbers
+import {
+    // highlight-next-line
+    LogicVariable,
+} from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx) {
+    const data = LogicVariable.get("data");
+}
+
+export async function handleError(ctx, error) {
+    // ... same
+}
+```
+
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+
+```typescript showLineNumbers
+import {
+    GenericContext,
+    // highlight-next-line
+    LogicVariable,
+    RailwayError,
+} from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx: GenericContext) {
+    const data = LogicVariable.get("data");
+}
+
+export async function handleError(ctx: GenericContext, error: RailwayError) {
+    // ... same
+}
+```
+
+  </TabItem>
+</Tabs>
+
+## Class Reference
+
+### Type
+
+-   `LogicVariable`
+
+### Method: Finalise Task Result
+
+Read
+
+```typescript
+get(name: string): string | null
+```
+
+| Parameter | Description         |
+| --------- | ------------------- |
+| `name`    | Logic variable name |
+
+Read the `string` value of a logic variable (`null` if not exist).
+
+## Examples
+
+```typescript showLineNumbers
+const data = LogicVariable.get("data");
+```

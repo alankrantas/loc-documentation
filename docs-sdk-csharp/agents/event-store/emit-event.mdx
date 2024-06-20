@@ -1,0 +1,84 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - SDK
+    - Agent
+    - Event
+    - CSharp
+---
+
+# Method: Emit Events - C Sharp
+
+```csharp
+public async static Task EmitEvent(IEnumerable<EmitEventArgs> events) {}
+```
+
+| Parameter | Type                                           | Description          |
+| --------- | ---------------------------------------------- | -------------------- |
+| `events`  | [`IEnumerable<EmitEventArgs>`](#emiteventargs) | Collection of events |
+
+A method of the [Event Agent](/sdk-csharp/agents/event-store/intro).
+
+Emit one or more events to event store.
+
+## Parameter Type
+
+#### `EmitEventArgs`
+
+Properties:
+
+| Property                | Type     | Description                                              |
+| ----------------------- | -------- | -------------------------------------------------------- |
+| `LabelName`             | `string` | Event label (event name)                                 |
+| `SourceDigitalIdentity` | `string` | Source digital identity (DID)                            |
+| `TargetDigitalIdentity` | `string` | Target digital identity (DID)                            |
+| `Meta`                  | `string` | Additional payload. Maximum length 2<sup>15</sup> bytes. |
+| `Type`                  | `string` | Event type or group                                      |
+
+Constructor:
+
+```csharp
+public EmitEventArgs(
+    string labelName,  // LabelName
+    string sourceDigitalIdentity,  // SourceDigitalIdentity
+    string targetDigitalIdentity,  // TargetDigitalIdentity
+    string meta,  // Meta
+    string type  // Type
+)
+```
+
+:::info
+`Type` is simply a metadata tag for assigning the "type" of events.
+:::
+
+:::warning
+Events won't be searchable immediately after being emitted. You would have to wait a short while to try again.
+:::
+
+## Examples
+
+### Emit Multiple Events
+
+```csharp showLineNumbers
+await EventAgent.EmitEvent(
+    new List<EmitEventArgs>
+    {
+        new EmitEventArgs(
+            "Event label 1",
+            "Source DID 1",
+            "Target DID 1",
+            "",
+            "default"
+        ),
+        new EmitEventArgs(
+            "Event label 2",
+            "Source DID 2",
+            "Target DID 2",
+            "",
+            "default"
+        ),
+        // ...
+    }
+);
+```

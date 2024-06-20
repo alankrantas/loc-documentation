@@ -1,0 +1,89 @@
+---
+sidebar_position: 3
+tags:
+    - LOC
+    - SDK
+    - Trigger
+    - Payload
+    - JavaScript
+    - TypeScript
+---
+
+# Message Queue Payload - JS/TS
+
+The logic [payload](/sdk-ts/payload/intro) type when a task is invoked by a Message Queue (MQ) trigger.
+
+## Class Reference
+
+### Type
+
+-   `{ messageQueue: MessagePayload }` (one of the [Payload](/sdk-ts/payload/intro#class-reference) type)
+
+## Sub Class Reference
+
+### `MessagePayload`
+
+> Importable from `@fstnetwork/loc-logic-sdk`
+
+| Property                | Type                                                  | Description                   |
+| ----------------------- | ----------------------------------------------------- | ----------------------------- |
+| `clientIdentityContext` | [`IdentityContextFor_Uuid`](#identitycontextfor_uuid) | MQ client ID and name         |
+| `subscriber`            | [`Subscriber`](#subscriber)                           | MQ subscriber                 |
+| `data`                  | `number[]`                                            | MQ data (empty array if none) |
+
+#### `IdentityContextFor_Uuid`
+
+> Refer to: [`IdentityContextFor_Uuid`](/sdk-ts/payload/http-payload#identitycontextfor_uuid)
+
+#### `Subscriber`
+
+| MQ Type      | Subscriber Type              | Reference                             |
+| ------------ | ---------------------------- | ------------------------------------- |
+| Apache Kafka | `{ kafka: KafkaSubscriber }` | [`KafkaSubscriber`](#kafkasubscriber) |
+
+#### `KafkaSubscriber`
+
+| Property    | Type       | Description                       |
+| ----------- | ---------- | --------------------------------- |
+| `brokers`   | `string[]` | Broker names in the Kafka cluster |
+| `groupId`   | `string`   | MQ group ID                       |
+| `topic`     | `string`   | MQ topic                          |
+| `partition` | `number`   | MQ partition                      |
+| `offset`    | `number`   | MQ offset                         |
+
+## Examples
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+
+```javascript showLineNumbers
+const payload = await ctx.payload();
+
+const data = payload.messageQueue?.data;
+```
+
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+
+```typescript title="Import class(s)" showLineNumbers
+import {
+    // ...
+    MessagePayload,
+} from "@fstnetwork/loc-logic-sdk";
+```
+
+```typescript showLineNumbers
+const payload: { messageQueue: MessagePayload } = await ctx.payload();
+
+const data = payload.messageQueue?.data;
+```
+
+> See the example of [Payload](/sdk-ts/payload/intro#type-guard-on-payload) for using type guard on payload types.
+
+  </TabItem>
+</Tabs>
+
+> See the example of [HTTP Payload](/sdk-ts/payload/http-payload#examples) for parsing `data` to a JSON object.

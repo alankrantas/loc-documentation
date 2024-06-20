@@ -1,0 +1,49 @@
+---
+sidebar_position: 4
+tags:
+    - LOC
+    - Studio
+---
+
+# Administration: Audit Log and License
+
+The administration panel has a series functions for management roles.
+
+:::info
+In future releases the administration panel can only be seen by LOC Owners.
+:::
+
+## Audit Log
+
+**Audit Logs** panel can be used to browse user actions of creating, deleting, deploying and undeploying data processes and logic.
+
+<div className="center-padded-sm">
+    <img src={require("./img/audit.png").default} alt="audit" />
+</div>
+
+## License
+
+**License** panel shows the status of your LOC distribution's licensing status and allocated resource.
+
+<div className="center-padded-sm">
+    <img src={require("./img/license.png").default} alt="license" />
+</div>
+
+There are four stages of licensing status:
+
+| Status           | Display color | LOC feature available period     |
+| ---------------- | ------------- | -------------------------------- |
+| Inactive         | Red           | Not available                    |
+| Trial            | Blue          | 30 days                          |
+| Active           | Green         | Depending on your purchased plan |
+| Active (Expired) | Yellow        | 45 days                          |
+
+You will get the following notification if your license is expired:
+
+<div className="center-padded-sm">
+    <img src={require("./img/expired.png").default} alt="expired" />
+</div>
+
+You can update your license with a file containing valid, encrypted activation code either in this Studio panel, or upload via [CLI](/legacy/0.7/cli-handbook/cli-commands/general-profile-login#license). The code remains valid and can be updated repeatly before expired.
+
+For the detail of LOC licensing terms please [contact FST Network](/docs/about-and-contact).

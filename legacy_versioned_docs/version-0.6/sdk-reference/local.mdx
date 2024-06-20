@@ -1,0 +1,122 @@
+---
+sidebar_position: 4
+tags:
+    - LOC
+    - Agent
+    - JavaScript
+    - TypeScript
+---
+
+# Local Storage Agent
+
+For sharing data _between_ tasks of one data process.
+
+This is similar to session storage, except that "local" data would be stored in `etcd` key-value store and won't be lost in a period of time even after the data process task is done.
+
+:::note
+However, if you want to preserve important data, we recommend to use write them to file storages or databases.
+:::
+
+#### Availability
+
+-   ✓ Generic logic
+-   ✗ Aggregator logic
+
+## Write to Local Storage
+
+```typescript
+async localStorage?.putJson(key: string, value: any, timeout?: number): Promise<boolean>
+async localStorage?.putString(key: string, value: string, timeout?: number): Promise<boolean>
+async localStorage?.putByteArray(key: string, value: Uint8Array | string, timeout?: number): Promise<boolean>
+```
+
+| Parameter | Description                                                     |
+| --------- | --------------------------------------------------------------- |
+| `key`     | Key of session data                                             |
+| `value`   | Session data                                                    |
+| `timeout` | (Optional) data persistent time (seconds); unlimited if not set |
+
+Write a value into session storage. The key/value pair will be created if not exist.
+
+The functions return a `boolean` to indicate if the write action is successful.
+
+If `value` is not valid JSON, the agent will throw an error.
+
+:::tip
+`value` can be a single number (which is also valid for JSON).
+:::
+
+:::note
+The data may not be properly written into local storage without using `await`.
+:::
+
+#### Example: write JSON object to local storage
+
+```typescript showLineNumbers
+const data = {
+    name: "Arthur Dent",
+    age: 42,
+};
+
+await ctx.agents.localStorage?.putJson("data", data);
+```
+
+:::info
+If you want to save the attribute structure of an object, use `putString` with `JSON.stringify` instead.
+:::
+
+#### Example: write string to local storage
+
+```typescript showLineNumbers
+await ctx.agents.localStorage?.putString("name", "Arthur Dent"");
+await ctx.agents.localStorage?.putString("age", String(age));  // convert number to string
+await ctx.agents.localStorage?.putString("data", JSON.stringify(data));  // convert object to string
+```
+
+#### Example: write Uint8Array to local storage
+
+```typescript showLineNumbers
+await ctx.agents.localStorage?.putByteArray(
+    "payload",
+    new Uint8Array(ctx.payload.http.body),
+);
+```
+
+## Read from Local Storage
+
+```typescript
+async localStorage?.get(key: string): Promise<string | number | object | Uint8Array>
+```
+
+Read a local storage data. The type depends on how the data was written into session storage.
+
+If the key is not exist, the agent will throw an error.
+
+#### Example
+
+```typescript showLineNumbers
+const name = await ctx.agents.localStorage?.get("name");
+const data = await ctx.agents.localStorage?.get("data");
+```
+
+#### Example: withe error handling
+
+```typescript showLineNumbers
+let name = "default name"; // default value
+
+try {
+    name = await ctx.agents.localStorage?.get("name");
+} catch (error) {
+    // initialize data if not exist
+    await ctx.agents.localStorage?.putString("name", name);
+}
+```
+
+## Remove from Local Storage
+
+```typescript
+async localStorage?.delete(key: string)
+
+// or
+async localStorage?.remove(key: string)
+```

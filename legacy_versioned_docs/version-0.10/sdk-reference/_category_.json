@@ -1,0 +1,9 @@
+{
+    "label": "SDK Reference",
+    "position": 7,
+    "link": {
+        "type": "generated-index",
+        "description": "SDK reference and examples for using context, payload and agents (data operation functionalities) in logic and data processes.",
+        "keywords": ["LOC", "SDK"]
+    }
+}

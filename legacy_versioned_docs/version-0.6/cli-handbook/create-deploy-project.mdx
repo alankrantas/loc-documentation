@@ -1,0 +1,315 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - CLI
+    - Dataprocess
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+# Create and Deploy Data Process
+
+CLI allows you to create data process projects locally and deploy them with console commands.
+
+:::tip
+If you are using a code editor like VS Code, you can open the folder of CLI workspace (where the CLI binary is at).
+:::
+
+## New Template Project
+
+Create a new data process (named **myproject** in this example) using either JavaScript or TypeScript template:
+
+<Tabs>
+  <TabItem value="js0" label="JavaScript template" default>
+
+```bash
+./loc new myproject
+```
+
+  </TabItem>
+  <TabItem value="ts0" label="TypeScript template">
+
+```bash
+./loc new -ts myproject
+```
+
+  </TabItem>
+</Tabs>
+
+A sub directory named **myproject** would be create under the CLI workspace:
+
+```
+🔍  Check Folder Name: myproject...
+
+🎉  Generating Data Process Template folder...
+
+🔨  Building fresh packages...
+✨  Successfully created Data Process Template in myproject.
+```
+
+## Project Structure
+
+The generated template project would look like this:
+
+<Tabs>
+  <TabItem value="js1" label="JavaScript template" default>
+
+```plaintext"
+/CLI
+    /myproject
+        /generic-logic
+            1.js
+            2.js
+        aggregator.js
+        api-route-config.yaml
+        config.yaml
+        package.yaml
+```
+
+  </TabItem>
+  <TabItem value="ts1" label="TypeScript template">
+
+```plaintext"
+/CLI
+    /myproject
+        /generic-logic
+            1.ts
+            2.ts
+        aggregator.ts
+        api-route-config.yaml
+        config.yaml
+        package.yaml
+        tsconfig.json
+```
+
+  </TabItem>
+</Tabs>
+
+The main difference is that TypeScript projects use `.ts` for logic and will have `tsconfig.json`.
+
+## Install Dependencies (TypeScript Template Only)
+
+The TypeScript template requires some dependencies, including the [LOC SDK](https://www.npmjs.com/package/@fstnetwork/loc-logic-sdk), which can be installed with NPM.
+
+Setup the project in the terminal (assuming under the local workspace):
+
+<Tabs>
+  <TabItem value="yarn1" label="Use Yarn" default>
+
+```bash
+npm i -g yarn@latest npm@latest
+cd myproject
+yarn
+yarn add @fstnetwork/loc-logic-sdk@0.6.4
+```
+
+  </TabItem>
+  <TabItem value="npm1" label="Use NPM">
+
+```bash
+npm i -g npm@latest
+cd myproject
+npm i
+npm i @fstnetwork/loc-logic-sdk@0.6.4
+```
+
+  </TabItem>
+</Tabs>
+
+Then switch back to the local workspace using `cd ..`.
+
+:::tip
+You can install other packages and type definitions depending on your needs. For example, the following commands install `lodash`:
+
+<Tabs>
+  <TabItem value="yarn2" label="Use Yarn" default>
+
+```bash
+yarn add lodash
+yarn add -D @types/lodash
+```
+
+  </TabItem>
+  <TabItem value="npm2" label="Use NPM">
+
+```bash
+npm i lodash
+npm i -D @types/lodash
+```
+
+  </TabItem>
+</Tabs>
+:::
+
+## Configuring Data Process
+
+You can edit some important information of the data process in `config.yaml`:
+
+<Tabs>
+  <TabItem value="js2" label="JavaScript project config" default>
+
+```yaml title="config.yaml (JavaScript)" showLineNumbers
+version: 0.1.0
+name: myproject
+description: description
+tagNames:
+    - default-tag-from-loc-cli
+timeoutSeconds: 180
+aggregatorLogic:
+    name: aggregator
+    file: aggregator-logic.js
+genericLogics:
+    - name: generic-1
+      file: 1.js
+      tagNames:
+          - default-tag-from-loc-cli
+    - name: generic-2
+      file: 2.js
+      tagNames:
+          - default-tag-from-loc-cli
+```
+
+  </TabItem>
+  <TabItem value="ts2" label="TypeScript project config">
+
+```yaml title="config.yaml (TypeScript)" showLineNumbers
+version: 0.1.0
+name: myproject
+description: description
+tagNames:
+    - default-tag-from-loc-cli
+timeoutSeconds: 180
+aggregatorLogic:
+    name: aggregator
+    file: aggregator-logic.ts
+genericLogics:
+    - name: generic-1
+      file: 1.ts
+      tagNames:
+          - default-tag-from-loc-cli
+    - name: generic-2
+      file: 2.ts
+      tagNames:
+          - default-tag-from-loc-cli
+```
+
+  </TabItem>
+</Tabs>
+
+:::tip
+Aggregator logic can have tags as well:
+
+```yaml showLineNumbers
+---
+aggregatorLogic:
+    name: aggregator
+    file: ...
+    tagNames:
+        - <tag for aggregator>
+```
+
+:::
+
+A data process must have one aggregator logic and at least one generic logic. You can create new `.js` or `.ts` file (depending on your project) and add them to `config.yaml`.
+
+The generic logic will be executed by the order specified here.
+
+<details>
+    <summary><b>Tip</b> on working with Github</summary>
+
+CLI does not offer functionalities of source or version control. However you can commit your CLI workspace to Github using [Git](https://git-scm.com/downloads) and add a `.gitignore`, for example:
+
+```plaintext title=".gitignore"
+# anything you don't want to commit
+
+loc
+payload.yaml
+/ftp
+/local-runtime
+/profiles
+```
+
+</details>
+
+## Deploy Data Process
+
+:::tip
+If you need a quick data process example, see [Quick Start](/legacy/0.6/quickstart). Be noted that logic functions in CLI have to be exported with `export`.
+:::
+
+After implementing all the code you need in logic (see tutorials for details), you can deploy the data process to LOC.
+
+First make sure you have logged in:
+
+```bash
+./loc login
+```
+
+Deploy a JavaScript project:
+
+<Tabs>
+  <TabItem value="js1" label="JavaScript project" default>
+
+```bash
+./loc deploy myproject
+```
+
+  </TabItem>
+  <TabItem value="ts1" label="TypeScript project">
+
+```bash
+./loc deploy -ts myproject
+```
+
+  </TabItem>
+</Tabs>
+
+:::note
+Deploy the same project again will create a _new_ data process with a different PID.
+
+If any error is thrown during the compile process, the data process will not be deployed.
+
+Data processes deployed from CLI will be synchronised in Studio, which can be also undeployed or deleted, but since the code are already compiled you will not be able to inspect or modify the logic code in Studio.
+:::
+
+## Shared Functions For Multiple Data Processes
+
+If you are developing multiple data processes in CLI and they depends on the same third party packages or your own helper functions, you can export them via a `.js` or `.ts` file in another directory.
+
+For example, we often have to use `TextDecoder` to decode Uint8Array array to string. We can instead create a `utils.js` (if you are using JavaScript projects) with the following content:
+
+```javascript title="/<CLI workspace>/utils/utils.js" showLineNumbers
+// shared helper function
+const UTF8ArrToStr = (aBytes) => {
+    const utf8decoder = new TextDecoder();
+    return utf8decoder.decode(new Uint8Array(aBytes));
+};
+
+// export functions
+// highlight-next-line
+export { UTF8ArrToStr };
+```
+
+Then import it into a project's logic:
+
+```javascript title="/<project name>/generic-logic/1.js" showLineNumbers
+// import UTF8ArrToStr
+// highlight-next-line
+import { UTF8ArrToStr } from "../../utils/utils";
+
+export async function run(ctx) {
+    // ...
+
+    // use the imported function
+    // highlight-next-line
+    const payload = JSON.parse(UTF8ArrToStr(ctx.payload.http.bod));
+
+    // ...
+}
+```
+
+CLI will automatically includes `utils.js` during the complie process.
+
+If you want to share a third party NPM package, simply install them with `npm i` or `yarn add` in the CLI workspace and wrap them inside your exported functions.

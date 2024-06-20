@@ -1,0 +1,281 @@
+---
+sidebar_position: 8
+tags:
+    - LOC
+    - SDK
+    - Agent
+    - Agent Configuration
+    - Database
+    - CSharp
+---
+
+# Database Agent - C Sharp
+
+Read and write an external database server.
+
+| Logic Type       | Available |
+| ---------------- | --------- |
+| Generic logic    | ✅        |
+| Aggregator logic | ❌        |
+
+## Database Agent Configuration
+
+> See: [Agent Configuration](/main/category/agent-configuration)
+
+A **Database Agent Configuration** defines an external database server that will be allowed to be accessed from LOC runtime.
+
+The Database Agent requires a configuration reference name so that it can access data on the database server. The reference name can be added to a logic while creating or editing a data process.
+
+## Import and Usage
+
+The agent can be used without using additional namespaces:
+
+```csharp showLineNumbers
+public static class Logic
+{
+
+    public static async Task Run(Context ctx)
+    {
+        var dbClient = await DatabaseAgent.Acquire("db-config-ref");
+        var result = await dbClient.Query("SELECT * FROM table1*;");
+    }
+
+    public static async Task HandleError(Context ctx, Exception error)
+    {
+        // ... same
+    }
+}
+```
+
+## Class Reference
+
+### Type
+
+-   `DatabaseAgent`
+
+### Method: Acquire Database Client
+
+```csharp
+public async static Task<DatabaseClient> Acquire(string name) {}
+```
+
+| Parameter | Description                                 |
+| --------- | ------------------------------------------- |
+| `name`    | Database Agent Configuration reference name |
+
+Acquire a [Database client](#database-client) using a configuration reference name. Throws an error if the configuration cannot be found.
+
+## Database Client
+
+### Type
+
+-   Public static class `DatabaseClient`
+
+### Method: Select Query
+
+```csharp
+public async Task<QueryResults> Query(string rawSql, IEnumerable<object>? parameters = null) {}
+```
+
+| Parameter    | Type                                                                                                                         | Description                                       |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| `rawSql`     | `string`                                                                                                                     | SQL prepared statement                            |
+| `parameters` | [`IEnumerable<object>?`](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1?view=net-7.0) | Values to be inserted into the prepared statement |
+
+Execute a select query and returns a [`QueryResults`](#queryresults) object.
+
+:::warning Always Use Prepared Statements
+It is strongly recommended to query a database using [prepared statements](https://en.wikipedia.org/wiki/Prepared_statement). For example, the following code works but is vulnerable to [SQL injection attack](https://en.wikipedia.org/wiki/SQL_injection):
+
+```csharp
+// bad practice
+var result = await db.Query(
+    $"SELECT * FROM table1 WHERE col_1 = {value1} AND col_2 = {value2};"
+);
+```
+
+Instead, separate parameters into the `params` array:
+
+```csharp
+var result = await db.Query(
+    "SELECT * FROM table1 WHERE col_1 = ? AND col_2 = ?;",
+    new List<object>
+    {
+        value1,
+        value2
+    }
+);
+```
+
+:::
+
+:::tip Prepared Statement Placeholders
+
+| Supported Database   | Placeholder     |
+| -------------------- | --------------- |
+| MySQL/Oracle         | `?`             |
+| Microsoft SQL Server | `@P1`, `@P2`... |
+| PostgreSQL           | `$1`, `$2`...   |
+
+Also be noted that values passed by `Query` or `Execute` may not be read as intended types in the database. You may have to add additional conversion it using SQL itself:
+
+```sql
+SELECT * FROM table1 WHERE id = (CAST((@P1) AS INTEGER));
+```
+
+:::
+
+#### `QueryResults`
+
+Results from select query.
+
+| Property  | Type                                            | Description                  |
+| --------- | ----------------------------------------------- | ---------------------------- |
+| `Columns` | [`List<QueryResultColumn>`](#queryresultcolumn) | Column descriptions          |
+| `Rows`    | `List<Dictionary<string, object?>>`             | Columns names and row values |
+
+If a column in the result has the name of `ColName` and type of `ColType`, the value can be accessed as `Rows[index]["ColName"]["ColType"]`.
+
+:::info
+PostgreSQL returns lowered-case column names, which makes it `rows[index].colname`.
+:::
+
+#### `QueryResultColumn`
+
+| Property | Type     | Description      |
+| -------- | -------- | ---------------- |
+| `Name`   | `string` | Column name      |
+| `Type`   | `string` | Column data type |
+
+:::info
+The content of `Type` here may be different with the `ColType` in each element of `Rows`.
+:::
+
+### Method: Action Query
+
+```csharp
+public async Task<ulong> Execute(string rawSql, IEnumerable<object>? parameters = null) {}
+```
+
+| Parameter    | Type                   | Description                                       |
+| ------------ | ---------------------- | ------------------------------------------------- |
+| `rawSql`     | `string`               | SQL prepared statement                            |
+| `parameters` | `IEnumerable<object>?` | Values to be inserted into the prepared statement |
+
+Execute an action query (insert, update, delete, etc.). Returns the number of affected rows.
+
+### Method: Begin Transaction
+
+```csharp
+public async Task BeginTransaction() {}
+```
+
+Begin a [transaction](https://en.wikipedia.org/wiki/Database_transaction#In_SQL). All action queries will only take effect when `commitTransaction()` is called.
+
+<details>
+  <summary>Modify Transaction Isolation Level</summary>
+
+Advanced users can modify the [transaction isolation level](<https://en.wikipedia.org/wiki/Isolation_(database_systems)#Isolation_levels>) with the following SQL statement:
+
+```sql
+--MySQL, MS SQL Server
+SET TRANSACTION ISOLATION LEVEL <LEVEL>
+
+--PostgreSQL, Oracle
+SET TRANSACTION <LEVEL>
+```
+
+The default level setting is [**READ COMMITTED**](<https://en.wikipedia.org/wiki/Isolation_(database_systems)#Read_committed>).
+
+</details>
+
+### Method: Commit Transaction
+
+```csharp
+public async Task CommitTransaction() {}
+```
+
+Commit a transaction.
+
+### Method: Rollback Transaction
+
+```csharp
+public async Task RollbackTransaction() {}
+```
+
+Rollback a transaction. The database may throw an error if `CommitTransaction()` is already called.
+
+### Method: Release Connection
+
+```csharp
+public async Task Release() {}
+```
+
+The LOC runtime will also try to close unreleased connection when the task completes execution.
+
+## Examples
+
+### Query From Table
+
+```csharp showLineNumbers
+var dbClient = await DatabaseAgent.Acquire("db-config-ref");
+
+var result = await dbClient.Query(
+    "SELECT * FROM table1 WHERE col_1 = ? AND col_2 = ?;",
+    new List<object>{ value1, value2 }
+);
+
+var rows = result.Rows;
+
+foreach (var row in rows)
+{
+    // if col_1 is integer type
+    int value1 = ((JsonNode) row["col_1"])["Integer"].GetValue<int>();
+
+    // if col_2 is text type
+    string value2 = ((JsonNode) row["col_2"])["Text"].GetValue<string>();
+
+    // ...
+}
+```
+
+### Insert Data Into Table
+
+```csharp showLineNumbers
+var dbClient = await DatabaseAgent.Acquire("db-config-ref");
+
+await dbClient.Execute(
+    "INSERT INTO table1 (col_1, col_2) VALUES (?, ?);",
+    new List<object>{ value1, value2 }
+);
+```
+
+### Error Handling with Transaction
+
+```csharp showLineNumbers
+var dbClient = await DatabaseAgent.Acquire("db-config-ref");
+
+try
+{
+    await dbClient.BeginTransaction();
+
+    // a series of SQL action queries to be commited
+
+    await dbClient.CommitTransaction();
+}
+catch (Exception e)
+{
+    try
+    {
+        await dbClient.RollbackTransaction();
+    }
+    catch (Exception e)
+    {
+        // error occurred after commit
+    }
+}
+finally
+{
+    await dbClient.Release();
+}
+```

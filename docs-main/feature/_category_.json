@@ -1,0 +1,9 @@
+{
+    "label": "LOC: Features",
+    "position": 3,
+    "link": {
+        "type": "generated-index",
+        "description": "Concepts and guide for LOC features, categorised by topic.",
+        "keywords": ["LOC"]
+    }
+}

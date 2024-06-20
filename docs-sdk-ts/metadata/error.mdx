@@ -1,0 +1,99 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - SDK
+    - Error Handling
+    - JavaScript
+    - TypeScript
+---
+
+# Logic Error - JS/TS
+
+If an unhandled error had been thrown in the task, an error object would be passed to the logic and _all_ subsequential ones. The object is called a **Railway Error**.
+
+| Logic Type       | Available               |
+| ---------------- | ----------------------- |
+| Generic logic    | ✅ (`handleError` only) |
+| Aggregator logic | ✅ (`handleError` only) |
+
+## Import and Usage
+
+The `handleError` function in a logic receives a `error` argument by default:
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+
+```javascript showLineNumbers
+export async function run(ctx) {}
+
+// highlight-next-line
+export async function handleError(ctx, error) {
+    // error is the railway error
+}
+```
+
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+
+```typescript showLineNumbers
+import {
+    GenericContext,
+    // highlight-next-line
+    RailwayError,
+} from "@fstnetwork/loc-logic-sdk";
+
+// highlight-next-line
+export async function run(ctx: GenericContext) {}
+
+// highlight-next-line
+export async function handleError(ctx: GenericContext, error: RailwayError) {
+    // error is the railway error
+}
+```
+
+  </TabItem>
+</Tabs>
+
+## Class Reference
+
+### Type
+
+-   `RailwayError` (extended from [`Error`](#error))
+
+### Properties
+
+| Property                 | Type     | Description                                  |
+| ------------------------ | -------- | -------------------------------------------- |
+| `name`                   | `string` | Error name                                   |
+| `message`                | `string` | Error message                                |
+| `stack`                  | `string` | Error stack trace message                    |
+| `logicPermanentIdentity` | `string` | Logic permanent ID where error originated    |
+| `logicRevision`          | `number` | Revision of the logic where error originated |
+
+#### `Error`
+
+> Refer to: [`Error`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error)
+
+## Examples
+
+### Get Error
+
+```typescript title="handleError()" showLineNumbers
+const errorPid = error.logicPermanentIdentity;
+
+const errorMessage = error.message;
+
+const errorStack = error.stack;
+```
+
+### Throw Error
+
+```typescript showLineNumbers
+throw new Error("oh no, not again.");
+```
+
+> The error will be packaged as `RailwayError` by LOC runtime.

@@ -1,0 +1,17 @@
+# do not include /build in order to keep editing history in Docusaurus
+/node_modules
+/.cache-loader
+/.devcontainer
+/.docusaurus
+/.DS_Store
+/.env.local
+/.env.development.local
+/.env.test.local
+/.env.production.local
+/.github
+/.vscode
+/charts
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+README.md

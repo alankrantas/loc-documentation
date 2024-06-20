@@ -1,0 +1,87 @@
+---
+sidebar_position: 1
+tags:
+    - LOC
+    - SDK
+    - Trigger
+    - Payload
+    - CSharp
+---
+
+# Payload Introduction - C Sharp
+
+A **payload** in logic is a object containing metadata and incoming data from a LOC trigger (for example, an API route).
+
+| Logic Type       | Available |
+| ---------------- | --------- |
+| Generic logic    | ✅        |
+| Aggregator logic | ✅        |
+
+All tasks in the same execution receive the same trigger metadata and payload.
+
+## Import and Usage
+
+```csharp showLineNumbers
+public static class Logic
+{
+
+    public static async Task Run(Context ctx)
+    {
+        var payload = await ctx.GetPayload();
+    }
+
+    public static async Task HandleError(Context ctx, Exception error)
+    {
+        // ... same
+    }
+}
+```
+
+## Class Reference
+
+### Type
+
+-   `Payload`
+
+### Properties
+
+| Property   | Type                                                          | Description                         |
+| ---------- | ------------------------------------------------------------- | ----------------------------------- |
+| `Http`     | [`HttpPayload?`](/sdk-csharp/payload/http-payload)            | API route HTTP payload              |
+| `Message`  | [`MessageQueuePayload?`](/sdk-csharp/payload/message-payload) | Message queue payload               |
+| `Schedule` | `EventPayload?`                                               | Schedule payload (empty object)     |
+| `Event`    | `EventPayload?`                                               | Event payload (not yet implemented) |
+
+See the referred types for details.
+
+:::info
+Only one of the property (payload type) will be populated during a task.
+:::
+
+## Examples
+
+### Get Data from Payload
+
+```csharp showLineNumbers
+var payload = await ctx.GetPayload();
+
+byte[]? data = null;
+
+if (payload.Http is not null)
+{
+    // payload has HttpPayload
+    data = payload.Http.Request.Data;
+}
+else if (payload.Message is not null)
+{
+    // payload has MessageQueuePayload
+    data = payload.Message.Data;
+}
+else
+{
+    // payload has none of above
+    throw new Exception("this logic only accepts http/mq payload");
+}
+```
+
+> See: [HTTP Payload](/sdk-csharp/payload/http-payload) and [Message Queue Payload](/sdk-csharp/payload/message-payload) for details.

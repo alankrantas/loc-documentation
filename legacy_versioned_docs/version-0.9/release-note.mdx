@@ -1,0 +1,110 @@
+---
+sidebar_position: 99
+tags:
+    - LOC
+    - Release-Note
+---
+
+# Release Note
+
+LOC `v0.9` continues improving both Studio and CLI for better developing process.
+
+## Release Versions
+
+| Component | Current Version |
+| --------- | --------------- |
+| Core      | `v0.9.2`        |
+| Studio    | ` v1.4.3`       |
+| CLI       | `v0.9.2`        |
+| SDK       | `v0.9.0-1`      |
+
+> SDK remains functionally unchanged since the last release.
+
+## Major New Features
+
+### Summary
+
+| New Feature                                             | Summary                                                                                                                   |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **Logic Build History**                                 | A new log feature for inspecting all build/compile status of logic.                                                       |
+| **Enhanced Studio Editor Support and Search Interface** | Code editor in Studio now supports SDK type checking and auto-formating on paste.                                         |
+| **Support API Routes in Refactored CLI**                | Logic are now built and now deployed as reusable modules for data processes.                                              |
+| **API Route Encapsulation**                             | You can now have API routes to return task results only (without execution metadata) by setting encapsulation to `false`. |
+| **Studio Locales Support**                              | Studio now supports locales in Japanese (日本語) and Traditional Chinese (繁體中文).                                      |
+
+### Detailed List
+
+-   Studio: Data Discovery: drops "Label Name" and "DID" sub-panels under Event.
+-   Studio: improved/simplify interface for searching and filtering assets (events, data processes and logic). You can now fuzzy search fields with only part of the string (case sensitive).
+-   Studio: adds [Build History](/legacy/0.9/studio-guide/data-pipeline#build-history) under Data Pipeline panel, which shows build log of all cloud logic.
+-   Studio: simplified logic draft system and user editing/building experience.
+-   Studio: code editors now enables intellisense for SDK's type-checking in both JavaScript and TypeScript.
+-   Studio: code editors now auto-formats code on paste. (You can still press hot keys to manually format the code.)
+-   CLI: (re-)support commands for create, edit, deploy and delete [API routes](/legacy/0.9/cli-handbook/create-trigger) from a local CLI workspace.
+-   CLI: initialising a workspace (command `loc init`) no longer require to logged in first and will not ask to sync from your remote project.
+-   CLI: deletes a data process remotely will also delete the local data process metadata.
+-   CLI: various improvements on error messages and prompts.
+-   SDK: updates context [Task](/legacy/0.9/sdk-reference/context-and-task#task) interfaces while maintaining backward compatibility.
+
+#### Studio `v1.4.1`
+
+-   Studio: updates default logic code template for cloud logic.
+-   Studio: adds two user interface locales: Japanese (日本語) and Traditional Chinese (繁體中文).
+
+#### Studio `v1.4.2`
+
+-   Studio: adds warning when deleting agent configurations that are used by data processes.
+-   Studio: adds an indication if a referenced agent configuration in a data process has been deleted. LOC will also prevent you to execute a data process with missing agent configuration(s).
+
+#### Studio `v1.4.3`
+
+-   Studio: adds support for selecting API route encapsulation mode (whether or not to embed user's task result(s) in execution metadata).
+
+### Refactored Task Interface
+
+:::warning
+Be noted that the deprecated interface `ctx.task.taskId` is still accessible in SDK `v0.9.0` for backward compatibility but will be removed sometime in the future.
+:::
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="current" label="v0.9.0" default>
+
+```typescript showLineNumbers
+const taskId = ctx.task.taskKey.taskId;
+const executionId = ctx.task.taskKey.executionId;
+const taskStartTime = ctx.task.startTimestamp;
+```
+
+  </TabItem>
+  <TabItem value="deprecated" label="v0.8.0 and earlier">
+
+```typescript showLineNumbers
+const taskId = ctx.task.taskId.id;
+const executionId = ctx.task.taskId.executionId;
+const taskStartTime = ctx.task.startAt;
+```
+
+  </TabItem>
+</Tabs>
+
+### Studio Code Editor Intellisense
+
+You can now inspect and check methods and parameter types of SDK classes in the code editor. JSDoc annotations will work as well.
+
+<div className="center">
+    <img src="/img/release-note/code-intellisense.png" />
+</div>
+
+---
+
+### What's New in LOC-Doc?
+
+-   Adds docs for Core/CLI/SDK `v0.9.x` and Studio `v1.4.x`.
+-   Adds a tutorial: [Create a Data-Driven Microservice with Database](/legacy/0.9/tutorials/db-microservice).
+-   Adds a use case (comprehensive tutorial): [Lakeside Oasis Café](/legacy/0.9/category/lakeside-oasis-cafe).
+-   Displayed category title of all versioned Studio Guide docs now includes Studio versions for better recognition.
+-   Various improvements and fixes.
+-   In preparation for the future releases, LOC _resources_ in the docs are renamed to **features** or **assets** depending on the context, with _CLI workspace directory_ renamed to **local workspace**.

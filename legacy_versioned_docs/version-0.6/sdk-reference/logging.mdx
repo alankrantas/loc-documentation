@@ -1,0 +1,50 @@
+---
+sidebar_position: 7
+tags:
+    - LOC
+    - Agent
+    - JavaScript
+    - TypeScript
+---
+
+# Logging Agent
+
+Log (debugging) messages to LOC.
+
+The logs can only be read either using Kubernetes tools or in [Local Simple Runtime](/legacy/0.6/cli-handbook/local-runtime) with CLI.
+
+#### Availability
+
+-   ✓ Generic logic
+-   ✓ Aggregator logic
+
+## Error Logging
+
+```typescript
+logging.error(value: string | object)
+logging.info(value: string | object)
+```
+
+`value` can be a string or a JSON object. If `value` is not valid JSON, the agent will throw an error.
+
+#### Example
+
+```typescript showLineNumbers
+// log a JSON object
+ctx.agents.logging.error({
+    error: "error message",
+});
+
+// log a string
+ctx.agents.logging.info("error message");
+```
+
+## Log level
+
+| Function | Level   | Log color                  |
+| -------- | ------- | -------------------------- |
+| `error`  | Highest | Red                        |
+| `warn`   |         | Yellow                     |
+| `info`   |         | Green                      |
+| `debug`  |         | (Does not show in console) |
+| `trace`  | Lowest  | (Does not show in console) |

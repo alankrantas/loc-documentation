@@ -1,0 +1,156 @@
+---
+sidebar_position: 4
+tags:
+    - LOC
+    - Agent
+    - JavaScript
+    - TypeScript
+---
+
+# Session Storage Agent
+
+```typescript
+import { SessionStorageAgent } from "@fstnetwork/loc-logic-sdk";
+```
+
+For sharing data between logic during a task (execution) of a data process.
+
+The session will be purged once the task is completed. This is a very common way to pass data from one logic to the next, including the aggregator logic.
+
+#### Availability
+
+-   ✓ Generic logic
+-   ✓ Aggregator logic
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+## Write to Session Storage
+
+<Tabs>
+  <TabItem value="json" label="JSON" default>
+
+```typescript
+async SessionStorageAgent.putJson(key: string, value: any): Promise<boolean>
+```
+
+| Parameter | Description                         |
+| --------- | ----------------------------------- |
+| `key`     | Key of session data                 |
+| `value`   | Valid JSON data (JavaScript object) |
+
+If `value` is not valid JSON, the agent will throw an error.
+
+:::tip
+`value` can be a single number (which is also valid for JSON).
+:::
+
+  </TabItem>
+  <TabItem value="string" label="String">
+
+```typescript
+async SessionStorageAgent.putString(key: string, value: string): Promise<boolean>
+```
+
+| Parameter | Description         |
+| --------- | ------------------- |
+| `key`     | Key of session data |
+| `value`   | `string` data       |
+
+  </TabItem>
+  <TabItem value="bytearray" label="Uint8Array">
+
+```typescript
+async SessionStorageAgent.putByteArray(key: string, value: Uint8Array | string): Promise<boolean>
+```
+
+| Parameter | Description                   |
+| --------- | ----------------------------- |
+| `key`     | Key of session data           |
+| `value`   | `Uint8Array` or `string` data |
+
+  </TabItem>
+</Tabs>
+
+Write a value into session storage. The key/value pair will be created if not exist.
+
+These functions return a `boolean` to indicate if the write action is successful.
+
+#### Example: write JSON object to session storage
+
+```typescript showLineNumbers
+const data = {
+    name: "Arthur Dent",
+    age: 42,
+};
+
+await SessionStorageAgent.putJson("data", data);
+await SessionStorageAgent.putJson("age", data.age); // single number is valid JSON
+```
+
+:::warning
+The data may not be properly written into session storage without using `await`.
+:::
+
+#### Example: write string to session storage
+
+```typescript showLineNumbers
+await SessionStorageAgent.putString("name", "Arthur Dent"");
+await SessionStorageAgent.putString("age", String(age));  // convert a single number to string
+```
+
+#### Example: write Uint8Array to session storage
+
+```typescript showLineNumbers
+const data = (await ctx.payload()).http.request.data;
+await SessionStorageAgent.putByteArray("payload", new Uint8Array(data));
+```
+
+## Read from Session Storage
+
+```typescript
+async SessionStorageAgent.get(key: string): Promise<string | number | object | Uint8Array>
+```
+
+Read a session data. The type depends on how the data was written into session storage. If the data is a single number stored with `putJson`, the return type will be number.
+
+If the key is not exist, the agent will return `null`.
+
+#### Example
+
+```typescript showLineNumbers
+const name = await SessionStorageAgent.get("name"); // returns a string
+const data = await SessionStorageAgent.get("data"); // returns a JSON object
+
+const name_in_data = data?.name;
+const age_in_data = data?.age;
+```
+
+:::tip
+If you are using TypeScript, you can use [type assertions](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-assertions) to enforce typeing in your editor:
+
+```typescript showLineNumbers
+const name = (await SessionStorageAgent.get("name")) as string;
+const age = (await SessionStorageAgent.get("age")) as number;
+const data = (await SessionStorageAgent.get("data")) as {
+    name: string;
+    age: number;
+};
+```
+
+:::
+
+## Remove from Session Storage
+
+```typescript
+async SessionStorageAgent.delete(key: string): Promise<void>
+
+// or
+async SessionStorageAgent.remove(key: string): Promise<void>
+```
+
+#### Example
+
+```typescript
+await SessionStorageAgent.remove("data");
+```

@@ -1,0 +1,174 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - Logic
+---
+
+# Manage Logic Source
+
+To create and edit an entry file in the [logic source](/main/feature/logic/overview#logic-source-and-revision). Entry files are used for [building logic](/main/feature/logic/build).
+
+## Create an Entry File
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="studio1" label="LOC Studio" default>
+
+1. In LOC Studio, go to **Logic** ➞ **Logic Source**.
+
+<div className="center-padded-sm">
+    <img src={require("./img/Nav-source.png").default} alt="Nav-source" />
+</div>
+
+2. Under **Logic Source**, select the logic language.
+
+<div className="center-padded-sm">
+    <img src={require("./img/Languages.png").default} alt="Languages" />
+</div>
+
+3. In the **Source Explorer** below, right-click on `entry_files` or one of the folders to create a generic or aggregator logic, or select a folder then click **New File** icon. (Create a new folder if necessary.)
+
+<div className="gridEqual">
+    <div className="right-padded-sm">
+        <img src={require("./img/Menu-source.png").default} alt="Menu-source" />
+    </div>
+    <div className="center">
+        <small>or</small>
+    </div>
+    <div className="padded-sm">
+        <div className="center">
+            <img
+                src={require("./img/FileAdd.png").default}
+                width="24px"
+                alt="FileAdd"
+                className="img-bg"
+            />
+            <br />
+            <img
+                src={require("./img/Menu-add-file.png").default}
+                alt="Menu-add-file"
+            />
+        </div>
+    </div>
+</div>
+
+:::warning
+The language and logic type of an entry file cannot be changed after creation.
+:::
+
+4. Enter the entry file name (a file extension is required) then press `Enter` or click anywhere outside the input box.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Logic-source-create.png").default}
+        alt="Logic-source-create"
+    />
+</div>
+
+5. A new entry file with initial template should be created.
+
+  </TabItem>
+</Tabs>
+
+## Edit an Entry File
+
+You can save changes as much as you'd like on an entry file, which _do not_ create new logic or affect existing ones.
+
+You have to [build from source](/main/feature/logic/build) to create or update a logic.
+
+<Tabs>
+  <TabItem value="studio2" label="LOC Studio" default>
+
+1. Select an entry file and click **Edit** <img src={require("./img/Edit.png").default} width="32px" alt="Edit" className="img-bg" /> on the top right.
+
+2. The code window will enter edit mode for modifying the source code. A "lock" icon <img src={require("./img/Lock.png").default} alt="Lock" /> indicates that the entry file is currently locked from being edited by other users.
+
+:::info Edit Session
+The logic source lock session will expire after some time of inactivity. LOC will prompt you to save before expiration.
+
+If session expired and another user is editing the file, an "unable to save" <img src={require("./img/Unable-save.png").default} alt="Unable-save" /> icon will be shown. Copy your code to somewhere else and try to save later.
+:::
+
+3. After making changes to the logic code, click **Save** <img src={require("./img/Save.png").default} width="32px" alt="Save" /> to save the changes. When finished, click **Close** <img src={require("./img/Cancel.png").default} width="32px" alt="Cancel" className="img-bg" /> to close the editing mode.
+
+4. Or, click **Save & Exit** <img src={require("./img/SaveExit.png").default} width="96px" alt="SaveExit" /> to save and close the editing mode.
+
+:::tip
+You can also [create a cloud logic first](/main/feature/logic/manage#create-an-empty-logic), although it will remain an _empty_ logic until you build it with a source.
+
+You can also right-click on the editor area and click **New Event Schema** to insert a code snippet for emitting an event using the [Event Agent](/main/feature/agent/agent-list#event-store-agent).
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/New-event-schema.png").default}
+        alt="New-event-schema"
+    />
+    <br />
+    <img
+        src={require("./img/New-event-schema-window.png").default}
+        alt="New-event-schema-window"
+    />
+</div>
+:::
+
+  </TabItem>
+</Tabs>
+
+## Rename an Entry File
+
+<Tabs>
+  <TabItem value="studio3" label="LOC Studio" default>
+
+Right-click on an entry file and select **Rename**. (If you are in the editing mode, close it first.)
+
+  </TabItem>
+</Tabs>
+
+## Delete an Entry File
+
+<Tabs>
+  <TabItem value="studio3" label="LOC Studio" default>
+
+Select an entry file and click **Delete** <img src={require("./img/Delete.png").default} width="32px" alt="Delete" className="img-bg" /> on the top right, or right-click the logic and select the same option. (If you are in the editing mode, close it first.)
+
+  </TabItem>
+</Tabs>
+
+:::info
+If an entry file has been used to build at least one logic, deleting the entry file won't affect the built logic.
+:::
+
+## Manage Shared Modules
+
+<Tabs>
+  <TabItem value="studio4" label="LOC Studio" default>
+
+A logic source file created under `shared_modules` can be shared by other entry files. If a class or function (depending on languages) is imported in an entry file, the shared module file will be included in the [logic building](/main/feature/logic/build) process.
+
+See the tutorial [Import Shared Modules](/main/tutorial/shared-modules) for how to create and import shared modules.
+
+  </TabItem>
+</Tabs>
+
+## Manage Project Files
+
+<Tabs>
+  <TabItem value="studio5" label="LOC Studio" default>
+
+A project file (which can be edited) should exist in each of the language's logic source:
+
+| Language/SDK          | File                                                                                                                                                     |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [JavaScript](/sdk-ts) | [`package.json`](https://docs.npmjs.com/cli/v10/configuring-npm/package-json)                                                                            |
+| [TypeScript](/sdk-ts) | [`package.json`](https://docs.npmjs.com/cli/v10/configuring-npm/package-json)                                                                            |
+| [C#](/sdk-csharp)     | [`Logic.csproj`](https://learn.microsoft.com/en-us/aspnet/web-forms/overview/deployment/web-deployment-in-the-enterprise/understanding-the-project-file) |
+
+As the project files will be used to build logic, you can include third party packages, for example, from [NPM](https://www.npmjs.com/) (JavaScript/TypeScript) or [NuGet](https://www.nuget.org/) (.NET).
+
+If your LOC instance is required to run in a more secured environment (not allowed to connect external servers), offline package servers can be installed.
+
+  </TabItem>
+</Tabs>

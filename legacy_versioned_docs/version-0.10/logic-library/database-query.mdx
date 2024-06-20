@@ -1,0 +1,59 @@
+---
+tags:
+    - LOC
+    - Logic
+    - JavaScript
+    - TypeScript
+---
+
+# Database Query
+
+For executing a select/action query given by another logic and write the query result (if any) to session storage.
+
+| Logic type | Input                  | Output                                                                                                                                                                                                                                                                                                                                                |
+| ---------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Generic    | Session variable `sql` | <ul><li>Session variable `db_resp` (type: [`QueryResults`](/legacy/0.10/sdk-reference/database#queryresults) for select queries or `null` for action queries)</li><li>Session variable `db_query_status` indicates if the action was successful (boolean)</li><li>Session variable `db_error` indicates any error occurred (`null` if none)</li></ul> |
+
+:::note
+For this logic to be reusable, the `sql` session should be provided by one of the previous logic and must conform the following type:
+
+```typescript
+{
+    configName: string;  // database configuration reference name
+    statement: string;  // SQL statement, for example, "select * from table;"
+    params: any[];  // parameters (as an array) in the SQL prepared statement
+}
+```
+
+The logic will execute a select query if the statement contains the `select` keyword (which will return a response object), or execute an action query for else.
+
+The logic will not throw an error to halt the data process. Instead the error would be passed to session variable `db_error`
+:::
+
+:::warning
+This logic requires a database configuration. See the tutorial for how to create one and add it to a logic in a data process.
+:::
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import DatabaseQueryJSExample from "../_logic-template-sources/_database-query-js.mdx";
+import DatabaseQueryJSDocExample from "../_logic-template-sources/_database-query-jsdoc.mdx";
+import DatabaseQueryTSExample from "../_logic-template-sources/_database-query-ts.mdx";
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+
+<DatabaseQueryJSExample />
+
+  </TabItem>
+  <TabItem value="js-doc" label="JavaScript (with JSDoc)">
+
+<DatabaseQueryJSDocExample />
+
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+
+<DatabaseQueryTSExample />
+
+  </TabItem>
+</Tabs>

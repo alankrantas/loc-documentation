@@ -1,0 +1,70 @@
+---
+sidebar_position: 1
+tags:
+    - LOC
+    - SDK
+    - CSharp
+---
+
+# Docs for LOC SDK for C Sharp
+
+This is the docs for FST Network's [**LOC Logic SDK for C#**](https://www.nuget.org/packages/FSTNetwork.LOC.Logic.Sdk), a helper package and client interface for C# logic.
+
+For docs of earlier SDK releases, see [release note](/sdk-csharp/release-note).
+
+For main docs of LOC itself, see [Docs for Logic Operating Centre](/main).
+
+## Target SDK Version
+
+-   `0.0.x`
+
+## Supported Language
+
+| Language                                               | Version         |
+| ------------------------------------------------------ | --------------- |
+| [C#](https://learn.microsoft.com/en-us/dotnet/csharp/) | `11` or earlier |
+
+| Runtime                                                    | Version |
+| ---------------------------------------------------------- | ------- |
+| [.NET](https://dotnet.microsoft.com/en-us/download/dotnet) | `7`     |
+
+## Studio Support
+
+The C# SDK and its runtime can be included in LOC via licensing and will be automatically imported for the logic building in LOC Studio. The users do not need to install or setup additional packages.
+
+### Studio Project Configuration
+
+The following default project file in [logic source](/main/feature/logic/source) is shared by all cloud logic:
+
+```xml title="Logic.csproj"
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PublishAot>true</PublishAot>
+    <AssemblyName>lib_loc_logic</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FSTNetwork.LOC.Logic.Sdk" Version="0.0.18" />
+    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.26" />
+  </ItemGroup>
+
+</Project>
+```
+
+Additional third-party packages can be added under `ItemGroup`.
+
+:::info
+The `ImplicitUsings` option implicitly adds a list of [namespaces](https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives) for all logic.
+:::
+
+## Local Installation for CLI
+
+> Requires [.NET SDK](https://dotnet.microsoft.com/en-us/download/dotnet/7.0) `7.0.404` and .NET runtime `7.0.14`
+
+```bash
+dotnet add package FSTNetwork.LOC.Logic.Sdk --version 0.0.18
+```

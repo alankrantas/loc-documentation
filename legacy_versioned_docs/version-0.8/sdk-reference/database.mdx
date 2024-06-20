@@ -1,0 +1,198 @@
+---
+sidebar_position: 11
+tags:
+    - LOC
+    - Agent
+    - JavaScript
+    - TypeScript
+---
+
+# Database Agent
+
+```typescript
+import { DatabaseAgent } from "@fstnetwork/loc-logic-sdk";
+```
+
+Connecting external databases with built-in drivers. Currently the following databases are supported:
+
+-   MySQL
+-   MS SQL Server
+-   PostgreSQL
+-   Oracle Database
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+#### Availability
+
+-   ✓ Generic logic
+-   ✗ Aggregator logic
+
+:::info
+This agent requires **agent configuration**. See [tutorial](/legacy/0.8/tutorials/http-agent-configuration) for details.
+:::
+
+## Acquire Database Client
+
+```typescript
+async DatabaseAgent.acquire(configurationName: string): Promise<DatabaseClient>
+```
+
+Returns a [`DatabaseClient`](#database-client) object based on provided agent configuration name, which connects to a pre-defined database with confidential information. The client will establish a connection to the database until you release it.
+
+The configuration name is the `reference` field set in Studio or `name` field set in CLI config files.
+
+Throws an error if the configuration cannot be found.
+
+#### Example
+
+```typescript showLineNumbers
+const dbClient = await DatabaseAgent.acquire("my-db-configuration");
+```
+
+## Database Client
+
+### Release Connection
+
+```typescript
+async dbClient.release(): Promise<void>
+```
+
+#### Example
+
+```typescript showLineNumbers
+await dbClient?.release();
+```
+
+See [Error Handling](/legacy/0.8/tutorials/error-handling-tip#handling-expected-errors) about how to deal of expected database errors and release the client in any situations.
+
+### Select Query
+
+```typescript
+async dbClient.query(rawSql: string, params: any[]): Promise<Database.QueryResults>
+```
+
+Execute a SQL query with [prepared statement](https://en.wikipedia.org/wiki/Prepared_statement).
+
+#### Example: select query in MySQL
+
+```typescript showLineNumbers
+const dbClient = await DatabaseAgent.acquire("my-db-configuration");
+
+const resp = await dbClient?.query(
+    "SELECT * FROM table1 WHERE col_1 = ? AND col_2 = ?;",
+    ["value1", "value2"], // the placeholders "?" will be replaced by values
+);
+
+const rows = resp?.rows;
+
+// iterate through the rows
+rows.forEach((row) => {
+    const value_1 = row.col_1;
+    const value_2 = row.col_2;
+    // ...
+});
+
+await dbClient?.release(); // release database when done
+```
+
+:::warning
+
+#### Always Use Prepared Statement!
+
+You can, of course, put parameters _directly_ in the SQL statement string as such:
+
+```typescript
+`SELECT * FROM table1 WHERE col_1 = ${value1} AND col_2 = ${value2};`;
+```
+
+However this make the query vulnerable to [SQL injection](https://en.wikipedia.org/wiki/SQL_injection) attack, especially if the parameters are provided by users. If the parameters contain malicious SQL scripts, they will not be executed in prepared statements.
+
+Hence, you should always use prepared statements and seperate the parameters. Also the placeholder of prepared statement differs in databases:
+
+-   MySQL/Oracle database: `?`
+-   MS SQL Server: `@P1`, `@P2`, etc.
+-   PostgreSQL: `$1`, `$2`, etc.
+    :::
+
+`resp` is type of `Database.QueryResults` with the following fields:
+
+| Field     | Type                                                                         | Description             |
+| --------- | ---------------------------------------------------------------------------- | ----------------------- |
+| `columns` | `Database.QueryResultColumn[]`, which is `{ name: string; type: string; }[]` | Column name and type    |
+| `rows`    | `{ [key: string]: any }[]`                                                   | Column fields and value |
+
+For example, a column with name `ColName` can be accessed as `rows[index].ColName`.
+
+:::note
+PostgreSQL client returns _lower-cased_ column names so it will be `rows[index].colname` instead.
+:::
+
+:::warning
+If you read very large amount of data (for example, several dozen gigabytes) the data process may fail due to memory issues. Please consult FST Network for the actual upper limit.
+:::
+
+### Action Query
+
+```typescript
+async dbClient.execute(rawSql: string, params: any[]): Promise<any>
+```
+
+Execute a add, update or delete action with prepared statement. Does not return anything.
+
+#### Example: action query in MySQL
+
+```typescript showLineNumbers
+await dbClient?.execute("INSERT INTO table1 (col_1, col_2) VALUES (?, ?);", [
+    value_1,
+    value_2,
+]);
+```
+
+### Database Transaction
+
+```typescript
+async beginTransaction(): Promise<DatabaseClient>
+async commitTransaction(): Promise<void>
+async rollbackTransaction(): Promise<void>
+```
+
+For executing multiple SQL, you can mark them as a [transaction](https://en.wikipedia.org/wiki/Database_transaction#In_SQL) and apply changes together.
+
+After `beginTransaction()`, any SQL execution queries will only be written when `commitTransaction()` is called. To cancel the transaction before commit, use `rollbackTransaction()`.
+
+:::warning
+`rollbackTransaction()` will throw an SQL error if `commitTransaction()` is already executed.
+:::
+
+#### Example
+
+```typescript showLineNumbers
+const dbClient = await DatabaseAgent.acquire("my-db-configuration");
+
+try {
+    // begin transaction
+    await dbClient?.beginTransaction();
+
+    // a series of SQL transactions:
+
+    // dbClient?.execute(...)
+
+    // dbClient?.execute(...)
+
+    // ...
+
+    // commit all actions (changes become permanent)
+    await dbClient?.commitTransaction();
+} catch (e) {
+    // roll back transaction in case of error
+    try {
+        // query error
+        await dbClient?.rollbackTransaction();
+    } catch (e) {
+        // error occurred after commit
+    }
+} finally {
+    await dbClient?.release();
+}
+```

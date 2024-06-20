@@ -1,0 +1,132 @@
+---
+sidebar_position: 7
+tags:
+    - LOC
+    - Agent
+    - JavaScript
+    - TypeScript
+---
+
+# Result Agent
+
+```typescript
+import { ResultAgent } from "@fstnetwork/loc-logic-sdk";
+```
+
+Finalise a JSON object as the [task result](/legacy/0.9/tutorials/loc-feat-overview#triggers-tasks-and-executions) data. If the trigger is synchronized API route or message queue, it will be returned to the trigger, otherwise stored in LOC to be retrieved later.
+
+Task results woulbe be embedded in an execution result from a trigger unless the trigger's [encapsulation](/legacy/0.9/studio-guide/triggers) is turned off. Be noted that [single data process execution](/legacy/0.9/quickstart#run-the-data-process---simple-data-process-execution) also only returns task results.
+
+#### Availability
+
+-   ✗ Generic logic
+-   ✓ Aggregator logic
+
+## Finalise Result
+
+```typescript
+ResultAgent.finalize(value: object)
+```
+
+`value` has to be a JSON object (a JavaScript object without methods).
+
+:::tip
+The result agent can be used in both `run` and `handleError` functions and does not need `await`.
+
+See the [tutorial](/legacy/0.9/tutorials/error-handling-tip) for tips on using result agent for error handling.
+:::
+
+#### Example
+
+```typescript showLineNumbers
+ResultAgent.finalize({
+    status: "ok",
+    taskId: ctx.task.taskKey,
+    data: {
+        name: "Arthur Dent",
+        age: 42,
+    },
+});
+```
+
+Be noted that `status: "ok"` _is not the HTTP response code_, but an user-defined field that indicates the task has been executed without issues.
+
+The finalised data (task result) will be
+
+```json
+{
+    "status": "ok",
+    "taskId": {
+        "executionId": "...",
+        "id": "..."
+    },
+    "data": {
+        "name": "Arthur Dent",
+        "age": 42
+    }
+}
+```
+
+<details>
+    <summary>Seperate multiple task results in the same execution</summary>
+
+If you are planning to execute multiple data processes from the same trigger, be adviced not to use shared task result field names (for example, `status` and `data`), for the result of one data process _would be overwritten_ by another.
+
+You can wrap results with different topmost keys:
+
+```typescript title="aggregator 1" showLineNumbers
+ResultAgent.finalize({
+    result_data_process_a: {
+        status: "ok",
+        taskId: ctx.task.taskKey,
+        data: {
+            name: "Arthur Dent",
+            age: 42,
+        },
+    },
+});
+```
+
+```typescript title="aggregator 2" showLineNumbers
+ResultAgent.finalize({
+    result_data_process_b: {
+        status: "ok",
+        taskId: ctx.task.taskKey,
+        data: {
+            name: "Ford Perfect",
+            age: 200,
+        },
+    },
+});
+```
+
+The returned task results in the execution result would thus be
+
+```json
+{
+    "result_data_process_a": {
+        "status": "ok",
+        "taskId": {
+            "executionId": "...",
+            "id": "..."
+        },
+        "data": {
+            "name": "Arthur Dent",
+            "age": 42
+        }
+    },
+    "result_data_process_b": {
+        "status": "ok",
+        "taskId": {
+            "executionId": "...",
+            "id": "..."
+        },
+        "data": {
+            "name": "Ford Perfect",
+            "age": 200
+        }
+    }
+}
+```
+
+</details>

@@ -1,0 +1,321 @@
+---
+sidebar_position: 9
+tags:
+    - LOC
+    - Agent
+    - JavaScript
+    - TypeScript
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+# Database Agent
+
+Connecting external databases with built-in drivers. Currently the following databases are supported:
+
+-   MySQL
+-   MS SQL Server
+-   PostgreSQL
+-   Oracle Database
+
+#### Availability
+
+-   ✓ Generic logic
+-   ✗ Aggregator logic
+
+## Connect to Database
+
+```typescript
+async ctx.agents.database?.connect({ databaseDriver, connectionString = null, connection = null }): Promise<DatabaseClient>
+```
+
+Connect to a database. Returns a `DatabaseClient` object.
+
+| Parameter          | Type                                       | Description                                           |
+| ------------------ | ------------------------------------------ | ----------------------------------------------------- |
+| `databaseDriver`   | `Database.Driver`                          | DB driver name                                        |
+| `connectionString` | `string` &#124; `null`                     | Legacy connection string for pre-v0.5.1 compatibility |
+| `connection`       | `Database.<parameter class>` &#124; `null` | DB parameters                                         |
+
+The DB parameter class has to be the correct one according to the DB driver name (see below).
+
+:::info
+JavaScript users can access `Database` via `Saffron.Database`:
+
+```javascript
+const Database = Saffron.Database;
+```
+
+TypeScript users can import it from `@fstnetwork/loc-logic-sdk`:
+
+```typescript
+import { ..., Database } from "@fstnetwork/loc-logic-sdk";
+```
+
+:::
+
+### Driver Names, Parameter Classes and Connect Examples
+
+<Tabs>
+  <TabItem value="mysql" label="MySQL" default>
+
+-   Driver name: `Database.Driver.MySql` or `"MySQL"`
+-   Parameter class: `Database.MySqlParameters`
+
+| Field      | Type     | Description                          |
+| ---------- | -------- | ------------------------------------ |
+| `host`     | `string` | DB server URL (default: `localhost`) |
+| `port`     | `number` | DB server port (default: `3306`)     |
+| `database` | `string` | User database name                   |
+| `username` | `string` | User name                            |
+| `password` | `string` | User password                        |
+
+```typescript showLineNumbers
+// DB parameters
+const MySqlParameters = new Database.MySqlParameters({
+    host: "<host name>",
+    port: "<port>",
+    database: "<db name>",
+    username: "<user>",
+    password: "<password>",
+});
+
+// get DB client
+const dbClient = await ctx.agents.database?.connect({
+    databaseDriver: Database.Driver.MySql,
+    connection: MySqlParameters,
+});
+```
+
+  </TabItem>
+  <TabItem value="mssql" label="MS SQL Server">
+
+-   Driver name: `Database.Driver.Mssql` or `"MSSQL"`
+-   Parameter class: `Database.MssqlParameters`
+
+| Field          | Type      | Description                                                                                                                                                                         |
+| -------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `host`         | `string`  | DB server URL (default: `localhost`)                                                                                                                                                |
+| `port`         | `number`  | DB server port (default: `1433`)                                                                                                                                                    |
+| `database`     | `string`  | User database name                                                                                                                                                                  |
+| `username`     | `string`  | User name                                                                                                                                                                           |
+| `password`     | `string`  | User password                                                                                                                                                                       |
+| `trustCert`    | `boolean` | (Optional) [trust server certificate](https://docs.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlconnectionstringbuilder.trustservercertificate?view=dotnet-plat-ext-6.0) |
+| `instanceName` | `string`  | (Optional) [instance](https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/database-engine-instances-sql-server?view=sql-server-ver16) name                       |
+
+```typescript showLineNumbers
+// DB parameters
+const MssqlParameters = new Database.MssqlParameters({
+    host: "<host name>",
+    port: "<port>",
+    database: "<db name>",
+    username: "<user>",
+    password: "<password>",
+});
+
+// get DB client
+const dbClient = await ctx.agents.database?.connect({
+    databaseDriver: Database.Driver.Mssql,
+    connection: MssqlParameters,
+});
+```
+
+  </TabItem>
+  <TabItem value="posgres" label="PostgreSQL">
+
+-   Driver name: `Database.Driver.Postgres` or `"Postgres"`
+-   Parameter class: `Database.PostgresParameters`
+
+| Field            | Type      | Description                          |
+| ---------------- | --------- | ------------------------------------ |
+| `host`           | `string`  | DB server URL (default: `localhost`) |
+| `port`           | `number`  | DB server port (default: `5432`)     |
+| `database`       | `string`  | User database name                   |
+| `username`       | `string`  | User name                            |
+| `password`       | `string`  | User password                        |
+| `options`        | `string`  | (Optional) options                   |
+| `connectTimeout` | `number`  | (Optional) connect_timeout           |
+| `keepalives`     | `boolean` | (Optional) keepalives                |
+| `keepalivesIdle` | `number`  | (Optional) keepalives_idle           |
+
+```typescript showLineNumbers
+// DB parameters
+const PostgresParameters = new Database.PostgresParameters({
+    host: "<host name>",
+    port: "<port>",
+    database: "<db name>",
+    username: "<user>",
+    password: "<password>",
+});
+
+// get DB client
+const dbClient = await ctx.agents.database?.connect({
+    databaseDriver: Database.Driver.Postgres,
+    connection: PostgresParameters,
+});
+```
+
+  </TabItem>
+  <TabItem value="oracle" label="Oracle DB">
+
+-   Driver name: `Database.Driver.Oracle` or `"Oracle"`
+-   Parameter class: `Database.OracleParameters`
+
+| Field                | Type      | Description                          |
+| -------------------- | --------- | ------------------------------------ |
+| `host`               | `string`  | DB server URL (default: `localhost`) |
+| `port`               | `number`  | DB server port (default: `1521`)     |
+| `serviceName`        | `string`  | database service name                |
+| `username`           | `string`  | User name                            |
+| `password`           | `string`  | User password                        |
+| `integratedSecurity` | `boolean` | Integrated Security                  |
+| `extraParams`        | `string`  | (Optional)                           |
+
+```typescript showLineNumbers
+// DB parameters
+const OracleParameters = new Database.OracleParameters({
+    host: "<host name>",
+    port: "<port>",
+    serviceName: "<service name>",
+    username: "<user>",
+    password: "<password>",
+});
+
+// get DB client
+const dbClient = await ctx.agents.database?.connect({
+    databaseDriver: Database.Driver.Oracle,
+    connection: OracleParameters,
+});
+```
+
+  </TabItem>
+</Tabs>
+
+---
+
+## Database Client
+
+Type: `DatabaseClient`
+
+### Disconnect
+
+```typescript
+async dbClient?.disconnect()
+```
+
+### Select Query
+
+```typescript
+async dbClient?.query(rawSql: string, params: any[]): Promise<Database.QueryResults>
+```
+
+Execute a SQL query with [prepared statement](https://en.wikipedia.org/wiki/Prepared_statement).
+
+#### Example: select query in MySQL
+
+```typescript showLineNumbers
+const resp = await dbClient?.query(
+    "SELECT * FROM table1 WHERE col_1 = ? AND col_2 = ?;",
+    [value1, value2], // the placeholders "?" will be replaced by values
+);
+
+const rows = resp?.rows;
+
+// iterate through the rows
+rows.forEach((row) => {
+    const value_1 = row.col_1;
+    const value_2 = row.col_2;
+    // ...
+});
+```
+
+:::warning
+
+#### Always Use Prepared Statement!
+
+You can, of course, put parameters _directly_ in the SQL statement string as such:
+
+```typescript
+`SELECT * FROM table1 WHERE col_1 = ${value1} AND col_2 = ${value2};`;
+```
+
+However this make the query vulnerable to [SQL injection](https://en.wikipedia.org/wiki/SQL_injection) attack, especially if the parameters are provided by users. If the parameters contain malicious SQL scripts, they will not be executed in prepared statements.
+
+Hence, you should always use prepared statements and seperate the parameters. Also the placeholder of prepared statement differs in databases:
+
+-   MySQL/Oracle database: `?`
+-   MS SQL Server: `@P1`, `@P2`, etc.
+-   PostgreSQL: `$1`, `$2`, etc.
+    :::
+
+`resp` is type of `Database.QueryResults` with the following fields:
+
+| Field     | Type                                                                | Description             |
+| --------- | ------------------------------------------------------------------- | ----------------------- |
+| `columns` | `QueryResultColumn[]`, which is `{ name: string; type: string; }[]` | Column name and type    |
+| `rows`    | `{ [key: string]: any }[]`                                          | Column fields and value |
+
+For example, a column with name `ColName` can be accessed as `rows[index].ColName`.
+
+:::note
+PostgreSQL will return _lower-cased_ column names so it will be `rows[index].colname` instead.
+:::
+
+:::warning
+If you read very large amount of data (for example, several dozen gigabytes) the data process may fail due to memory issues. Please consult FST Network for the actual upper limit.
+:::
+
+### Action Query
+
+```typescript
+async dbClient?.execute(rawSql: string, params: any[])
+```
+
+Execute a add, update or delete action with prepared statement. Does not return anything.
+
+#### Example: action query in MySQL
+
+```typescript showLineNumbers
+await dbClient?.execute("INSERT INTO table1 (col_1, col_2) VALUES (?, ?);", [
+    value_1,
+    value_2,
+]);
+```
+
+Disconnect from a database.
+
+### Database Transaction
+
+```typescript
+async dbClient?.beginTransaction()
+async dbClient?.commitTransaction()
+async dbClient?.rollbackTransaction()
+```
+
+For executing multiple SQL, you can mark them as a _transaction_ and apply changes together.
+
+After `beginTransaction()`, any SQL queries or actions will not actually take effect until `commitTransaction()` is called, or to be canceled by calling `rollbackTransaction()`.
+
+#### Example
+
+```typescript showLineNumbers
+try {
+    // begin transaction
+    await dbClient?.beginTransaction();
+
+    // a series of SQL transactions:
+
+    // dbClient?.query(...)
+
+    // dbClient?.execute(...)
+
+    // ...
+
+    // commit all actions (changes become permanent)
+    await dbClient?.commitTransaction();
+} catch (e) {
+    // cancel transaction in case of error
+    await dbClient?.rollbackTransaction();
+}
+```

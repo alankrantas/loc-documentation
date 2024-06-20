@@ -1,0 +1,169 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - Trigger
+    - API Route
+---
+
+# API Route
+
+To create and manage an API route trigger.
+
+An API Route can be invoked by HTTP requests. A data process linked to an API route is essentially a web service or a HTTP endpoint.
+
+## Create an API Route
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="studio1" label="LOC Studio" default>
+
+1. In LOC Studio, go to **Trigger** ➞ **API Route**.
+
+<div className="center-padded-sm">
+    <img src={require("./img/Nav-api-route.png").default} alt="Nav-api-route" />
+</div>
+
+2. An API route belongs to a **project**, which [can be created in the data process explorer](/main/feature/data-process/project-scenario). **Create one if needed**.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/API-route-explorer.png").default}
+        alt="API-route-explorer"
+    />
+</div>
+
+3. Click **Create API Route** on the top right, or right-click a project and select the same option.
+
+<div className="gridEqual">
+    <div className="right-padded-sm">
+        <img
+            src={require("./img/Create-api-route.png").default}
+            alt="Create-api-route"
+        />
+    </div>
+    <div className="center">
+        <small>or</small>
+    </div>
+    <div className="padded-sm">
+        <img
+            src={require("./img/Menu-create-api-route.png").default}
+            alt="Menu-create-api-route"
+        />
+    </div>
+</div>
+
+:::warning API Route Usage Limit
+You won't be able to create new API routes if existing ones have reached the maximum limit specified in your license. (See: [Inspect License](/main/feature/license/manage#inspect-license).)
+
+An ad hoc version of Studio `2.0.0` also shows the API usage (for example, <img src={require("./img/Api-route-limit.png").default} alt="Api-route-limit" className="img-bg" />) on the upper right corner of the API route screen.
+:::
+
+4. Fill in the fields in the API route creation window.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/API-route-creation.png").default}
+        alt="API-route-creation"
+    />
+</div>
+
+<details>
+  <summary>API Route Fields Description</summary>
+
+| Field                 | Required? | Description                                                                        |
+| --------------------- | --------- | ---------------------------------------------------------------------------------- |
+| API Route Name        | Yes       | API route name (up to 128 characters)                                              |
+| Description           | No        | API route description                                                              |
+| HTTP Method           | Yes       | Allowed HTTP method in HTTP requests                                               |
+| URL                   | Yes       | API route path (for example, `/path` or `/api/path`)                               |
+| Request Mode          | Yes       | Synchronous (wait for task results) or asynchronous (do not wait for task results) |
+| Response Content Type | Yes       | Content type of the HTTP response                                                  |
+| Encapsulation         | Yes       | Encapsulate execution metadata (default true)                                      |
+| API Tasks             | Yes       | Data processes to be linked                                                        |
+
+</details>
+
+:::tip
+You can create multiple API routes **with the same path that accept different HTTP methods**.
+:::
+
+5. Search data processes and click **+ API Task** to link them.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/API-route-add-task.png").default}
+        alt="API-route-add-task"
+    />
+</div>
+
+6. Fof the linked data processes, you can also quickly select the latest revision <img src={require("./img/Setting.png").default} width="20px" alt="Setting" className="img-bg" /> or delete <img src={require("./img/Trash.png").default} width="20px" alt="Trash" className="img-bg" /> them.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/API-route-task.png").default}
+        alt="API-route-task"
+    />
+</div>
+
+7. Click **Create** to create the API route.
+
+  </TabItem>
+</Tabs>
+
+:::info API Route Encapsulation
+Normally, the body of a HTTP response returned from an API route will contain
+
+-   Metadata of the execution
+-   Metadata and task results combined from all tasks in the execution
+
+If `Encapsulation` is set to `false`, the response will **only contain task results**. Since the task results are entirely defined by users, this is a way to create **RESTful APIs** in LOC.
+:::
+
+## Edit or Delete an API Route
+
+<Tabs>
+  <TabItem value="studio2" label="LOC Studio" default>
+
+Select an API route and click **Edit API Route** <img src={require("./img/Edit.png").default} width="32px" alt="Save" className="img-bg" /> or **Delete API Route** <img src={require("./img/Delete.png").default} width="32px" alt="Delete" className="img-bg" /> on the top right, or right-click and select the same options.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Menu-api-route-edit.png").default}
+        alt="Menu-api-route-edit"
+    />
+</div>
+
+  </TabItem>
+</Tabs>
+
+## Invoke an API Route
+
+To execute a data process without an actual API route, see [Manual Execution](/main/feature/data-process/execute#execute-with-a-mocked-api-route).
+
+The URL of a created API route, for example, `https://api.xxxxxx.fst.network/api/path` is the HTTP endpoint that can accept specific methods from any HTTP clients:
+
+```bash
+curl -X GET 'https://api.xxxxxx.fst.network/api/path'
+
+curl -X POST -d '{
+    "key": "value"
+}' 'https://api.xxxxxx.fst.network/api/path'
+```
+
+### API Route HTTP Status Code
+
+An API route may return one of the following HTTP status code:
+
+| HTTP Status Code | Description                                                                                                        |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `200`            | The execution has completed with or without errors.                                                                |
+| `202`            | The execution time has exceeds 15 seconds in synchronous mode (timed out). The execution may still complete later. |
+| `404`            | The API route is not found. If you have just created the API route, wait a moment then try again                   |
+| `405`            | The API route exists but you are using incorrect HTTP request methods.                                             |
+
+:::info
+User can also use [result agent](/main/feature/agent/agent-list#result-agent) to set a different HTTP status code when the execution completes.
+:::

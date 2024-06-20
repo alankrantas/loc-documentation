@@ -1,0 +1,12 @@
+{
+    "cSpell.enabled": true,
+    "cSpell.diagnosticLevel": "Warning",
+    "cSpell.language": "en,en-GB",
+    "cSpell.enableFiletypes": ["md", "mdx"],
+    "cSpell.ignorePaths": ["/docs/draft"],
+    "cSpell.dictionaryDefinitions": [],
+    "cSpell.dictionaries": [],
+    "cSpell.words": [],
+    "cSpell.ignoreWords": ["fstnetwork"],
+    "cSpell.import": []
+}

@@ -1,0 +1,104 @@
+---
+sidebar_position: 3
+tags:
+    - LOC
+    - Studio
+    - Trigger
+---
+
+# Triggers: API Routes and Schedules
+
+For managing [triggers](/legacy/0.10/tutorials/loc-feat-overview#triggers-tasks-and-executions) which can invoke data processes. Currently the following trigger features are available in Studio:
+
+-   API routes
+-   Schedules
+
+If multiple data processes are linked to a trigger asset, they will be invoked _synchronously_.
+
+## Create an API Route
+
+API routes are custom HTTP API endpoints that can be deploy live onto LOC's gateway.
+
+After creating a project in the Data Process panel or upload one via CLI, you can right-click the project in the API Route panel and click **Create API Route**.
+
+<div className="center-padded-sm">
+    <img src={require("./img/apiroute.png").default} alt="apiroute" />
+</div>
+
+For creating an API route, the following options can be set:
+
+-   The HTTP protocol is always **HTTPs**
+-   HTTP method: `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, etc.
+-   API path and prefix
+-   Request mode: `Sync` (synchronous) or `Async` (asynchronous)
+-   Response content type: `AUTO`, `JSON`, `YAML` or `XML`
+-   Encapsulation (whether or not to embed task results inside execution metadata; default `true`)
+-   Linked data processes and revision
+
+See [Create and Use an API Route Trigger](/legacy/0.10/tutorials/create-api-route) for how to create an API route in Studio, as well as the example of API responses.
+
+:::note
+
+#### API Route HTTP Status
+
+By default, an API route returns one of the following HTTP code:
+
+-   `200` indicates the (synchronous) API route has received an execution result within timeout (15 seconds).
+    -   **Note:** this HTTP code _can be overridden_ using [result agent](/legacy/0.10/sdk-reference/result#specify-http-status-code) in the aggregator logic.
+-   `202` indicates the API route has triggered an execution but have not yet received the result (either the API is asynchronous or the execution was timed out - it did not complete execution due to some reason).
+-   `404` indicates the API route does not exist. If you have just deployed the API route, wait a bit then try again.
+-   `405` indicates the API route does exist but the HTTP method is incorrect (not found for the API route).
+
+> A new created or modified API route would require a little time - several to a dozen seconds - to deploy or take effect (the gateway may return code `404` before the route is ready).
+
+> A synchronous API route may still return `202` if the data process(es) take more than 15 seconds to run, while still generate correct results in [execution history](/legacy/0.10/studio-guide/data-discovery#execution).
+> :::
+
+:::tip
+
+#### Return a RESTful-like Response
+
+By default the API route responses automatically include execution metadata. If you wish to omit them (for which you can create a RESTful-like API response), set **Encapsulation** to `false`.
+
+You can also use the [result agent](/legacy/0.10/sdk-reference/result#specify-http-status-code) to specify the HTTP status code in the response.
+:::
+
+:::warning
+
+#### Common Pitfalls
+
+1. The same combination of HTTP method and API path cannot be created as API routes _twice_.
+
+2. If a data process has been linked to an API route, you'll have to edit the linked revision shall you modified the data process. Otherwise the API route will still invoke the older data process.
+
+3. If a linked data process contains missing [agent configurations](/legacy/0.10/studio-guide/agent-configuration), LOC will prevent you from executing it.
+
+4. The LOC gateway does not recognize additional path after an deployed API route. For example, when invoking an API route `/api/v1/my-service`, `/api/v1/my-service/{id}` would return `404`. You can use [QueryString](https://en.wikipedia.org/wiki/Query_string) instead, for example, `/api/v1/my-service?id={id}`.
+   :::
+
+## Create a Schedule
+
+Schedules, triggered by LOC's scheduler, can be used to invoke data processes on a specific interval. This type of trigger does not send payloads, and the execution result can only be inspect in [Execution History](/legacy/0.10/studio-guide/data-discovery#execution).
+
+<div className="center-padded-sm">
+    <img src={require("./img/schedule.png").default} alt="schedule" />
+</div>
+
+For creating a schedule, the following options can be set:
+
+-   Frequency type (`Recurrence` or `Crontab`)
+    -   For `Recurrence` type, "Start At" (start time) and "Interval" (hours/minutes) can be set.
+    -   For `Crontab` type, the [cron expressiont](https://cloud.google.com/scheduler/legacy/0.10/configuring/cron-job-schedules) fields and enable (on/off) can be set.
+
+See [Create an ETL Pipeline with Schedule](/legacy/0.10/tutorials/create-schedule) for how to create an API route in Studio:
+
+:::tip
+
+#### Using Cron Expression Generator
+
+<div className="center-padded-sm">
+    <img src={require("./img/schedule-1.png").default} alt="schedule-1" />
+</div>
+
+Although Studio provides a handy Cron expression preview, you can use free online tools to generate cron expressions quickly, for example, [Crontab Generator](https://crontab-generator.org/) or [Cron Expression Generator](https://www.freeformatter.com/cron-expression-generator-quartz.html).
+:::

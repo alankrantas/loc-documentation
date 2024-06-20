@@ -1,0 +1,256 @@
+---
+sidebar_position: 1
+tags:
+    - LOC
+    - CLI
+---
+
+# Introduction and Setup
+
+**LOC CLI** is the dedicated command line tool for developers to create data processes/other assets and deploy/manage them remotely in LOC. Combined with TypeScript support, local runtime and powerful IDEs like Visual Studio Code, CLI makes coding and debug much easier than doing so in LOC Studio.
+
+Also see [Command Reference](/legacy/0.7/category/cli-command-reference).
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+## Setup
+
+To develop with CLI locally, you'll need to setup a profile and some tools.
+
+### CLI Executable Binary
+
+[FST Network](/docs/about-and-contact) provides **CLI executable binaries** to our licensed clients and partners, which is portable and can be used without any installation. The following platforms are supported:
+
+-   Linux (x86 64-bit)
+-   macOS (x86 64-bit)
+-   Windows (x86 64-bit)
+
+:::info
+This hankbook is based on CLI `v0.7.0` and LOC SDK `v0.7.0`.
+
+The hand book also assumes that you have renamed your file to `loc` (or `loc.exe` in Windows), and copy it to a local directory (for example, `/CLI`).
+
+We'll often refer this directory as **local workspace**. You can add the dir to the system variable `$PATH` if you want to access it globally.
+:::
+
+Now open a terminal (PowerShell or Windows Terminal on Windows), switch to the local workspace and test the binary:
+
+```bash
+./loc -h
+```
+
+:::tip
+macOS and Linux users would have to mark the binary as executable:
+
+```bash
+sudo chmod +x ./loc
+```
+
+:::
+
+Or if you are using Command Prompt on Windows or accessing it via `$PATH`:
+
+```bash
+loc -h
+```
+
+You should see CLI print out a list of available commands.
+
+### Local Development Prerequisites
+
+#### Node.js
+
+Firstly you'll need to install **[Node.js](https://nodejs.org/en/download/)** on your machine.
+
+<Tabs>
+  <TabItem value="linux" label="Linux" default>
+
+```bash
+sudo apt install curl
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install nodejs
+```
+
+  </TabItem>
+  <TabItem value="mac" label="macOS">
+
+```bash
+brew update
+brew install node
+```
+
+  </TabItem>
+  <TabItem value="windows" label="Windows">
+
+Windows users can simply download and run the installer. (You do not have to check the option _"Automically install the necessary tools"_).
+
+  </TabItem>
+</Tabs>
+
+---
+
+#### Docker Desktop
+
+**Docker Desktop** is required _only if_ you are developing using the [local simple runtime](/legacy/0.7/cli-handbook/local-runtime):
+
+-   [Install on Windows](https://docs.docker.com/desktop/install/windows-install/)
+-   [Install on macOS](https://docs.docker.com/desktop/install/mac-install/)
+-   [Install on Linux](https://docs.docker.com/desktop/install/linux-install/)
+
+:::tip
+Docker Desktop only supports x86 64-bit platforms.
+
+For Ubuntu/Debian users, you need to install [Docker engine](https://docs.docker.com/engine/install/ubuntu/) first then install [Docker Desktop](https://docs.docker.com/desktop/install/ubuntu/).
+:::
+
+#### Optional Tools
+
+Some other tools are not required for developing data processes on LOC but are highly recommended:
+
+1. A code editor that supports JavaScript and TypeScript IntelliSense, for example, [Visual Studio Code](https://code.visualstudio.com/download) with [JavaScript and TypeScript Nightly extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-typescript-next) installed.
+2. Windows 10 users can also install [Windows Terminal](https://docs.microsoft.com/en-us/windows/terminal/install) to replace Command Prompt and PowerShell.
+3. A HTTP client like [Insomnia](https://insomnia.rest/download) or [Postman](https://www.postman.com/downloads/).
+4. [Git](https://git-scm.com/downloads) for using Github repositories for project source code/versioning control.
+
+<details>
+    <summary><b>Tip</b> on developing in VS Code</summary>
+
+1. Go to `File` -> `New Window`
+2. Click `Open Folder...`
+3. Select local workspace (the directory where the CLI binary is)
+4. Open a new terminal with `Terminal` -> `New Terminal`. Now you can use CLI commands.
+
+</details>
+
+## Install SDK
+
+Started from LOC `v0.7.0`, the [LOC SDK](https://www.npmjs.com/package/@fstnetwork/loc-logic-sdk) is required for importing agents and all kinds of helper classes. Even though JavaScript does not enforce typing, you still need to import functionalities from it.
+
+Open a terminal, _switch to the data process directory_ and install SDK for it:
+
+<Tabs>
+  <TabItem value="npm1" label="Use NPM" default>
+
+```bash
+npm i -g npm@latest
+npm i @fstnetwork/loc-logic-sdk@0.7.0-2 tslib@latest
+npm prune
+```
+
+  </TabItem>
+  <TabItem value="yarn1" label="Use Yarn">
+
+```bash
+npm i -g yarn@latest
+yarn add @fstnetwork/loc-logic-sdk@0.7.0-2 tslib@latest
+```
+
+  </TabItem>
+</Tabs>
+
+:::tip
+For Linux users, use `sudo` with `npm i` or `yarn add`.
+
+If you are a Windows user and uses Yarn, open PowerShell as Administrator and modify the execution policy permission with:
+
+```bash
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted
+```
+
+:::
+
+#### Install Additional Dependencies (Optional)
+
+You can install other packages and type definitions locally depending on your data process' needs.
+
+Like SDK, You'll have to install these packages under the data process directory.
+
+For example, the following commands install `lodash` and its type definition:
+
+<Tabs>
+  <TabItem value="npm3" label="Use NPM" default>
+
+```bash
+npm i lodash
+npm i -D @types/lodash
+npm prune
+```
+
+  </TabItem>
+  <TabItem value="yarn3" label="Use Yarn">
+
+```bash
+yarn add lodash
+yarn add -D @types/lodash
+```
+
+  </TabItem>
+</Tabs>
+
+## Setting Up a Profile
+
+CLI connects to your LOC environment with a _profile_, which contains connection information like base and authentication URLs, etc.
+
+For any operations involving LOC assets, you are also required to login with your LOC account.
+
+:::info
+Please contact your LOC owner or the member who has the right authorisation to create an account for you. You'll receive an email with a temporary password (which you are required to change it by logging in _Studio_). You can use it for CLI login after that.
+
+To be able to login, the LOC license has to be activated as well.
+
+You can also use [Local Simple Runtime](/legacy/0.7/cli-handbook/local-runtime), which does not require an account or cloud environment.
+:::
+
+An example of profile file (again provided by FST Network) looks like this:
+
+```yaml title="myprofile.yaml" showLineNumbers
+baseURL: https://api.loc-***.fst.network
+namespace: ********
+
+ArthurL: https://auth.*****.fst.network/auth
+realm: *****
+clientId: loc-*****
+```
+
+:::info
+Profiles are required since in most cases LOC is deployed on Amacon Web Services (AWS).
+:::
+
+<details>
+    <summary><b>Tip</b> on creating blank files</summary>
+
+You can either copy the profile from your team or create a blank file then copy/paste the content.
+
+macOS and Linux users can do this with
+
+```bash
+touch <profile name>.yaml
+```
+
+Or (for Windows users)
+
+```bash
+type nul > <profile name>.yaml
+```
+
+Then open the file with an editor, copy/paste the profile and save it.
+
+</details>
+
+We recommend you to save profile files in a sub-directory like `/profiles`, which makes your file at `/profiles/myprofile.yaml`.
+
+Then run the following command to setup your profile to CLI:
+
+```bash
+./loc p set -f ./profiles/myprofile.yaml -p myprofile
+./loc p use myprofile
+```
+
+If a profile file is updated, you need to use `loc p set` to update it to CLI as well.
+
+Now **myprofile** is setuped as your default profile. You can then login LOC (if your LOC account has been created by your team and you've changed your password):
+
+```bash
+./loc login
+```

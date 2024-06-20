@@ -1,0 +1,113 @@
+---
+sidebar_position: 1
+tags:
+    - LOC
+    - SDK
+    - Logic Context
+    - JavaScript
+    - TypeScript
+---
+
+# Logic Context - JS/TS
+
+A **logic context** object would be passed to LOC logic during execution, which contains the following important data:
+
+-   Task and execution metadata
+-   Trigger payload
+
+| Logic Type       | Available |
+| ---------------- | --------- |
+| Generic logic    | ✅        |
+| Aggregator logic | ✅        |
+
+## Import and Usage
+
+The `run` and `handleError` function in a logic, which will be invoked by LOC runtime during execution, should receive a `ctx` argument:
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+
+```javascript showLineNumbers
+/** @param {import('@fstnetwork/loc-logic-sdk').GenericContext} ctx */
+// highlight-next-line
+export async function run(ctx) {
+    // ctx is the data context
+}
+
+/**
+ * @param {import('@fstnetwork/loc-logic-sdk').GenericContext} ctx
+ * @param {import('@fstnetwork/loc-logic-sdk').RailwayError} error
+ */
+// highlight-next-line
+export async function handleError(ctx, error) {
+    // ctx is the data context
+}
+```
+
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+
+```typescript showLineNumbers
+import {
+    // highlight-next-line
+    GenericContext, // or AggregatorContext for aggregator logic
+    RailwayError,
+} from "@fstnetwork/loc-logic-sdk";
+
+// highlight-next-line
+export async function run(ctx: GenericContext) {
+    // ctx is the data context
+}
+
+// highlight-next-line
+export async function handleError(ctx: GenericContext, error: RailwayError) {
+    // ctx is the data context
+}
+```
+
+  </TabItem>
+</Tabs>
+
+For the `error` argument, see [Logic Error](/sdk-ts/metadata/error) for details.
+
+## Class Reference
+
+### Type
+
+| Logic Type | Context Type        |
+| ---------- | ------------------- |
+| Generic    | `GenericContext`    |
+| Aggregator | `AggregatorContext` |
+
+> Both importable from `@fstnetwork/loc-logic-sdk`
+
+### Properties
+
+| Property | Type   | Description                          |
+| -------- | ------ | ------------------------------------ |
+| `task`   | `Task` | Return the Task object (lazy loaded) |
+
+> Refer to: [**Task**](/sdk-ts/metadata/task)
+
+### Method: Load Payload
+
+```typescript
+async payload(): Promise<Payload>
+```
+
+Return the trigger payload (lazy loaded).
+
+> Refer to: [**Payload**](/sdk-ts/payload/intro)
+
+## Examples
+
+```typescript showLineNumbers
+// get task and execution metadata
+const task = ctx.task;
+
+// get payload
+const payload = await ctx.payload();
+```

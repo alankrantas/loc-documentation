@@ -1,0 +1,113 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - SDK
+    - Agent
+    - Event
+    - JavaScript
+    - TypeScript
+---
+
+# Method: Emit Events - JS/TS
+
+```typescript
+async emit(events: Event.Event[]): Promise<void>
+```
+
+| Parameter | Type                           | Description     |
+| --------- | ------------------------------ | --------------- |
+| `events`  | [`Event.Event[]`](#eventevent) | Array of events |
+
+A method of the [Event Agent](/sdk-ts/agents/event-store/intro).
+
+Emit one or more events to event store.
+
+## Parameter Type
+
+#### `Event.Event`
+
+> `Event` is importable from `@fstnetwork/loc-logic-sdk`
+
+| Field                                  | Type     | Description                                              |
+| -------------------------------------- | -------- | -------------------------------------------------------- |
+| `labelName`                            | `string` | Event label (event name)                                 |
+| `sourceDigitalIdentity` or `sourceDID` | `string` | Source digital identity (DID)                            |
+| `targetDigitalIdentity` or `targetDID` | `string` | Target digital identity (DID)                            |
+| `meta`                                 | `string` | Additional payload. Maximum length 2<sup>15</sup> bytes. |
+| `type`                                 | `string` | Event type or group                                      |
+
+:::info
+`type` is simply a metadata tag for assigning the "type" of events.
+:::
+
+:::warning
+Events won't be searchable immediately after being emitted. You would have to wait a short while to try again.
+:::
+
+## Examples
+
+### Emit Multiple Events
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+
+```javascript showLineNumbers
+await EventAgent.emit([
+    {
+        // event 1, sequence 1
+        labelName: "Event name 1",
+        sourceDID: "Event source 1",
+        targetDID: "Event target 1",
+        meta: "",
+        type: "default",
+    },
+    {
+        // event 2, sequence 2
+        labelName: "Event name 2",
+        sourceDID: "Event source 2",
+        targetDID: "Event target 2",
+        meta: "",
+        type: "default",
+    },
+    // ...
+]);
+```
+
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+
+```typescript title="Import" showLineNumbers
+import {
+    // ...
+    Event,
+} from "@fstnetwork/loc-logic-sdk";
+```
+
+```typescript title="Logic" showLineNumbers
+await EventAgent.emit([
+    {
+        // event 1, sequence 1
+        labelName: "Event name 1",
+        sourceDID: "Source DID 1",
+        targetDID: "Target DID 1",
+        meta: "",
+        type: "default",
+    },
+    {
+        // event 2, sequence 2
+        labelName: "Event name 2",
+        sourceDID: "Source DID 2",
+        targetDID: "Target DID 2",
+        meta: "",
+        type: "default",
+    },
+    // ...
+] as Event.Event[]);
+```
+
+  </TabItem>
+</Tabs>

@@ -1,0 +1,97 @@
+---
+sidebar_position: 1
+tags:
+    - LOC
+    - CLI
+---
+
+# General, Profile and Login
+
+General, profile and login CLI commands.
+
+## General
+
+### Show Help
+
+```bash
+loc [command] -h
+```
+
+Show help on available commands and options with help.
+
+#### Example:
+
+```bash
+loc dp -h
+loc dp list -h
+```
+
+### Select Profile/Verbose Mode
+
+Most commands support `-p <profile name>` to specify user profile and `-v` for verbose mode.
+
+### Show CLI Version
+
+```bash
+loc -V
+```
+
+## Profile
+
+> `loc profile|p`
+
+### List All Profiles
+
+```bash
+loc p list
+```
+
+### Setup a Profile From File
+
+```bash
+loc p set -f <profile>.yaml -p <profile name>
+```
+
+You can overwrite/update a profile by setting it up with a newer file.
+
+### Set a Profile as Default
+
+```bash
+loc p use <profile name>
+loc p default <profile name>
+```
+
+CLI will use the profile by default if you do not specify one with `-p`.
+
+### Inspect a Profile
+
+```bash
+loc p get [-p <profile name>] [key]
+```
+
+A logged-in profile also shows `accessToken` and `refreshToken` fields.
+
+-   `-p`: (optional) use a specific profile (use default profile if not provided)
+-   `key`: a field name in profile (show all fields if not provided)
+
+### Set/Delete Profile Key
+
+```bash
+loc p set|delete [-p <profile name>] [key]
+```
+
+Modify or delete a key in a profile.
+
+-   `key`: a field name in profile
+
+## Login
+
+```bash
+loc login
+```
+
+Will prompt user name and password.
+
+:::note
+You will be logout of CLI after some time of inactivity.
+:::

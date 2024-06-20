@@ -1,0 +1,133 @@
+---
+sidebar_position: 4
+tags:
+    - LOC
+    - Studio
+    - Execution
+    - Event
+---
+
+# Data Discovery: Execution History and Events
+
+## Execution
+
+For browsing and filtering **execution histories**, each record represents one execution from one trigger which contains at least one [tasks](/legacy/0.10/tutorials/loc-feat-overview#triggers-tasks-and-executions). Each task contains logs (from [Logging Agent](/legacy/0.10/sdk-reference/logging)), trigger [payload](/legacy/0.10/sdk-reference/payload) as well as task result (from [Result Agent](/legacy/0.10/sdk-reference/result)) from each task.
+
+Click the trigger name to inspect the details, from which you can expand the list of logic and their logs.
+
+<div className="center-padded-sm">
+    <img src={require("./img/execution.png").default} alt="execution" />
+</div>
+
+See [View Execution History](/legacy/0.10/tutorials/create-api-route#view-execution-history) in one of the tutorial for more details.
+
+### Execution Status
+
+<table>
+    <tr>
+        <td>
+            <span className="big-font success-color">●</span> Complete
+        </td>
+        <td>
+            An execution, task or logic had completed execution without errors
+            or timeout.
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <span className="big-font progress-color">●</span> In Progress
+        </td>
+        <td>
+            An execution is still running due to execution of one of the task or
+            logic has not yet completed and timeout hasn't been reached.
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <span className="big-font warn-color">●</span> Timeout
+        </td>
+        <td>
+            Execution time of one of the task had exceeded the data process'
+            timeout limit (default: 180 seconds).
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <span className="big-font error-color">●</span> Execution Error
+        </td>
+        <td>
+            For an execution, it indicates one of the task had reported{" "}
+            <code>Timeout</code>, <code>Complete with Error</code> or{" "}
+            <code>System Error</code>.
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <span className="big-font error-color">●</span> Complete with Error
+        </td>
+        <td>
+            <ol>
+                <li>
+                    For a logic, it indicates an error had been thrown in{" "}
+                    <code>run()</code> (and <code>handleError()</code> had been
+                    invoked).
+                </li>
+                <li>
+                    For a task, it indicates a logic had reported{" "}
+                    <code>Complete with Error</code> (and the aggregator logic
+                    had invoked <code>handleError()</code> and may return a
+                    different task result).
+                </li>
+            </ol>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <span className="big-font error-color">●</span> System Error
+        </td>
+        <td>
+            <ol>
+                <li>
+                    For a logic, it indicates the logic cannot be executed due
+                    to syntax errors, bundle errors (for native logic) or{" "}
+                    <code>handleError()</code> had also thrww an error.
+                </li>
+                <li>
+                    For a task, it indicates one of the logic had reported{" "}
+                    <code>System Error</code> and stopped the task (no task
+                    results available).
+                </li>
+            </ol>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <span className="big-font none-color">●</span> Not Execute
+        </td>
+        <td>
+            Logic had skipped execution due to one previous logic in the task
+            had reported <code>System Error</code>.
+        </td>
+    </tr>
+</table>
+
+## Event
+
+For browsing and filtering [events](/legacy/0.10/tutorials/loc-feat-overview#events) (emitted by [Event Store Agent](/legacy/0.10/sdk-reference/eventstore)).
+
+Each event - a persistent "log" with metadata including label name, source DID, target DID, meta payload and time/task-related fields - can be queried for various purposes.
+
+See the following tutorials of how to emit and inspect events/data lineages:
+
+-   [Emit and Inspect Events](/legacy/0.10/tutorials/emit-and-inspect-event)
+-   [Events and Multiple Data Processes](/legacy/0.10/tutorials/event-and-multiple-dp)
+
+### Event Lineage Graph
+
+After filtering events, you can click **Event Lineage Graph** to inspect the graphical result of data lineage:
+
+<div className="center-padded-sm">
+    <img src={require("./img/event.png").default} alt="event" />
+</div>
+
+If you click an event by its label name or source/target DID, you will be switched to the **Label Name** or **DID** panels.

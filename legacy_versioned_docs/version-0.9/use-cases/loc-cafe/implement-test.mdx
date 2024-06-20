@@ -1,0 +1,133 @@
+---
+sidebar_position: 3
+tags:
+    - LOC
+    - Tutorial
+    - Dataprocess
+    - Logic
+    - Trigger
+    - Agentconfig
+---
+
+# Implement and Test
+
+We will follow the steps of this article to create, implement and test all assets of the Lakeside Oasis Café use case.
+
+:::tip
+We assume that you would be using [Studio](/legacy/0.9/category/studio-guide) for the tutorial. See the [CLI Handbook](/legacy/0.9/category/cli-handbook) for how to create LOC assets in local editors like VS Code.
+:::
+
+## Create Agent Configuration
+
+> See: [Create a Configuration](/legacy/0.9/tutorials/http-agent-configuration#create-a-configuration)
+
+First create an HTTP agent configuration for your LOC instance itself:
+
+| Parameter                | Value                                                     |
+| ------------------------ | --------------------------------------------------------- |
+| Agent Configuration Name | Name of the config (for example, `LOC`)                   |
+| Type                     | `HTTP Agent`                                              |
+| Scheme                   | `Https`                                                   |
+| Host                     | Your LOC base URL (for example: `api.******.fst.network`) |
+| Port                     | `443`                                                     |
+| Authorization            | `No Auth`                                                 |
+
+## Create Logic
+
+> See: [Create a Generic Logic](/legacy/0.9/quickstart#create-a-generic-logic)
+
+Create all [logic](/legacy/0.9/use-cases/loc-cafe/system-design#logic-design) described in the previous page.
+
+## Create Project, Scenario and Data Processes
+
+> See: [Build the Data Process](/legacy/0.9/quickstart#build-the-data-process)
+
+Create a project and a scenario if you don't jave any, then create the two [data processes](/legacy/0.9/use-cases/loc-cafe/system-design#data-process-design) described in the previous page from the logic above.
+
+### Set the Agent Configuration
+
+> See: [Add a Configuration to a Linked Logic](/legacy/0.9/tutorials/http-agent-configuration#add-a-configuration-to-a-linked-logic)
+
+While adding the `loc-cafe-invoke-deliver-order-dp` logic (#4 of `placeOrderDP`), add the HTTP agent configuration from above:
+
+| Parameter                     | Value                                   |
+| ----------------------------- | --------------------------------------- |
+| Agent Configuration Reference | `loc`                                   |
+| Agent Configuration Name      | Name of the config (for example, `LOC`) |
+
+### Set the Logic Variable (Optional)
+
+While setting up the agent configuration, you can also add a logic variable to specify the API route to invoke in the DP `placeOrderDP`, which is handy if you wish to change the API route without modifying the logic and data processes:
+
+| Parameter | Value                              |
+| --------- | ---------------------------------- |
+| Name      | `loc-cafe-deliver-order-api-route` |
+| Value     | `loc-cafe/deliver-order`           |
+
+:::note
+The logic we provided in the previous page will set the API route to `loc-cafe/deliver-order` if the logic variable `loc-cafe-deliver-order-api-route` is not set (returns `null`). So this step is entirely optional as long as the API route is correct.
+:::
+
+## Create API Routes
+
+> See: [Create an API Route](/legacy/0.9/tutorials/create-api-route)
+
+Create the two [API routes](/legacy/0.9/use-cases/loc-cafe/system-design#api-routes) described in the previous page and link the corresponding data processes.
+
+#### API Route #1
+
+| Parameter             | Value                                                       |
+| --------------------- | ----------------------------------------------------------- |
+| API Route Name        | Name of the API route (for example, `loc-cafe-place-order`) |
+| HTTP Method           | `POST`                                                      |
+| URL                   | `/loc-cafe/place-order`                                     |
+| Response Content Type | `JSON`                                                      |
+| Linked Data Processes | `placeOrderDP`                                              |
+
+#### API Route #2
+
+| Parameter             | Value                                                         |
+| --------------------- | ------------------------------------------------------------- |
+| API Route Name        | Name of the API route (for example, `loc-cafe-deliver-order`) |
+| HTTP Method           | `POST`                                                        |
+| URL                   | `/loc-cafe/deliver-order`                                     |
+| Response Content Type | `JSON`                                                        |
+| Linked Data Processes | `deliverOrderDP`                                              |
+
+## Test Execution
+
+> See: [Invoke a Data Process with API Route](/legacy/0.9/tutorials/create-api-route#invoke-a-data-process-with-api-route)
+
+With all the assets in place, you can invoke the data processes with one of the following approaches:
+
+1. Invoke API route `loc-cafe-place-order` with a HTTP POST request and the [JSON payload](/legacy/0.9/use-cases/loc-cafe/system-design#order-payload-example) using a HTTP client.
+2. Use [Simple Data Process Execution](/legacy/0.9/quickstart#run-the-data-process---simple-data-process-execution) to run the data process `placeOrderDP`.
+
+:::warning
+By the current design of LOC, API routes have a default time out limit of 15 seconds and would return status code `202` _even if the data processes are executed normally_.
+
+Which means in this use case you may very well see the API route not returning proper finalised results, since the chained data processes would take a bit more than 15 seconds to complete their tasks. But everything else - including the emitted events - would work like it should.
+:::
+
+## Inspect Data Lineage
+
+After executing the use case, you can inspect the events in [Data Discovery](/legacy/0.9/studio-guide/data-discovery) (by setting the time range filter to a few minutes ago):
+
+<div className="center-padded-sm">
+    <img src={require("./img/event-filter.png").default} alt="event-filter" />
+</div>
+
+Now you can drag all relevant events around and inspect their lineage:
+
+> View [full size image](./img/loc-cafe-lineage.png)
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/loc-cafe-lineage.png").default}
+        alt="loc-cafe-lineage"
+    />
+</div>
+
+Notice that the item `Salad` from order 202 was not assigned to any staff (a broken link). This should be a clear indication that either it's missing from the staff list, or the item information on the ordering page is outdated. Actions can be taken swiftly and you will get yourselve another satisfied customer. Five stars! ⭐⭐⭐⭐⭐
+
+This concludes the use case tutorial of Lakeside Oasis Café.

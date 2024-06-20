@@ -1,0 +1,81 @@
+.center {
+    text-align: center;
+}
+
+.right {
+    text-align: right;
+}
+
+.center-padded {
+    text-align: center;
+    padding: 40px;
+}
+
+.center-padded-sm {
+    text-align: center;
+    padding: 20px;
+}
+
+.center-padded-sm-mx {
+    text-align: center;
+    padding: 10px;
+}
+
+.padded-bg {
+    text-align: left;
+    padding: 40px;
+}
+
+.padded {
+    text-align: left;
+    padding: 20px;
+}
+
+.padded-sm {
+    text-align: left;
+    padding: 10px;
+}
+
+.right-padded-sm {
+    text-align: right;
+    padding: 10px;
+}
+
+.padded-sm-mx {
+    text-align: left;
+    padding: 4px;
+}
+
+.banner {
+    padding: 4rem 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.img-button:hover {
+    opacity: 0.4;
+    transition: opacity 0.2s ease-out;
+    -moz-transition: opacity 0.2s ease-out;
+    -webkit-transition: opacity 0.2s ease-out;
+    -o-transition: opacity 0.2s ease-out;
+}
+
+.big-font {
+    font-size: 24px;
+}
+
+.img-bg {
+    background-color: #ffffff;
+}
+
+[data-theme="dark"] .img-bg {
+    background-color: #d3d3d3;
+}
+
+.gridEqual {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: auto;
+    align-items: center;
+}

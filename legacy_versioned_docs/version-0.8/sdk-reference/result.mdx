@@ -1,0 +1,66 @@
+---
+sidebar_position: 7
+tags:
+    - LOC
+    - Agent
+    - JavaScript
+    - TypeScript
+---
+
+# Result Agent
+
+```typescript
+import { ResultAgent } from "@fstnetwork/loc-logic-sdk";
+```
+
+Finalise a JSON object as the result data. If the trigger is synchronized API route or message queue, it will be returned to the trigger, otherwise stored in LOC to be retrieved later.
+
+#### Availability
+
+-   ✗ Generic logic
+-   ✓ Aggregator logic
+
+## Finalise Result
+
+```typescript
+ResultAgent.finalize(value: object)
+```
+
+`value` has to be a JSON object (a JavaScript object without methods).
+
+:::tip
+The result agent can be used in both `run` and `handleError` functions and does not need `await`.
+
+See the [tutorial](/legacy/0.8/tutorials/error-handling-tip) for tips on using result agent for error handling.
+:::
+
+#### Example
+
+```typescript showLineNumbers
+ResultAgent.finalize({
+    status: "ok",
+    taskId: ctx.task.taskId,
+    data: {
+        name: "Arthur Dent",
+        age: 42,
+    },
+});
+```
+
+`status: "ok"` _is not_ the HTTP response code, but an user-defined field that indicates the task has been executed without issues.
+
+The finalised data will be
+
+```json
+{
+    "status": "ok",
+    "taskId": {
+        "executionId": "...",
+        "id": "..."
+    },
+    "data": {
+        "name": "Arthur Dent",
+        "age": 42
+    }
+}
+```

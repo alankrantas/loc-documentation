@@ -1,0 +1,69 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - Agent
+    - Context
+    - JavaScript
+    - TypeScript
+---
+
+# Context and Task
+
+Data **Context** is an object injected into logic functions at runtime, which containes some key components:
+
+-   [Task](#task) and execution-related information
+-   Trigger [payload](/legacy/0.7/sdk-reference/payload)
+
+Before LOC `v0.7.0`, agents are also part of the context object. Still, context, tasks and payloads have strong ties with agents and are in fact often used together.
+
+#### Availability
+
+-   ✓ Generic logic
+-   ✓ Aggregator logic
+
+## Context
+
+When a logic gets executed, a data context object `ctx` will be available in both `run` and `handleError` functions:
+
+```typescript showLineNumbers
+// highlight-next-line
+export async function run(ctx) {
+    // ctx is the data context
+}
+```
+
+## Task
+
+```typescript
+export async function run(ctx) {
+    // highlight-next-line
+    const task = ctx.task;
+}
+```
+
+A task is an execution of this particular data process.
+
+| Member           | Type                                                     | Description                            |
+| ---------------- | -------------------------------------------------------- | -------------------------------------- |
+| `taskId`         | `taskId`, which is `{ id: string, executionId: string }` | Task ID and execution ID               |
+| `startAt`        | `Date`                                                   | Task start date                        |
+| `dataProcess`    | `IdentityContext` (see below)                            | Data process permanent ID              |
+| `currentLogic`   | `IdentityContext`                                        | Current logic permanent ID             |
+| `executedLogics` | `Array<IdentityContext>`                                 | An array of identity of executed logic |
+
+Type `IdentityContext` represents the identity of a logic or a data process:
+
+| Member              | Type     | Description               |
+| ------------------- | -------- | ------------------------- |
+| `name`              | `string` | Name                      |
+| `permanentIdentity` | `string` | Permanent identity string |
+| `revision`          | `number` | Revision number           |
+
+#### Example
+
+```typescript showLineNumbers
+const taskId = ctx.task.taskId.id;
+const executionId = ctx.task.taskId.executionId;
+const pid = ctx.task.dataProcess.permanentIdentity;
+```

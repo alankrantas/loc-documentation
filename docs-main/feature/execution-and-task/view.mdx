@@ -1,0 +1,220 @@
+---
+sidebar_position: 2
+tags:
+    - LOC
+    - Execution
+    - Task
+---
+
+# Inspect Execution Result
+
+To view execution results of one or more data processes.
+
+## Execution Metadata and ID
+
+Each execution has an unique ID (regardless of its execution status) which can be used for searching. The ID can be found from the response returned by a [trigger](/main/category/trigger) or can be copied directly from a [manual execution result](/main/feature/data-process/execute).
+
+The following is an example of a JSON body of an API route response:
+
+```json
+{
+    "_status": 200,
+    "_metadata": {
+        // highlight-next-line
+        "executionId": "Y9oAGowUL-ALdKY7i6aljg",
+        "triggerType": "ApiRoute",
+        "triggerId": "00000000-0000-0000-0000-000000000000",
+        "creationTimestamp": "2024-01-01T00:00:00.000000Z",
+        "completionTimestamp": "2024-01-01T00:01:00.000000Z",
+        "status": "Complete"
+    },
+    "data": {
+        // combined task results
+    }
+}
+```
+
+:::info API Route Results
+An asynchronous API route still returns execution and trigger metadata but will not wait for task results.
+
+Only API routes will have the `_status` field, which can be configured using the result agent of the SDK. (Be noted that the `_status` field will always be `20x` in manual executions.)
+:::
+
+:::tip API Route Encapsulation
+For API routes, the execution and trigger metadata can be omitted (only return task results if any) by [setting encapsulation to false](/main/feature/trigger/api-route#create-an-api-route).
+:::
+
+For manual execution results in Studio, the execution ID will also show up in the execution result window:
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Execution-result-manual.png").default}
+        alt="Execution-result-manual"
+    />
+</div>
+
+:::info
+A manual execution result only contains the task result and the overall execution status.
+
+You can inspect the full execution result in the [execution result](#inspect-an-execution-result) section.
+:::
+
+## Execution Status
+
+For each execution or task comes with an execution status:
+
+import styles from "./css/execution-status.module.css";
+
+<table>
+    <tr>
+        <td>
+            <span className={`big-font ${styles.success}`}>●</span> Complete
+        </td>
+        <td>
+            An execution, task or logic had completed execution without errors
+            or timeout.
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <span className={`big-font ${styles.progress}`}>●</span> In Progress
+        </td>
+        <td>
+            An execution is still running due to execution of one of the task or
+            logic has not yet completed and timeout hasn't been reached.
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <span className={`big-font ${styles.warn}`}>●</span> Timeout
+        </td>
+        <td>
+            Execution time of one of the task had exceeded the data process'
+            timeout limit (default: 180 seconds).
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <span className={`big-font ${styles.error}`}>●</span> Execution
+            Error
+        </td>
+        <td>
+            For an execution, it indicates one of the task had reported{" "}
+            <code>Timeout</code>, <code>Complete with Error</code> or{" "}
+            <code>System Error</code>.
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <span className={`big-font ${styles.error}`}>●</span> Complete with
+            Error
+        </td>
+        <td>
+            <ol>
+                <li>
+                    For a logic, it indicates an error had been thrown in{" "}
+                    <code>run()</code> (and <code>handleError()</code> had been
+                    invoked).
+                </li>
+                <li>
+                    For a task, it indicates a logic had reported{" "}
+                    <code>Complete with Error</code> (and the aggregator logic
+                    had invoked <code>handleError()</code> and may return a
+                    different task result).
+                </li>
+            </ol>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <span className={`big-font ${styles.error}`}>●</span> System Error
+        </td>
+        <td>
+            <ol>
+                <li>
+                    For a logic, it indicates the logic cannot be executed due
+                    to syntax errors, bundle errors (for native logic) or{" "}
+                    <code>handleError()</code> had also threw an error.
+                </li>
+                <li>
+                    For a task, it indicates one of the logic had reported{" "}
+                    <code>System Error</code> and stopped the task (no task
+                    results available).
+                </li>
+            </ol>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <span className={`big-font ${styles.none}`}>●</span> Not Execute
+        </td>
+        <td>
+            Logic had skipped execution due to one previous logic in the task
+            had reported <code>System Error</code>.
+        </td>
+    </tr>
+</table>
+
+## Inspect an Execution Result
+
+A full execution result includes metadata of the execution, its tasks as well as logs from each task.
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="studio1" label="LOC Studio" default>
+
+1. In LOC Studio, go to **Data Discovery** ➞ **Execution History**.
+
+<div className="center-padded-sm">
+    <img src={require("./img/Nav-execution.png").default} alt="Nav-execution" />
+</div>
+
+2. Click on the trigger name of an execution result you are looking for.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Execution-result-browse.png").default}
+        alt="Execution-result-browse"
+    />
+</div>
+
+3. The execution result contains metadata of the trigger and all of its tasks. You can copy <img src={require("./img/Copy.png").default} width="20px" alt="Copy" className="img-bg" /> PIDs or preview <img src={require("./img/View.png").default} width="20px" alt="View" className="img-bg" /> the execution trigger payload (if any), execution result or one of the task results.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Execution-result.png").default}
+        alt="Execution-result"
+    />
+</div>
+
+4. Click the right arrow <img src={require("./img/Right.png").default} width="20px" alt="Right" className="img-bg" /> of a task to expand its logic.
+
+<div className="center-padded-sm">
+    <img
+        src={require("./img/Execution-result-expanded.png").default}
+        alt="Execution-result-expanded"
+    />
+</div>
+
+5. By default, only the first log (if any) will be displayed. Click **Preview** <img src={require("./img/View.png").default} width="20px" alt="View" className="img-bg" /> behind a logic to inspect the full logs.
+
+:::tip
+Logs can be written using the logging agent of the SDK. See: [Logging Agent](/main/feature/agent/agent-list#logging-agent).
+
+You can also click on a data process PID (permanent ID) to [inspect the data process](/main/feature/data-process/manage#browse-a-data-process), or click on a logic PID to inspect its [source code snapshot](/main/feature/logic/manage#inspect-a-logic).
+:::
+
+  </TabItem>
+</Tabs>
+
+### Re-Execute a Task
+
+<Tabs>
+  <TabItem value="studio2" label="LOC Studio" default>
+
+If a task of an execution **failed to complete** due to some error, an **Re-execute** <img src={require("./img/CaretRight.png").default} width="20px" alt="CaretRight" className="img-bg" /> button will show up to allow you to [manually execute](/main/feature/data-process/execute) the data process again.
+
+  </TabItem>
+</Tabs>

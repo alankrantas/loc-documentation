@@ -1,0 +1,206 @@
+---
+sidebar_position: 5
+tags:
+    - LOC
+    - SDK
+    - Agent
+    - Error Handling
+    - JavaScript
+    - TypeScript
+---
+
+# Logging Agent - JS/TS
+
+Write a log.
+
+| Logic Type       | Available |
+| ---------------- | --------- |
+| Generic logic    | ✅        |
+| Aggregator logic | ✅        |
+
+Logs will be collected in the task's task result and will look like this:
+
+```
+2023-12-31T12:59:59.000000000+00:00     Info    plaintext       some logging
+2024-01-01T01:00:00.000000000+00:00     Error   json            {"error":true,"errorMessage":"some error","stack":"Error: some error...","taskId":"..."}
+```
+
+:::info
+Logs output with `console.log()` will not show up in the execution result.
+:::
+
+## Import and Usage
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+
+```javascript showLineNumbers
+import {
+    // highlight-next-line
+    LoggingAgent,
+} from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx) {
+    LoggingAgent.info("some logging");
+}
+
+export async function handleError(ctx, error) {
+    LoggingAgent.error("some error");
+}
+```
+
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+
+```typescript showLineNumbers
+import {
+    // highlight-next-line
+    LoggingAgent,
+    GenericContext,
+    RailwayError,
+} from "@fstnetwork/loc-logic-sdk";
+
+export async function run(ctx: GenericContext) {
+    LoggingAgent.info("some logging");
+}
+
+export async function handleError(ctx: GenericContext, error: RailwayError) {
+    LoggingAgent.error("some error");
+}
+```
+
+  </TabItem>
+</Tabs>
+
+## Class Reference
+
+### Type
+
+-   `LoggingAgent`
+
+### Methods: Write a Log
+
+<Tabs>
+  <TabItem value="error" label="Error">
+
+```typescript
+error(value: string | object)
+```
+
+| Parameter | Description                                  |
+| --------- | -------------------------------------------- |
+| `value`   | A `string` message or JavaScript JSON object |
+
+Write a log with `Error` severity level.
+
+  </TabItem>
+  <TabItem value="warn" label="Warn">
+
+```typescript
+warn(value: string | object)
+```
+
+| Parameter | Description                                  |
+| --------- | -------------------------------------------- |
+| `value`   | A `string` message or JavaScript JSON object |
+
+Write a log with `Warn` severity level.
+
+  </TabItem>
+  <TabItem value="info" label="Info" default>
+
+```typescript
+info(value: string | object)
+```
+
+| Parameter | Description                                  |
+| --------- | -------------------------------------------- |
+| `value`   | A `string` message or JavaScript JSON object |
+
+Write a log with `Info` severity level.
+
+  </TabItem>
+  <TabItem value="debug" label="Debug">
+
+```typescript
+debug(value: string | object)
+```
+
+| Parameter | Description                                  |
+| --------- | -------------------------------------------- |
+| `value`   | A `string` message or JavaScript JSON object |
+
+Write a log with `Debug` severity level.
+
+  </TabItem>
+  <TabItem value="trace" label="Trace">
+
+```typescript
+trace(value: string | object)
+```
+
+| Parameter | Description                                  |
+| --------- | -------------------------------------------- |
+| `value`   | A `string` message or JavaScript JSON object |
+
+Write a log with `Trace` severity level.
+
+  </TabItem>
+  <TabItem value="log" label="log">
+
+```typescript
+log(level: string, value: string | object)
+```
+
+| Parameter | Description                                  |
+| --------- | -------------------------------------------- |
+| `level`   | Log severity level                           |
+| `value`   | A `string` message or JavaScript JSON object |
+
+Write a log with custom severity level.
+
+  </TabItem>
+</Tabs>
+
+:::warning
+Runtime will throw a JSON parsing error if the object cannot be serialised properly to JSON.
+
+You can try using `JSON.parse(JSON.stringify(object)` to transform an object with methods into a proper JSON object, although some fields may be different or discarded.
+:::
+
+The methods represent different logging severity levels:
+
+| Log Type | Level   |
+| -------- | ------- |
+| `Error`  | Highest |
+| `Warn`   |         |
+| `Info`   |         |
+| `Debug`  |         |
+| `Trace`  | Lowest  |
+
+## Examples
+
+### Write Logs
+
+```typescript showLineNumbers
+// log a string
+LoggingAgent.info("don't panic!");
+
+// log a JSON object
+LoggingAgent.error({
+    status: "error",
+    taskId: ctx.task.taskKey.taskId,
+    error: {
+        message: error.message,
+        stack: error.stack,
+    }
+    list: [
+        "item 1",
+        "item 2",
+        "item 3"
+    ],
+});
+```
