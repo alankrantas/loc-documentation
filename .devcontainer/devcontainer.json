@@ -11,8 +11,8 @@
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
     // "forwardPorts": [],
     // Use 'postCreateCommand' to run commands after the container is created.
-    // "updateContentCommand": "",
-    "postCreateCommand": "yarn",
+    "updateContentCommand": "yarn",
+    // "postCreateCommand": "yarn build",
     // Configure tool-specific properties.
     "customizations": {
         "vscode": {

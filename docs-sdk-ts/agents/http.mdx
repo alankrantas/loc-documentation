@@ -196,7 +196,13 @@ const response = await httpClient?.fetch("/api/path", {
     body: JSON.stringify(data), // convert body to string
 });
 
+// get HTTP status code
 const statusCode = response.status;
+
+// get headers
+const headers = Object.fromEntries(response.headers);
+const authorization = headers["Authorization"];
+const contentType = headers["Content-Type"];
 
 // if the response status is 2xx
 if (response.ok) {
@@ -204,10 +210,6 @@ if (response.ok) {
     const body = await response.text();
     // or get body as JSON object (you can only call one of them once):
     // const body = await response.json();
-
-    // get headers
-    const authorization = response.headers.has("Authorization");
-    const contentType = response.headers.get("Content-Type");
 
     // ...
 }

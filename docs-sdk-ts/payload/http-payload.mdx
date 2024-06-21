@@ -100,11 +100,17 @@ The parameters can be parsed using Web API `URLSearchParams`:
 ```javascript showLineNumbers
 const payload = await ctx.payload();
 
-const searchParams = new URLSearchParams(payload.http.request.query);
+const queryParams = Object.fromEntries(
+    new URLSearchParams(payload.http.request.query)
+);
 
-// get values (null if not exist)
-const name = searchParams.get("name");
-const age = searchParams.get("age");
+// get values (undefined if not exist)
+const name = queryParams.name;
+const age = queryParams.age;
+
+// or
+// const name = queryParams["name"];
+// const age = queryParams["age"];
 ```
 
   </TabItem>
@@ -122,11 +128,17 @@ const payload: { http: HttpPayload } = await ctx.payload();
 
 const query = payload.http.request.query;
 
-const searchParams = new URLSearchParams(payload.http.request.query);
+const queryParams = Object.fromEntries(
+    new URLSearchParams(payload.http.request.query)
+);
 
-// get values (null if not exist)
-const name = searchParams.get("name") as string;
-const age = searchParams.get("age") as number;
+// get values (undefined if not exist)
+const name = queryParams.name;
+const age = queryParams.age;
+
+// or
+// const name = queryParams["name"];
+// const age = queryParams["age"];
 ```
 
   </TabItem>
@@ -173,6 +185,11 @@ const name = parsed?.name;
 const age = parsed?.age;
 const title = parsed?.job?.title;
 
+// or
+// const name = parsed?.["name"];
+// const age = parsed?.["age"];
+// const title = parsed?.["job"]?.["title"];
+
 const quotes = parsed?.quotes;
 const firstQuote = quotes ? quotes[0] : null;
 for (const quote of quotes) {
@@ -214,6 +231,11 @@ if (data) {
 const name = parsed?.name;
 const age = parsed?.age;
 const title = parsed?.job?.title;
+
+// or
+// const name = parsed?.["name"];
+// const age = parsed?.["age"];
+// const title = parsed?.["job"]?.["title"];
 
 const quotes = parsed?.quotes;
 const firstQuote = quotes ? quotes[0] : null;
