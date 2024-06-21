@@ -257,28 +257,34 @@ var response = await httpClient.Post(new SendHttpRequest(
     )
 ));
 
+// get HTTP response status code
 int statusCode = (int) response.StatusCode;
 
+// get headers
+string authorization = "";
+if (response.Headers.Contains("Authorization")){
+    authorization = response.Headers.GetValues("Authorization").First().ToString();
+}
+string contentType = "";
+if (response.Headers.Contains("Content-Type")){
+    contentType = response.Headers.GetValues("Content-Type").First().ToString();
+}
+
 // if the response status is 2xx
+string? body = null;
+JsonNode? json = null;
 if (response.IsSuccessStatusCode)
 {
 
     // get response body as string
-    string body = await response.Content.ReadAsStringAsync();
+    body = await response.Content.ReadAsStringAsync();
 
-    // get headers
-    if (response.Headers.Contains("Authorization")){
-        string authorization = response.Headers.GetValues("Authorization").First().ToString();
-    }
-    if (response.Headers.Contains("Content-Type")){
-        string contentType = response.Headers.GetValues("Content-Type").First().ToString();
-    }
+    // try parse the body to JSON:
+    json = JsonNode.Parse(body);
 
     // ...
 }
 ```
-
-You can parse the body string into a JSON object (see the [examples](/sdk-csharp/payload/http-payload#examples) in parsing trigger HTTP payload).
 
 ## Advanced Examples
 

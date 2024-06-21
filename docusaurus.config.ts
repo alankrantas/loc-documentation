@@ -47,12 +47,6 @@ const config: Config = {
                     ],
                 },
 
-                // Google Analytics gtag
-                // gtag: {
-                //     trackingID: "G-TQQC5TNYVB",
-                //     anonymizeIP: true,
-                // },
-
                 sitemap: {
                     ignorePatterns: [
                         "/blog/**",
@@ -233,20 +227,20 @@ const config: Config = {
             isCloseable: false,
         },
 
-        image: "img/thumbnail.jpg",
+        // image: "img/thumbnail.jpg",
 
-        metadata: [
-            {
-                name: "description",
-                content:
-                    "Documentation for FST Network's Logic Operating Centre (LOC)",
-            },
-            {
-                name: "keywords",
-                content:
-                    "LOC, Logic Operating Centre, docs, documentation, logic, data process, data pipeline, data product, event, data lineage, data integration, ETL, ELT, data streaming, API management, active metadata management, data governance, data mesh, data fabric, cloud, container, Kubernetes, K8S, serverless, function as a service, microservice, RESTful, message queue, scheduled job",
-            },
-        ],
+        // metadata: [
+        //     {
+        //         name: "description",
+        //         content:
+        //             "Documentation for FST Network's Logic Operating Centre (LOC)",
+        //     },
+        //     {
+        //         name: "keywords",
+        //         content:
+        //             "LOC, Logic Operating Centre, docs, documentation, logic, data process, data pipeline, data product, event, data lineage, data integration, ETL, ELT, data streaming, API management, active metadata management, data governance, data mesh, data fabric, cloud, container, Kubernetes, K8S, serverless, function as a service, microservice, RESTful, message queue, scheduled job",
+        //     },
+        // ],
 
         // mermaid styles: https://github.com/mermaid-js/mermaid/blob/master/packages/mermaid/src/config.type.ts
         mermaid: {

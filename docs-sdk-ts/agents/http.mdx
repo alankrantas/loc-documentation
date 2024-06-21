@@ -196,7 +196,7 @@ const response = await httpClient?.fetch("/api/path", {
     body: JSON.stringify(data), // convert body to string
 });
 
-// get HTTP status code
+// get HTTP response status code
 const statusCode = response.status;
 
 // get headers
@@ -205,11 +205,13 @@ const authorization = headers["Authorization"];
 const contentType = headers["Content-Type"];
 
 // if the response status is 2xx
+let body = null;
 if (response.ok) {
     // get body as string
-    const body = await response.text();
-    // or get body as JSON object (you can only call one of them once):
-    // const body = await response.json();
+    body = await response.text();
+    
+    // or get body as JSON object (the response stream object can only be read once):
+    // body = await response.json();
 
     // ...
 }
