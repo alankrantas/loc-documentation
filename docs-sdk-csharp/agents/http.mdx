@@ -209,7 +209,18 @@ The second constructor accepts a [`HttpContent`](#httpcontent) object, which can
 ### GET Request with Querystring
 
 ```csharp showLineNumbers
-const string queryString = "name=Arthur-Dent&age=42";
+const string queryString = "name=Arthur+Dent&age=42";
+
+/* or:
+// using System.Web;
+// using System.Collections.Specialized;
+
+NameValueCollection queryParams = HttpUtility.ParseQueryString("");
+queryParams.Add("name", "Arthur+Dent");
+queryParams.Add("age", $"{42}");
+
+const string queryString = queryParams.ToString();
+*/
 
 var httpClient = await HttpAgent.Acquire("http-config-ref");
 

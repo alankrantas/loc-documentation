@@ -157,7 +157,16 @@ After calling `text()` or `json()`, the body (a `ReadableStream` object) will be
 ### GET Request with Querystring
 
 ```typescript showLineNumbers
-const queryString = "name=Arthur-Dent&age=42";
+const queryString = "name=Arthur+Dent&age=42";
+
+/* or:
+const params = {
+    name: "Arthur Dent",
+    age: 42
+};
+
+const queryString = new URLSearchParams(params).toString();
+*/
 
 const httpClient = await HttpAgent.acquire("http-config-ref");
 
