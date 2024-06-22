@@ -15,6 +15,7 @@ export const genericModuleListJS = [
     "DatabaseClient",
     "FileStorageAgent",
     "FileStorageAgentClient",
+    "Mail",
     "MailAgent",
     "MailAgentClient",
 ];
@@ -37,8 +38,8 @@ export const genericModuleListTS = [
     "DatabaseClient",
     "FileStorageAgent",
     "FileStorageAgentClient",
-    "MailAgent",
     "Mail",
+    "MailAgent",
     "MailAgentClient",
 ];
 
@@ -207,6 +208,7 @@ const logic_revision = ctx.task.currentLogic?.revision;
         label: "[Payload] read payload body",
         type: "both",
         value: `const payload = await ctx.payload();
+/** @type {number[]} */
 let data;
 if ("http" in payload) {  // check if it's HTTP payload
     data = payload.http.request.data;
@@ -220,6 +222,7 @@ if ("http" in payload) {  // check if it's HTTP payload
         label: "[Payload] read payload body and parse as JSON",
         type: "both",
         value: `const payload = await ctx.payload();
+/** @type {number[]} */
 let data;
 if ("http" in payload) {  // check if it's HTTP payload
     data = payload.http.request.data;
