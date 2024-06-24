@@ -3,7 +3,7 @@
     "cSpell.diagnosticLevel": "Warning",
     "cSpell.language": "en,en-GB",
     "cSpell.enableFiletypes": ["md", "mdx"],
-    "cSpell.ignorePaths": ["/docs/draft"],
+    "cSpell.ignorePaths": [],
     "cSpell.dictionaryDefinitions": [],
     "cSpell.dictionaries": [],
     "cSpell.words": [],
