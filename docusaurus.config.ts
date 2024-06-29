@@ -414,7 +414,7 @@ const config: Config = {
                         },
                         {
                             label: "About & Contact",
-                            to: "/docs/about-and-contact",
+                            to: "/docs/about",
                         },
                     ],
                 },
