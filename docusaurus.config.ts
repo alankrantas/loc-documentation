@@ -296,8 +296,8 @@ const config: Config = {
                             to: "/docs/category/system-faqs",
                         },
                         {
-                            label: "About & Contact",
-                            to: "/docs/about-and-contact",
+                            label: "About This Site",
+                            to: "/docs/about",
                         },
                     ],
                 },
