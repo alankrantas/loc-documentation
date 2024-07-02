@@ -3,6 +3,7 @@
         "ms-vscode.vscode-typescript-next",
         "streetsidesoftware.code-spell-checker",
         "davidanson.vscode-markdownlint",
-        "esbenp.prettier-vscode"
+        "esbenp.prettier-vscode",
+        "github.vscode-github-actions"
     ]
 }

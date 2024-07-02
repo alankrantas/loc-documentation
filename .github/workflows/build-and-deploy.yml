@@ -5,6 +5,8 @@ on:
         branches:
             - deprecated
     pull_request:
+        branches:
+            - deprecated
     workflow_dispatch:
 
 concurrency:
