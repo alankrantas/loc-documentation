@@ -21,7 +21,7 @@ jobs:
             - self-hosted
             - large
 
-        if: github.event_name != 'pull_request'
+        if: ${{ github.event_name != 'pull_request' }}
 
         steps:
             # checkout with Git history
@@ -90,7 +90,7 @@ jobs:
             - self-hosted
             - small
 
-        if: github.event_name != 'pull_request'
+        if: ${{ github.event_name != 'pull_request' }}
 
         needs:
             - image
