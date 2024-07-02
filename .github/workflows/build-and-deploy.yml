@@ -35,7 +35,7 @@ jobs:
             - name: Setup Nodejs
               uses: actions/setup-node@v4
               with:
-                  node-version: 20
+                  node-version: 'latest'
 
             # The production has to be built first then copied into the container
             # so that 'showLastUpdateTime' can work
