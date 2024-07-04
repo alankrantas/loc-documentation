@@ -2,7 +2,7 @@
 
 The user documentation for [FST Network](https://www.fst.network/)'s **Logic Operating Centre (LOC)**, built with React-based [Docusaurus 3.x](https://docusaurus.io/).
 
-> This is a preserved version of my contribution from Aug 2022 to July 2024 before leaving FST Network.
+> Archived as my contribution between Aug 2022 to July 2024
 
 ---
 
@@ -10,8 +10,8 @@ The user documentation for [FST Network](https://www.fst.network/)'s **Logic Ope
 
 ```bash
 npm i -g yarn
-git clone https://github.com/alankrantas/loc-doc.git
-cd loc-doc
+git clone https://github.com/alankrantas/loc-documentation.git
+cd loc-documentation
 yarn
 ```
 
