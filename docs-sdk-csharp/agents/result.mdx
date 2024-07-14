@@ -79,8 +79,6 @@ public async static Task SetResult(object result) {}
 
 Write an object to be serialised to JSON as the content of task result, which will be part of the execution result and may be returned to the user. The JSON data may be converted to other formats depending on the trigger configuration.
 
-:::
-
 :::warning
 Using objects of user-defined class will cause the fields not parsed properly. Use [**Dictionary**](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2?view=net-7.0) or [**JsonObject**](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonobject?view=net-7.0) instead.
 
