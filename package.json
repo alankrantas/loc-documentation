@@ -14,7 +14,8 @@
         "write-translations": "docusaurus write-translations",
         "write-heading-ids": "docusaurus write-heading-ids",
         "typecheck": "tsc",
-        "commit": "git pull origin main && git add . && git commit -m 'updating' && git push origin main"
+        "commit": "git pull origin main && git add . && git commit -m 'updating' && git push origin main",
+        "upgrade-all": "yarn-upgrade-all && yarn upgrade"
     },
     "dependencies": {
         "@docusaurus/core": "^3.4.0",
@@ -36,7 +37,8 @@
         "@docusaurus/tsconfig": "^3.4.0",
         "@docusaurus/types": "^3.4.0",
         "@types/react": "^18.3.3",
-        "typescript": "^5.5.3"
+        "typescript": "^5.5.3",
+        "yarn-upgrade-all": "^0.7.2"
     },
     "browserslist": {
         "production": [
