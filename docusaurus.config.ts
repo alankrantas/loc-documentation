@@ -221,7 +221,7 @@ const config: Config = {
         announcementBar: {
             id: "announcement",
             content:
-                "This is an archived version (July 2024) by <a href='https://alankrantas.github.io/' target='_blank'>Alan Wang</a>. For the latest version from FST Network, visit <a href='https://documentation.loc.fst.network/' target='_blank'>here</a>.",
+                "This is an <a href='/docs/about' target='_blank'>archived version</a> (July 2024) by <a href='https://alankrantas.github.io/' target='_blank'>Alan Wang</a>. For the latest version from FST Network, visit <a href='https://documentation.loc.fst.network/' target='_blank'>here</a>.",
             backgroundColor: "#1d97c1",
             textColor: "#ffffff",
             isCloseable: false,
