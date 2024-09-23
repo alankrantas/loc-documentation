@@ -11,7 +11,9 @@ updates:
     versioning-strategy: increase
 
   - package-ecosystem: 'docker'
-    directory: '/'
+    directories:
+      - 'dev-support/containers/local'
+      - 'dev-support/containers/nginx'
     schedule:
       interval: 'weekly'
       time: '09:00'
