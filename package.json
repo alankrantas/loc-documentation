@@ -24,7 +24,7 @@
         "@easyops-cn/docusaurus-search-local": "^0.44.5",
         "@mdx-js/react": "^3.0.1",
         "@monaco-editor/react": "^4.6.0",
-        "@rollup/browser": "^4.22.5",
+        "@rollup/browser": "^4.24.3",
         "clsx": "^2.1.1",
         "prism-react-renderer": "^2.4.0",
         "raw-loader": "^4.0.2",
