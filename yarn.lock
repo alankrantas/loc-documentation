@@ -2505,10 +2505,10 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.28.tgz#d45e01c4a56f143ee69c54dd6b12eade9e270a73"
   integrity sha512-8LduaNlMZGwdZ6qWrKlfa+2M4gahzFkprZiAt2TF8uS0qQgBizKXpXURqvTJ4WtmupWxaLqjRb2UCTe72mu+Aw==
 
-"@rollup/browser@^4.28.0":
-  version "4.28.0"
-  resolved "https://registry.yarnpkg.com/@rollup/browser/-/browser-4.28.0.tgz#8694497e26c697ea785eb5b00b271e27539d91c4"
-  integrity sha512-eByBZPFKR7ZC5S3SzbbV2Lyo5eHPHKATcbw8u2XijZx/I+WgWGthv6EKxSLhnjrbjQFwSGmVA2Vxdal6bfkQhA==
+"@rollup/browser@^4.29.1":
+  version "4.29.1"
+  resolved "https://registry.yarnpkg.com/@rollup/browser/-/browser-4.29.1.tgz#cff7566ec04d45c680e6965e37420022b47c8a67"
+  integrity sha512-CsDzu5HTqbY9++9B/jk6Ue/QzozVCnHqSau9ziD/x8nzxEfFsRniycDshZWaSGpHIqHn67PJbwFea83Nu6FQfQ==
   dependencies:
     "@types/estree" "1.0.6"
 
