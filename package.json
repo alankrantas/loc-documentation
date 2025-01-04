@@ -18,9 +18,9 @@
         "upgrade-all": "yarn-upgrade-all && yarn upgrade"
     },
     "dependencies": {
-        "@docusaurus/core": "^3.6.3",
-        "@docusaurus/preset-classic": "^3.6.3",
-        "@docusaurus/theme-mermaid": "^3.6.3",
+        "@docusaurus/core": "^3.7.0",
+        "@docusaurus/preset-classic": "^3.7.0",
+        "@docusaurus/theme-mermaid": "^3.7.0",
         "@easyops-cn/docusaurus-search-local": "^0.46.1",
         "@mdx-js/react": "^3.1.0",
         "@monaco-editor/react": "^4.6.0",
@@ -33,9 +33,9 @@
         "react-select": "^5.9.0"
     },
     "devDependencies": {
-        "@docusaurus/module-type-aliases": "^3.6.3",
-        "@docusaurus/tsconfig": "^3.6.3",
-        "@docusaurus/types": "^3.6.3",
+        "@docusaurus/module-type-aliases": "^3.7.0",
+        "@docusaurus/tsconfig": "^3.7.0",
+        "@docusaurus/types": "^3.7.0",
         "@types/react": "^18.3.12",
         "typescript": "^5.7.2",
         "yarn-upgrade-all": "^0.7.4"
