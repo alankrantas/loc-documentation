@@ -18,7 +18,7 @@
         "upgrade-all": "yarn-upgrade-all && yarn upgrade"
     },
     "dependencies": {
-        "@docusaurus/core": "^3.6.3",
+        "@docusaurus/core": "^3.7.0",
         "@docusaurus/preset-classic": "^3.6.3",
         "@docusaurus/theme-mermaid": "^3.6.3",
         "@easyops-cn/docusaurus-search-local": "^0.46.1",
