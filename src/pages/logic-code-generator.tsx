@@ -26,7 +26,7 @@ const LogicCodeGeneratorPage = (): JSX.Element => {
                         <p>
                             LOC Logic helper tool for JavaScript/TypeScript
                             logic targeting{" "}
-                            <Link to="/sdk-ts">
+                            <Link to="/main/feature/logic/unit-test">
                                 <b>SDK for JS/TS</b> <code>0.10.0</code>
                             </Link>
                             .
