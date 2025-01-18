@@ -49,9 +49,9 @@ The whole "Hello World" data process would be like this:
 
 ```mermaid
 flowchart LR;
-    n1((JSON\npayload))-->|Invoke|n2;
-    n2{{Hello World\ndata process}}-->|Respond|n3;
-    n3((JSON\nresponse));
+    n1((JSON<br>payload))-->|Invoke|n2;
+    n2{{Hello World<br>data process}}-->|Respond|n3;
+    n3((JSON<br>response));
 ```
 
 import Tabs from "@theme/Tabs";
@@ -92,10 +92,10 @@ In the quickstart tutorial, our "Hello World" data process has one each generic 
 flowchart TD;
     n1((JSON payload))-->n3;
     subgraph Hello World data process
-    n3["Payload JSON Parser\n(generic logic)"]-->|parsed JSON|n4;
-    n4["Greeting\n(generic logic)"]-->|greeting message|n5;
+    n3["Payload JSON Parser<br>(generic logic)"]-->|parsed JSON|n4;
+    n4["Greeting<br>(generic logic)"]-->|greeting message|n5;
     end
-    n5["Result Aggregator\n(aggregator logic)"]-->|finalised result|n6((JSON response));
+    n5["Result Aggregator<br>(aggregator logic)"]-->|finalised result|n6((JSON response));
 ```
 
 In order to create and execute the data process, we'll need to create the three logic first. The two general-purpose logic are also reusable in our other tutorials.

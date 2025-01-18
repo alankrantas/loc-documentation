@@ -15,14 +15,14 @@ An overview of the concept and purpose of LOC triggers.
 
 ```mermaid
 flowchart LR;
-    n1{"HTTP\nclient"}-.->n4;
-    n2{"Message\nqueue client"}-.->n5;
+    n1{"HTTP<br>client"}-.->n4;
+    n2{"Message<br>queue client"}-.->n5;
     n3((Scheduler))-.->n6;
     n4{{API route}}-->|execute|n7;
-    n5{{"Message\nqueue"}}-->|execute|n7;
+    n5{{"Message<br>queue"}}-->|execute|n7;
     n6{{Schedule}}-->|execute|n7;
-    n7["Data\nprocess"]-.->|finalise|n8;
-    n8(["Task\nresult"]);
+    n7["Data<br>process"]-.->|finalise|n8;
+    n8(["Task<br>result"]);
 ```
 
 :::info Trigger Broker

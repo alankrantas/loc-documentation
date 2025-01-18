@@ -27,7 +27,7 @@ flowchart LR;
     n3[Data Process #2];
     end
     end
-    n4(["Execution\nresult"]);
+    n4(["Execution<br>result"]);
     n2-->|task result|n4;
     n3-->|task result|n4;
 ```
@@ -67,7 +67,7 @@ flowchart TD;
     n3[Generic #3 ❌]-->n4;
     n4[Aggregator ❌];
     end
-    n5(("LOC\nruntime"));
+    n5(("LOC<br>runtime"));
     n6(Compiled with Error ❌);
     n5-.->|"execute"|n1;
     n5-.->|"execute (<b>ERROR!</b>)"|n2;

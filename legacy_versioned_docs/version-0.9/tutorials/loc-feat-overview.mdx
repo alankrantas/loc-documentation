@@ -55,13 +55,13 @@ In LOC, the hierarchy of projects, scenarios, data processes and logic are arran
 
 ```mermaid
 flowchart TD;
-    n0{{"Unit/\nWorkspace"}}----|contains|n1;
+    n0{{"Unit/<br>Workspace"}}----|contains|n1;
     n1{{Project}}----|contains|n2;
     n2{{Scenario}}----|contains|n3;
-    n3[Data\nprocess]----|links with|n4;
-    n3[Data\nprocess]----|links with|n5;
-    n4[Generic\nlogic]
-    n5[Aggergator\nlogic]
+    n3[Data<br>process]----|links with|n4;
+    n3[Data<br>process]----|links with|n5;
+    n4[Generic<br>logic]
+    n5[Aggergator<br>logic]
     n6((User))-.creates and owns.->n1;
     n6-.creates and owns.->n2;
     n6-.creates and owns.->n3;
@@ -115,10 +115,10 @@ A data process always has _at least one_ generic logic and _only one_ aggreggaro
 flowchart LR;
     subgraph "Data process (data pipeline)"
     direction LR
-    n1[Generic\nlogic 1]-->n2;
-    n2[Generic\nlogic 2]-->n3;
-    n3[Generic\nlogic 3]-->n4;
-    n4[Aggregator\nlogic];
+    n1[Generic<br>logic 1]-->n2;
+    n2[Generic<br>logic 2]-->n3;
+    n3[Generic<br>logic 3]-->n4;
+    n4[Aggregator<br>logic];
     end
     n4-.->n5;
     n5([Task result]);
@@ -144,13 +144,13 @@ The same logic can be shared between more thah one data processes:
 
 ```mermaid
 flowchart TD;
-    n1[[Data\nprocess 1]];
-    n2[[Data\nprocess 2]];
-    n4[Generic\nlogic 1]-->|links to|n1;
+    n1[[Data<br>process 1]];
+    n2[[Data<br>process 2]];
+    n4[Generic<br>logic 1]-->|links to|n1;
     n4-->|links to|n2;
-    n5[Generic\nlogic 2]-->|links to|n2;
-    n7[Aggregator\nlogic 1]-->|links to|n1;
-    n8[Aggregator\nlogic 2]-->|links to|n2;
+    n5[Generic<br>logic 2]-->|links to|n2;
+    n7[Aggregator<br>logic 1]-->|links to|n1;
+    n8[Aggregator<br>logic 2]-->|links to|n2;
 ```
 
 LOC thus llows you to create common, reusable logic modules to reduce duplicated code, logic coupling as well as development time. Of course, how and what to modularise your code really depends on use cases of your business and Data.
@@ -304,8 +304,8 @@ flowchart TD;
     n4((Trigger broker))-->|start execution|n5;
     n5([LOC runtime])-->|run task|n8;
     n5([LOC runtime])-->|run task|n9;
-    n6{HTTP\nclient}-.HTTP request.->n1;
-    n7{MQ\nclient}-.MQ message.->n2;
+    n6{HTTP<br>client}-.HTTP request.->n1;
+    n7{MQ<br>client}-.MQ message.->n2;
     n8[Task]-.task result.->n4;
     n9[Task]-.task result.->n4;
 ```
@@ -328,13 +328,13 @@ Ideally, an event represents a **business logic event** and the metadata can be 
 
 ```mermaid
 flowchart TD;
-    n0[Logic 1 in\ndata process 1]-->|emit event|n2;
-    n1[Logic 2 in\ndata process 2]-->|emit event|n2;
+    n0[Logic 1 in<br>data process 1]-->|emit event|n2;
+    n1[Logic 2 in<br>data process 2]-->|emit event|n2;
     n2{{Event agent}}-->n3;
     n3-->n2;
     n3[(Event store)]-->|generate data lineage|n4;
-    n4([Data Discovery\nin LOC Studio]);
-    n2-->|query event|n5[Logic 3 in\ndata process 3];
+    n4([Data Discovery<br>in LOC Studio]);
+    n2-->|query event|n5[Logic 3 in<br>data process 3];
 ```
 
 You can read the following tutorials to learn more about using events:

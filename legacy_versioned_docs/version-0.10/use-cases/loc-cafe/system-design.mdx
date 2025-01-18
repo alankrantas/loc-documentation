@@ -128,10 +128,10 @@ flowchart TD;
     n2[DP: deliverOrderDP]-->|Result|n1;
     end
     n1-->|Result|n0;
-    n1-.->|Emit|n4(Event:\nplaceOrder);
-    n1-.->|Emit|n5(Event:\nsetOrder);
+    n1-.->|Emit|n4(Event:<br>placeOrder);
+    n1-.->|Emit|n5(Event:<br>setOrder);
     n2-.->|Query|n5;
-    n2-.->|Emit|n6(Event:\ndeliverOrder);
+    n2-.->|Emit|n6(Event:<br>deliverOrder);
 ```
 
 ---
@@ -156,7 +156,7 @@ flowchart TD;
     n3([API route: /loc-cafe/deliver-order])-->|Execute|n4;
     n4[DP: deliverOrderDP];
     end
-    n5{Single DP\nexecution}-->|Execute with order payload|n2;
+    n5{Single DP<br>execution}-->|Execute with order payload|n2;
 ```
 
 ---

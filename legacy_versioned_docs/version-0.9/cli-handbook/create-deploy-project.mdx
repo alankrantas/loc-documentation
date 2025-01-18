@@ -19,14 +19,14 @@ In this article we'll see how to create and deploy a data process (as well as th
 
 ```mermaid
 flowchart TD;
-    n4["Initialise a workspace\n[loc init]"]-->n5;
+    n4["Initialise a workspace<br>[loc init]"]-->n5;
     n4-->n6;
-    n5["Create logic\n[loc logic create]"]-->n7;
-    n6["Create project and scenario\n[loc project create]\n[loc scenario create]"]-->n8;
-    n7["Build logic\n[loc logic build]"];
-    n8["Create data process\n[loc dp create]"]-->n9;
-    n9["Edit data process\n[loc dp edit]"]-->n10;
-    n10["Deploy project\n[loc project deploy]"];
+    n5["Create logic<br>[loc logic create]"]-->n7;
+    n6["Create project and scenario<br>[loc project create]<br>[loc scenario create]"]-->n8;
+    n7["Build logic<br>[loc logic build]"];
+    n8["Create data process<br>[loc dp create]"]-->n9;
+    n9["Edit data process<br>[loc dp edit]"]-->n10;
+    n10["Deploy project<br>[loc project deploy]"];
     n9-.linking.->n7;
 ```
 

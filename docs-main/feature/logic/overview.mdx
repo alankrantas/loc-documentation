@@ -28,10 +28,10 @@ A data process has **at least one generic logic** and **only one aggregator logi
 flowchart LR;
     subgraph "Data Process"
     direction LR
-    n1["Generic\nlogic #1"]-->n2;
-    n2["Generic\nlogic #2"]-->n3;
-    n3["Generic\nlogic #3"]-->n4;
-    n4["Aggregator\nlogic"];
+    n1["Generic<br>logic #1"]-->n2;
+    n2["Generic<br>logic #2"]-->n3;
+    n3["Generic<br>logic #3"]-->n4;
+    n4["Aggregator<br>logic"];
     end
 ```
 
@@ -44,16 +44,16 @@ A logic is, in fact, a _compiled asset_ based on a source script called **entry 
 ```mermaid
 flowchart LR;
     subgraph "Logic"
-    n1["Generic\nlogic A"];
-    n2["Generic\nlogic B"];
+    n1["Generic<br>logic A"];
+    n2["Generic<br>logic B"];
     end
     subgraph "Logic Source"
-    n4["JS\nentry file"]-.->|"build\n(revision n)"|n1;
-    n4-.->|"build\n(revision k)"|n2;
-    n5["C#\nentry file"]-.->|"build\n(revision k+1)"|n2;
+    n4["JS<br>entry file"]-.->|"build<br>(revision n)"|n1;
+    n4-.->|"build<br>(revision k)"|n2;
+    n5["C#<br>entry file"]-.->|"build<br>(revision k+1)"|n2;
     end
-    n6["Data process\nA"];
-    n7["Data process\nB"];
+    n6["Data process<br>A"];
+    n7["Data process<br>B"];
     n1-.->|linked|n6;
     n2-.->|linked|n6;
     n2-.->|linked|n7;
