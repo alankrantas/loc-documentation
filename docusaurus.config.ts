@@ -47,16 +47,16 @@ const config: Config = {
                     ],
                 },
 
-                // sitemap: {
-                //     ignorePatterns: [
-                //         "/blog/**",
-                //         "/docs/*.*.*/**",
-                //         "/main/*.*.*/**",
-                //         "/sdk-*/*.*.*/**",
-                //         "/legacy/**",
-                //     ],
-                //     filename: "sitemap.xml",
-                // },
+                sitemap: {
+                    ignorePatterns: [
+                        "/blog/**",
+                        "/docs/*.*.*/**",
+                        "/main/*.*.*/**",
+                        "/sdk-*/*.*.*/**",
+                        "/legacy/**",
+                    ],
+                    filename: "sitemap.xml",
+                },
             } satisfies Preset.Options,
         ],
     ],
@@ -221,26 +221,26 @@ const config: Config = {
         announcementBar: {
             id: "announcement",
             content:
-                "This is the archived version (July 2024) by <a href='https://alankrantas.github.io/' target='_blank'>Alan Wang</a> for FST Network. See <a href='/docs/about' target='_blank'>here</a> for details.",
+                "This is the archived version (July 2024) by <a href='https://github.com/alankrantas' target='_blank'>Alan Wang</a> for FST Network. See <a href='/docs/about' target='_blank'>here</a> for details.",
             backgroundColor: "#1d97c1",
             textColor: "#ffffff",
             isCloseable: false,
         },
 
-        // image: "img/thumbnail.jpg",
+        image: "img/thumbnail.jpg",
 
-        // metadata: [
-        //     {
-        //         name: "description",
-        //         content:
-        //             "Documentation for FST Network's Logic Operating Centre (LOC)",
-        //     },
-        //     {
-        //         name: "keywords",
-        //         content:
-        //             "LOC, Logic Operating Centre, docs, documentation, logic, data process, data pipeline, data product, event, data lineage, data integration, ETL, ELT, data streaming, API management, active metadata management, data governance, data mesh, data fabric, cloud, container, Kubernetes, K8S, serverless, function as a service, microservice, RESTful, message queue, scheduled job",
-        //     },
-        // ],
+        metadata: [
+            {
+                name: "description",
+                content:
+                    "Documentation for FST Network's Logic Operating Centre (LOC) (Archived Site)",
+            },
+            {
+                name: "keywords",
+                content:
+                    "LOC, Logic Operating Centre, docs, documentation, logic, data process, data pipeline, data product, event, data lineage, data integration, ETL, ELT, data streaming, API management, active metadata management, data governance, data mesh, data fabric, cloud, container, Kubernetes, K8S, serverless, function as a service, microservice, RESTful, message queue, scheduled job",
+            },
+        ],
 
         // mermaid styles: https://github.com/mermaid-js/mermaid/blob/master/packages/mermaid/src/config.type.ts
         mermaid: {
@@ -413,7 +413,7 @@ const config: Config = {
                             to: "/docs/category/system-faqs",
                         },
                         {
-                            label: "About & Contact",
+                            label: "About",
                             to: "/docs/about",
                         },
                     ],
@@ -467,7 +467,7 @@ const config: Config = {
                 },
             ],
 
-            copyright: `Copyright ©${2024} FST Network Pte. Ltd.`,
+            copyright: `Copyright ©2024 FST Network Pte. Ltd.`,
         },
     } satisfies Preset.ThemeConfig,
 };
