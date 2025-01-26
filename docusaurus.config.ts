@@ -3,7 +3,7 @@ import type * as Preset from "@docusaurus/preset-classic";
 import { themes as prismThemes } from "prism-react-renderer";
 
 const config: Config = {
-    title: "Documentation for Logic Operating Centre (LOC)",
+    title: "Documentation for Logic Operating Centre (LOC) (Archived Site)",
     tagline: "The Next Step of Evolving Data",
     favicon: "/img/logo/favicon.ico",
     url:
@@ -221,7 +221,7 @@ const config: Config = {
         announcementBar: {
             id: "announcement",
             content:
-                "This is the archived version (July 2024) by <a href='https://github.com/alankrantas' target='_blank'>Alan Wang</a> for FST Network. See <a href='/docs/about' target='_blank'>here</a> for details.",
+                "This is the archived site (July 2024) by <a href='https://github.com/alankrantas' target='_blank'>Alan Wang</a> for FST Network. See <a href='/docs/about' target='_blank'>here</a> for details.",
             backgroundColor: "#1d97c1",
             textColor: "#ffffff",
             isCloseable: false,
