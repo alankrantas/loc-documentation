@@ -238,7 +238,11 @@ const config: Config = {
             {
                 name: "keywords",
                 content:
-                    "LOC, Logic Operating Centre, docs, documentation, logic, data process, data pipeline, data product, event, data lineage, data integration, ETL, ELT, data streaming, API management, active metadata management, data governance, data mesh, data fabric, cloud, container, Kubernetes, K8S, serverless, function as a service, microservice, RESTful, message queue, scheduled job",
+                    "LOC, Logic Operating Centre, docs, documents, documentation, logic, data process, data pipeline, data product, event, data lineage, data integration, ETL, ELT, data streaming, API management, active metadata management, data governance, data mesh, data fabric, cloud, container, Kubernetes, K8S, serverless, function as a service, microservice, RESTful, message queue, scheduled job",
+            },
+            {
+                name: "google-site-verification",
+                content: "qWbCBsMbE1qi0a6bXkbrQqlaAUvDcgFJPDcm8ZV9iQo",
             },
         ],
 
