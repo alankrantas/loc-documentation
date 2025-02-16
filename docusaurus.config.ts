@@ -57,6 +57,12 @@ const config: Config = {
                     ],
                     filename: "sitemap.xml",
                 },
+
+                gtag: {
+                    trackingID: 'G-VR3LGD85TR',
+                    anonymizeIP: true,
+                },
+                
             } satisfies Preset.Options,
         ],
     ],
