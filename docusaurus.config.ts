@@ -60,7 +60,7 @@ const config: Config = {
 
                 gtag: {
                     trackingID: 'G-VR3LGD85TR',
-                    anonymizeIP: true,
+                    anonymizeIP: false,
                 },
                 
             } satisfies Preset.Options,
@@ -213,6 +213,12 @@ const config: Config = {
                 searchResultLimits: 10,
                 searchResultContextMaxLength: 200,
                 searchBarPosition: "right",
+            },
+        ],
+        [
+            "vercel-analytics",
+            {
+              mode: "production",
             },
         ],
     ],
