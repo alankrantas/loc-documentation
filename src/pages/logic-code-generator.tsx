@@ -28,8 +28,8 @@ const LogicCodeGeneratorPage = (): JSX.Element => {
                             logic targeting{" "}
                             <Link to="/main/feature/logic/unit-test">
                                 <b>SDK for JS/TS</b> <code>0.10.0</code>
-                            </Link>
-                            .
+                            </Link>{" "}
+                            developed by Alan Wang
                         </p>
                         <p>
                             <Admonition
@@ -38,7 +38,7 @@ const LogicCodeGeneratorPage = (): JSX.Element => {
                             >
                                 <p>
                                     This tool runs with a{" "}
-                                    <i>mocked logic runtime</i>
+                                    <i>mocked logic runtime</i>{" "}
                                     which may behave differently as in LOC. This
                                     is also completely browser-based and will
                                     not collect any information you've
