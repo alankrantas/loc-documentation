@@ -48,13 +48,6 @@ const config: Config = {
                 },
 
                 sitemap: {
-                    ignorePatterns: [
-                        "/blog/**",
-                        "/docs/*.*.*/**",
-                        "/main/*.*.*/**",
-                        "/sdk-*/*.*.*/**",
-                        "/legacy/**",
-                    ],
                     filename: "sitemap.xml",
                 },
 
