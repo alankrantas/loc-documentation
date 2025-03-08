@@ -211,7 +211,7 @@ const config: Config = {
         [
             "vercel-analytics",
             {
-              mode: "production",
+                mode: "production",
             },
         ],
     ],
