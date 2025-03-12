@@ -1,4 +1,4 @@
-# [LOC Documentation (Archived)](https://loc-documentation.vercel.app/)
+# [LOC Documentation](https://loc-documentation.vercel.app/) (Archived)
 
 The end-user documentation project for [FST Network](https://www.fst.network/)'s _Logic Operating Centre_ (LOC), a.k.a. **LOC-Doc**, built with React-based [Docusaurus 3.x](https://docusaurus.io/).
 
