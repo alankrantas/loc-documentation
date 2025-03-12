@@ -10,14 +10,14 @@ The end-user documentation project for [FST Network](https://www.fst.network/)'s
 
 Due to the requirement of multiple versioning in LOC, LOC-Doc current serve the following docs:
 
-| Docs Folder        | Root Routing Path | Docs ID      | Docs                              | [Versioning](https://docusaurus.io/docs/versioning) |
-| ------------------ | ----------------- | ------------ | --------------------------------- | --------------------------------------------------- |
-| `/src/pages`       | `/`               |              | General pages without sidebars    | No                                                  |
-| `/docs`            | `/docs`           | `default`    | General docs have sidebars        | No                                                  |
-| `/docs-main`       | `/main`           | `main`       | LOC (Core, Studio, CLI) main docs | Yes                                                 |
-| `/docs-sdk-ts`     | `/sdk-ts`         | `sdk-ts`     | SDK for JS/TS docs                | Yes                                                 |
-| `/docs-sdk-csharp` | `/sdk-csharp`     | `sdk-csharp` | SDK for C# docs                   | Yes                                                 |
-| `/docs-legacy`     | `/legacy/intro`   | `legacy`     | Legacy docs                       | Yes (will not add new versions)                     |
+| Docs Folder        | Root Routing Path | Docs ID      | Docs                              | Versioning                          |
+| ------------------ | ----------------- | ------------ | --------------------------------- | ----------------------------------- |
+| `/src/pages`       | `/`               |              | General pages without sidebars    | No                                  |
+| `/docs`            | `/docs`           | `default`    | General docs with sidebars        | No                                  |
+| `/docs-main`       | `/main`           | `main`       | LOC (Core, Studio, CLI) main docs | Yes (`v1.0`)                        |
+| `/docs-sdk-ts`     | `/sdk-ts`         | `sdk-ts`     | SDK for JS/TS docs                | Yes (`v0.10`)                       |
+| `/docs-sdk-csharp` | `/sdk-csharp`     | `sdk-csharp` | SDK for C# docs                   | Yes (`v0.1`)                        |
+| `/docs-legacy`     | `/legacy/intro`   | `legacy`     | Legacy docs                       | Yes (`0.6`~`0.10`; no new versions) |
 
 ---
 
