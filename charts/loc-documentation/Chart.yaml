@@ -1,9 +1,0 @@
-apiVersion: v2
-name: loc-documentation
-description: A Helm chart for LOC documentation
-type: application
-version: 1.0.0
-appVersion: "1.0.0"
-maintainers:
-  - name: fstnetwork
-    email: dev@fstk.io
