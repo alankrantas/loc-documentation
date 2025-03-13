@@ -63,9 +63,9 @@ docker run -d -p 8080:8080 --rm loc-doc
 Many had contributed valuable feedback for this project, and developed the very product it documented. Many of them stayed until the end when the company encountered financial difficulties:
 
 - [Leo Chou](https://www.linkedin.com/in/leo-chou-fstk), COO then CPO
-- [Josh Chu](https://www.linkedin.com/in/joshchu999), the first dev lead & ScrumMaster (who also contributed the AWS ECR deployment workflow)
-- [David Lee](https://www.linkedin.com/in/david-ying-ray-lee-480395ba), the second dev lead, test engineer
-- [Renhao Xiao](https://www.linkedin.com/in/renhao-xiao-2b7599129), back-end engineer, SRE & DevOps
+- [Josh Chu](https://www.linkedin.com/in/joshchu999), the first dev lead, ScrumMaster (who also contributed the AWS ECR deployment workflow)
+- [David Lee](https://www.linkedin.com/in/david-ying-ray-lee-480395ba), the second dev lead, test engineer and DevOps
+- [Renhao Xiao](https://www.linkedin.com/in/renhao-xiao-2b7599129), back-end engineer, SRE and DevOps
 - [Ken Lee](https://www.linkedin.com/in/ken-lee-305455143), front-end engineer
 - [Tara Huang](https://www.linkedin.com/in/tara-huang-73964b117), SRE
 - [Jessica Wu](https://www.linkedin.com/in/jessica-wu-b6964214b), UI/UX designer
