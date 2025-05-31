@@ -2393,10 +2393,10 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.28.tgz#d45e01c4a56f143ee69c54dd6b12eade9e270a73"
   integrity sha512-8LduaNlMZGwdZ6qWrKlfa+2M4gahzFkprZiAt2TF8uS0qQgBizKXpXURqvTJ4WtmupWxaLqjRb2UCTe72mu+Aw==
 
-"@rollup/browser@^4.40.1":
-  version "4.40.1"
-  resolved "https://registry.yarnpkg.com/@rollup/browser/-/browser-4.40.1.tgz#ec8cdbcf1c3c50a555eb853d378f55090140b4b7"
-  integrity sha512-tVql4XvsnbMKPNGh88MYcOn2KBvuDTo4cWfO7njhx+VKUtM2d0eGc3Gzc0r0ZDbZ+gvWFdoMplUW4D+/dmG4LQ==
+"@rollup/browser@^4.41.1":
+  version "4.41.1"
+  resolved "https://registry.yarnpkg.com/@rollup/browser/-/browser-4.41.1.tgz#2fbd4fbe452f42b3f69c43377480728b84547794"
+  integrity sha512-YtEoMNsVoCGMlmMZYV0bjIF8iZCiJpc8bDTVyWpoDWopCYquKWUhTeRSbRXjnIRUtPO8CkBg87NwGpXFUqv8pQ==
   dependencies:
     "@types/estree" "1.0.7"
 
