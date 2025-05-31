@@ -1594,7 +1594,7 @@
     webpack-dev-server "^4.15.2"
     webpack-merge "^6.0.1"
 
-"@docusaurus/core@^3.8.0":
+"@docusaurus/core@3.8.0", "@docusaurus/core@^3.8.0":
   version "3.8.0"
   resolved "https://registry.yarnpkg.com/@docusaurus/core/-/core-3.8.0.tgz#79d5e1084415c8834a8a5cb87162ca13f52fe147"
   integrity sha512-c7u6zFELmSGPEP9WSubhVDjgnpiHgDqMh1qVdCB7rTflh4Jx0msTYmMiO91Ez0KtHj4sIsDsASnjwfJ2IZp3Vw==
@@ -1897,16 +1897,16 @@
     tslib "^2.6.0"
     webpack "^5.88.1"
 
-"@docusaurus/plugin-vercel-analytics@^3.7.0":
-  version "3.7.0"
-  resolved "https://registry.yarnpkg.com/@docusaurus/plugin-vercel-analytics/-/plugin-vercel-analytics-3.7.0.tgz#ddbd1f11baeb32d262e843143256b65dcb14956d"
-  integrity sha512-zEOsqNI3oj4WRO9Dbzsar9fctwAl60PZJqhu14X5W3z5zT/E1TFKrHW/oJHU/a1r5o9K2cFsSNdDn2tyuaFJoQ==
+"@docusaurus/plugin-vercel-analytics@^3.8.0":
+  version "3.8.0"
+  resolved "https://registry.yarnpkg.com/@docusaurus/plugin-vercel-analytics/-/plugin-vercel-analytics-3.8.0.tgz#a26ae8dbd199af3b973555cea792e0d8684402be"
+  integrity sha512-ioTkyEGmkZnjlc0ky7spsUPHkzOwIRo3zlgaYT53U7IqAkoxfsVCSB+nwCr+l0WAKik+MjooOClORWA7GCJBcw==
   dependencies:
-    "@docusaurus/core" "3.7.0"
-    "@docusaurus/logger" "3.7.0"
-    "@docusaurus/types" "3.7.0"
-    "@docusaurus/utils" "3.7.0"
-    "@docusaurus/utils-validation" "3.7.0"
+    "@docusaurus/core" "3.8.0"
+    "@docusaurus/logger" "3.8.0"
+    "@docusaurus/types" "3.8.0"
+    "@docusaurus/utils" "3.8.0"
+    "@docusaurus/utils-validation" "3.8.0"
     "@vercel/analytics" "^1.1.1"
     tslib "^2.6.0"
 
