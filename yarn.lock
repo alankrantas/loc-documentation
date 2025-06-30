@@ -2417,12 +2417,12 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.28.tgz#d45e01c4a56f143ee69c54dd6b12eade9e270a73"
   integrity sha512-8LduaNlMZGwdZ6qWrKlfa+2M4gahzFkprZiAt2TF8uS0qQgBizKXpXURqvTJ4WtmupWxaLqjRb2UCTe72mu+Aw==
 
-"@rollup/browser@4.42.0":
-  version "4.42.0"
-  resolved "https://registry.yarnpkg.com/@rollup/browser/-/browser-4.42.0.tgz#4fc31e921fd0f94f2387a015106c640047313f3f"
-  integrity sha512-88ieOqkyElbONwM0FFYeYX6srR2I614FBbVUQM+adCdUgQx0JhHJuED08+9ZZxJBI7qof5vyjDOJ8E0KqMVtfw==
+"@rollup/browser@4.44.1":
+  version "4.44.1"
+  resolved "https://registry.yarnpkg.com/@rollup/browser/-/browser-4.44.1.tgz#add6b35075a38bb9abe97b3d3a8119930499790b"
+  integrity sha512-x3ns7Hy29v4AVIXmPeGVAgOgkunTp2ghK1awKVSMH8UhO3G0ISW37d9bD3uDFzTYrPOEufbyfBOJodQnbQ5H8Q==
   dependencies:
-    "@types/estree" "1.0.7"
+    "@types/estree" "1.0.8"
 
 "@sideway/address@^4.1.5":
   version "4.1.5"
@@ -2867,10 +2867,10 @@
   dependencies:
     "@types/estree" "*"
 
-"@types/estree@*", "@types/estree@1.0.7", "@types/estree@^1.0.0", "@types/estree@^1.0.6":
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/@types/estree/-/estree-1.0.7.tgz#4158d3105276773d5b7695cd4834b1722e4f37a8"
-  integrity sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ==
+"@types/estree@*", "@types/estree@1.0.8", "@types/estree@^1.0.0", "@types/estree@^1.0.6":
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/@types/estree/-/estree-1.0.8.tgz#958b91c991b1867ced318bedea0e215ee050726e"
+  integrity sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==
 
 "@types/express-serve-static-core@*", "@types/express-serve-static-core@^5.0.0":
   version "5.0.6"
