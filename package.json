@@ -37,7 +37,7 @@
         "@docusaurus/module-type-aliases": "^3.8.1",
         "@docusaurus/tsconfig": "^3.8.1",
         "@docusaurus/types": "^3.8.1",
-        "@types/react": "^19.1.8",
+        "@types/react": "^19.1.12",
         "typescript": "^5.9.2",
         "yarn-upgrade-all": "^0.7.4"
     },
